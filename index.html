@@ -1,0 +1,23 @@
+<h1>Threax Hypermedia Framework and Architecture</h1>
+<p>These pages describe how the Threax Hypermedia Framework and Architecture works. The framework is implemented in C# with ASP.Net Core and runs on Windows, Linux and Mac OS. However, the architectural concepts work in any language.</p>
+<h2>Goals</h2>
+<ul>
+	<li>Single source of user identity management so individual apps and apis do not have to deal with users.
+	<ul>
+		<li>Handle different user types, such as a human and application user as the same type.</li>
+	</ul></li>
+	<li>All logic that any system can perform is put behind a rest api powered by HATEOAS.
+	<ul>
+		<li>This provides an abstraction of business logic from UI where UI can be a website, a mobile app, a job task or really anything else.</li>
+		<li>HATEOAS (Hypermedia As The Engine Of Application State) is used to inform the&nbsp;client of what actions can be taken.</li>
+	</ul></li>
+	<li>Use the highest possible level of automation.
+	<ul>
+		<li>Where possible generate edit uis, tables, api client definitions etc.</li>
+		<li>Provide tools to generate a useful starting point for each piece of data.</li>
+		<li>Deployment automation that can manage released versions of our software and do any building that is nessecery.</li>
+	</ul></li>
+	<li>Have maintainable client side as well as server side code by using languages with strong types.</li>
+	<li>Be as async as possible for speed.</li>
+	<li>Scale from small apps with a few records to large apps with millions of them.</li>
+</ul>

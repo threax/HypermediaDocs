@@ -1,0 +1,33 @@
+<h1>Adding Timezone Support</h1>
+<p>By default the applications will just use whatever time is present in a DateTime object as the time when displaying on the ui. This isn&#39;t too bad if everything is in the same time zone, but it usually isn&#39;t. Also we are using Utc times internally as much as possible, so these don&#39;t ever match American time zones. In order to help with this htmlrapier and its date time widget have been updated to support time zones automatically. The user can define a time zone for a piece of data in its input or view model and the ui will automatically handle the conversions back and forth. It uses moment-timezone.js, so it should handle daylight savings time etc.</p>
+<h2>Install Updates</h2>
+<p>You need to be on Threax.AspNetCore.Models 6.4.0 or greater for your nuget packages.</p>
+<p>You need to be on htmlrapier.bootstrap.datetime 3.3.0 and htmlrapier 19.2.1 or greater for your yarn packages.</p>
+<h2>Enabling Libraries</h2>
+<p>By default the moment-timezone.js library is not included in the javascript bundle. Its pretty large and adds up to 120k to the javascript size, which is a big jump. There are 2 choices to get moment-timezone included with your javascript. If you are going to use timezones on most of your pages go ahead and add it to the main app bundle. However, if there are only some pages, say for example you have a high traffic form that doesn&#39;t need timezones, but a lower traffic admin side that does. In that case just include the timezone library directly on those pages and don&#39;t include it in the bundle.</p>
+<p>If moment-timezone is not available on a page timezones will not be localized and a warning will be logged to the console. Everything will still display to the user without errors, but the times will not be converted.</p>
+<h3>Add moment-timezone to the Bundle</h3>
+<p>If you want to use moment-timezone in your javascript bundle do the following:</p>
+<p>Go to your bundleconfig.json in the root of your project.</p>
+<p>In the input files section for the bundle.min.js add the following:</p>
+<p><code>&quot;wwwroot/lib/moment-timezone/builds/moment-timezone-with-data.min.js&quot;,</code></p>
+<p>after the line that includes moment.js.</p>
+<p>That will activate moment-timezone.js. If you try to use the timezone attribute without this enabled you will get errors in the log and your times will not be converted. Your pages should still work correctly, however.</p>
+<h3>Include moment-timezone On a Page</h3>
+<p>To just use moment-timezone on a specific page add the following code to the .cshtml file</p>
+<p><code>@section scripts
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; &lt;script type=&quot;text/javascript&quot; src=&quot;~/lib/moment-timezone/builds/moment-timezone-with-data.min.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;
+	<br />}</code></p>
+<h2>Use the Attribute</h2>
+<p>Now that you have everything you need you can just use the attribute on your DateTime properties you want to change timezones for. If you don&#39;t care about timezones you can continue to use the auto discovery by having no attribute otherwise use one of the following:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DateTimeUiType(DateTimeUiTypeAttribute.Timezones.UTC)]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public DateTime ThingHappenedTime { get; set; }</code></p>
+<p>This makes the docs say that ThingHappenedTime has a data timezone of utc. When you only specify the data timezone the user&#39;s timezone will be discovered from their browser. If for some reason you need to force the display timezone use the following instead:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DateTimeUiType(DateTimeUiTypeAttribute.Timezones.UTC, DateTimeUiTypeAttribute.Timezones.America_New_York)]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public DateTime ThingHappenedTime { get; set; }</code></p>
+<p>This will set the display timezone to America/New_York no matter what the user&#39;s browser&#39;s timezone is.</p>
+<p>You will likely want to define your timezones on both your input and view models. Htmlrapier supports timezones on both views and forms, so you should be able to use it everywhere seamlessly.</p>
+<h2>Caveats</h2>
+<p>This is a pretty good way of doing timezones, but there is nothing that actually enforces that you use the timezone you say you are using. My reccomendation is to only ever use UtcNow or equivalent when programming with dates. Let the UI handle the conversion back and forth just before the data is displayed or just after is is read from the ui.</p>
+<p>It should be possible to use other base times besides utc, but that would be rediculously hard.</p>

@@ -1,0 +1,58 @@
+<h1>Installing Tools</h1>
+<p>You will need to install the following to get everything to work. This page shows using Visual Studio, but all you really need is the .Net Core SDK. With that you can use your preferred tools, you will just have to run some commands yourself.</p>
+<h2>Git</h2>
+<p>If you don&#39;t have git on your computer install <a href="https://gitforwindows.org/">Git for Windows</a> and <a href="https://tortoisegit.org/">TortoiseGit</a>. Use your real name and spc e-mail when prompted.</p>
+<p>I also reccomend using the Windows Secure Channel Library when asked while installing git. Also choose Use Windows&#39; default console window when asked.</p>
+<h2>Visual Studio</h2>
+<p>Install Visual Studio 2019 Community. <a href="https://visualstudio.microsoft.com/downloads/" target="_blank">Download</a></p>
+<ol>
+	<li>When doing this you can select just .net core way at the bottom under Other Toolsets.</li>
+	<li>Its a good idea to install the .net core 2.2 development tools. This may change if newer versions are available.
+	<br /><img class="fitImage" src="/AutoUploads\eb88cbfd-a14b-4833-a19e-d51e0d33285c.png" /></li>
+	<li>Click Install and wait while Visual Studio is installed.</li>
+	<li>When it is done installing open Visual Studio.</li>
+</ol>
+<h2>Client Side Development Tools</h2>
+<p>Next we will install the tools you need to make the client side stuff compile.</p>
+<p>Make sure to run&nbsp;any commands below in a regular command prompt, not the Visual Studio Command Prompt.</p>
+<ol>
+	<li>Install the NPM Task Runner plugin for Visual Studio. <a href="https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner" target="_blank">Download</a></li>
+	<li>Also install Node.js latest reccomended version (10.15.0 lts at time of writing). <a href="https://nodejs.org/en/"><u><font color="#0066cc">Download</font></u></a></li>
+	<li>Next install a couple of other node pacakages we use, which we install through npm
+	<ol>
+		<li>Install typescript&nbsp;globally <code>npm install -g typescript</code></li>
+		<li>Install the threax-npm-tk globally as well <code>npm install -g threax-npm-tk</code></li>
+	</ol></li>
+</ol>
+<h2>Configure Visual Studio</h2>
+<p>Once these are installed you must configure Visual Studio.</p>
+<ol>
+	<li>Search for <code>External Web Tools</code> in the Search Visual Studio box (Look in for it next to Help or press Ctrl + q).</li>
+	<li>Make the order the following, if you have extras leave them at the end.
+	<ol>
+		<li>.\node_modules\.bin</li>
+		<li>$(PATH)</li>
+		<li>$(VSInstalledExternalTools)</li>
+		<li>$(VSINSTALLDIR)\Web\External</li>
+		<li>$(VSINSTALLDIR)\Web\External\git
+		<br /><img class="fitImage" src="/AutoUploads\b66d342d-7cdc-43b1-8d81-da1e40d698b9.png" />
+		<br />You should have something similar to this screenshot when you are done.</li>
+	</ol></li>
+</ol>
+<h3>Setup Additional Tools</h3>
+<p>The task runner explorer you installed above can be opened by typing <code>Task Runner Explorer</code> into the Quick Launch.</p>
+<p><img class="fitImage" src="/AutoUploads\9b7ff806-77c3-4482-baea-a0a320d6bb1b.png" /></p>
+<p>This can be used to run any of the client side build process scripts defined in your project.</p>
+<p>You can also open the Test Explorer by typing Test Explorer into the quick launch.</p>
+<p><img class="fitImage" src="/AutoUploads\d93c5590-82a2-4779-a205-794b7690381b.png" /></p>
+<p>This will show any tests in your project and allow you to run them.</p>
+<h2>Clone and Build the Template</h2>
+<p>The best project to test your environment with is the <a href="https://github.com/threax/Threax.AspNetCore.Template" target="_blank">Threax.AspNetCore.Template</a> project.</p>
+<p>Clone the template to your machine with git from <a href="https://github.com/threax/Threax.AspNetCore.Template.git">https://github.com/threax/Threax.AspNetCore.Template.git</a></p>
+<p>Open AppTemplate.sln in Visual Studio.</p>
+<p>Run the <strong>install</strong> task from Task Runner Explorer.</p>
+<p>Click <strong>Build</strong> -&gt; <strong>Rebuild Solution</strong>. This will probably take a while on the first try since it has to load a bunch of stuff from nuget.</p>
+<p>Double Click <strong>build</strong> in the <strong>Task Runner Explorer</strong> to build the client side.</p>
+<p>You should be able to run the app template and it should load the welcome page with correct css. If you try to do anything on this site you will get an error because the&nbsp;identity server is not setup, but the app itself should run. If you are prompted to trust the certificate do so. That will setup your machine to trust the dev certificate.</p>
+<p>All of this should work without errors.</p>
+<p>At this point all of the tools you need to build projects should be setup. The next step will be to get the&nbsp;identity server installed and configured.</p>

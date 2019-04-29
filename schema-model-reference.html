@@ -1,0 +1,39 @@
+<h1>Schema Model Reference</h1>
+<p>This page describes all the attributes you can use when creating a Schema Model. These are attributes that the model generator will understand and use to customize the output classes.</p>
+<h2>Setting Up the Class</h2>
+<p>In order for a class to work as a schema it must be written in a particular way. The minimal definition is:</p>
+<p><code>using System;
+	<br />using System.Collections.Generic;
+	<br />using System.ComponentModel.DataAnnotations;
+	<br />using System.Text;
+	<br />using Threax.AspNetCore.Models;</code></p>
+<p><code>namespace YOUR_NAMESPACE.ModelSchemas
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; public abstract class Value
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String Name { get; set; }
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>This creates a class in the ModelSchemas namespace inside your app&#39;s namespace. The full name of this class is the value you will pass in when caling the model generator. That program will look up the type you provide in your app and generate from it. You can write whatever properties you want and mark them with the attributes below.</p>
+<h2>Attributes</h2>
+<p><strong>[PluralName(&quot;Geese&quot;)]</strong> - Set the name of the model&#39;s plural name. Apply this to the class.</p>
+<p><strong>[RequireAuthorization(typeof(Roles), nameof(Roles.EditValues))]</strong> - Make the generated controllers require the described permission. There are 2 versions of this attribute, the first takes just a string and uses that as the attribute name directly. The second version takes the type of the role class and the name of the role you want to provide. This will setup the controllers to use the constants defined in this class. This second version is considered more robust and should be used. The example shown is for this version.</p>
+<p><strong>[Required]</strong> - Mark that the property is required.</p>
+<p><strong>[MaxLength(450)]</strong> - Set the max length of the property.</p>
+<p><strong>[Display(Name = &quot;Pretty Name&quot;)]</strong> - The model definitions will do a pretty good job of creating pretty names. However, if you need to control it yourself use this attribute on the property you want to rename.</p>
+<p><strong>[Queryable]</strong> - Set the targeted property to show up in the Query class for the model as well. By default anything that is Queryable will show up on the ui and will not be required, you can customize this when writing the attribute.</p>
+<p><strong>[AbstractOnEntity]</strong> - Set the targeted property to be abstract on the generated Entity class. You will have to implement the property on your side of the entity class, but this will allow you to add additional attributes not supported by the model generator.</p>
+<p><strong>[AbstractOnInputModel]</strong> - Same as AbstractOnEntity, but for input models.</p>
+<p><strong>[AbstractOnQuery]</strong> - Same as AbstractOnEntity, but for queries.</p>
+<p><strong>[AbstractOnViewModel]</strong> - Same as AbstractOnEntity, but for view models.</p>
+<p><strong>[DefineNullValueLabel]</strong> - Define the label to use for null if this property has choices that can include null.</p>
+<p><strong>[KeyName]</strong> - Define the name of the key property for a model. Otherwise defaults to ModelId.</p>
+<p><strong>[KeyType]</strong> - Define the type for the key. Otherwise defaults to Guid.</p>
+<p><strong>[NoEntity]</strong> - Can be applied to a class or property. If applied to a class the system will not generate an Entity for that model. Otherwise the specified property will not be included.</p>
+<p><strong>[NoInputModel]</strong> - Same as NoEntity, but for input models.</p>
+<p><strong>[NoViewModel]</strong> - Same as NoEntity, but for view models.</p>
+<p><strong>[RequireAuthorization]</strong> - This attribute will make the generated controllers (both ui and api) for this model require authorization with a specific role. There are 2 constructors for this, the first takes and hard codes a role name. The second is designed to link the role to a Roles class where you define constants for the names of the roles. This is already setup in the template as the Roles class. This is the reccomended approach and the attribute should be defined as <code>[RequireAuthorization(typeof(Roles), nameof(Roles.TargetRole))]</code>.</p>
+<p><strong>[UiControllerName]</strong> - Change the ui controller this model becomes a part of. By default this is Home, but you can use this attribute to make an Admin controller or other grouping if you need to.</p>
+<p><strong>[DefineValueProvider(typeof(TheType))]</strong> - Define a value provider for the property this is defined on. Make sure your value provider class exists and has been injected.</p>
+<p><strong>[UiOrder]</strong> - Place this on your attributes to automatically pick up the line number from the schema model and use that in your generated models as the order. By specifying this for every property in your model you can control the order by rearranging the elements here and regenerating your models.</p>
+<p><strong>[Tracking(created: false, modified: false)]</strong> - Don&#39;t generate tracking attributes set to false. All are enabled by default.</p>

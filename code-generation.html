@@ -1,0 +1,8 @@
+<h1>Code Generation</h1>
+<p>This diagram shows how each step in the code generation process works as you are working on your app. The arrows show what is generated from what when the labeled command is run.</p>
+<p><img class="fitImage" src="/AutoUploads\3cbd9368-e23c-4fdb-8064-b541d753343c.png" /></p>
+<p>This shows that you need to change your schema, then run the threax-modelgen tool, which will generate your application classes.</p>
+<p>From these classes additional code generation is run by the ef tools, which generate migrations, which are applied to the database when you run setupdb.</p>
+<p>Running Update Client generates the language specific clients for the hypermedia api formed by your application classes.</p>
+<p>The application classes are used at runtime to generate custom endpoint documentation that is unique to each user and describes what they can do on a particular endpoint.</p>
+<p>The endpoint docs are used to create the forms and crud tables using Html Rapier on the client side at runtime.</p>

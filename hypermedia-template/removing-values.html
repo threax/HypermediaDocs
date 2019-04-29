@@ -1,0 +1,48 @@
+<h1>Removing Values</h1>
+<p>Usually you won&#39;t want the built in values classes. Models can be removed with the threax-modelgen tool as well, but this will only erase the classes that this would have created on its own. You will have to erase the values ui off of the _Layout page in Views/Shared.</p>
+<h2>Removing Model Classes</h2>
+<p>In the package manager console run the command <code>dotnet threax-modelgen remove YourAppNamespace.ModelSchemas.Model</code></p>
+<p>This will remove most of the values classes.</p>
+<h2>Additional Compilation Issues</h2>
+<p>Also fix the compilation issues in the following files by removing the lines with the errors:</p>
+<ul>
+	<li><strong>AppDatabaseServiceExtensions.cs</strong>
+	<ul>
+		<li>Erase the mappings for Values in SetupMappings()</li>
+		<li>Erase the ValueCreator function.</li>
+	</ul></li>
+	<li><strong>Roles.cs</strong> - Remove the EditValues role for the example you can set the roles class to the following:
+	<pre style="background: rgb(255, 255, 255); color: rgb(0, 0, 0);"><span style="color: rgb(105, 105, 105);">/// &lt;summary&gt;</span>
+<span style="color: rgb(105, 105, 105);">/// This class makes it easy to keep track of role constants throught the system.</span>
+<span style="color: rgb(105, 105, 105);">/// &lt;/summary&gt;</span>
+<span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">static</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">class</span> Roles
+<span style="color: rgb(128, 0, 128);">{</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;summary&gt;</span>
+    <span style="color: rgb(105, 105, 105);">/// All roles, any roles added above as constants should be yield returned here.</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;/summary&gt;</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;returns&gt;&lt;/returns&gt;</span>
+    <span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">static</span> IEnumerable<span style="color: rgb(128, 128, 48);">&lt;</span><span style="color: rgb(121, 121, 151);">String</span><span style="color: rgb(128, 128, 48);">&gt;</span> All<span style="color: rgb(128, 128, 48);">(</span><span style="color: rgb(128, 128, 48);">)</span>
+    <span style="color: rgb(128, 0, 128);">{</span>
+        <span style="color: rgb(128, 0, 0); font-weight: bold;">yield</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">break</span><span style="color: rgb(128, 0, 128);">;</span>
+    <span style="color: rgb(128, 0, 128);">}</span>
+<span style="color: rgb(128, 0, 128);">}</span>
+
+<span style="color: rgb(128, 128, 48);">[</span>HalModel<span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalSelfActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>GetUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>SetUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>DeleteUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">class</span> RoleAssignments <span style="color: rgb(128, 0, 128);">:</span> ReflectedRoleAssignments
+<span style="color: rgb(128, 0, 128);">{</span>
+        
+<span style="color: rgb(128, 0, 128);">}</span></pre></li>
+	<li><strong>Views\Shared\_Layout.cshtml</strong> - Remove the link to the Values page from the navbar.</li>
+</ul>
+<p>Building now should build the app sucessfully.</p>
+<h2>Updating Migrations</h2>
+<p>Now that the code can build again run <code>dotnet ef migrations add removevalues</code> in the Package Manager Console.</p>
+<h2>Updating Database</h2>
+<p>Change the program start mode to SetupDb and run the application. This will migrate the database and remove the Values table.</p>
+<h2>Update Client</h2>
+<p>Change the program start mode to UpdateClient and run the application. This will update Client\Libs\ServiceClient.ts to remove the Values classes.</p>
+<h2>Conclusion</h2>
+<p>This is all the work to remove the values model. Other models can be removed by following these steps as well. You can also erase the ModelSchemas\Values.cs file if you want.</p>

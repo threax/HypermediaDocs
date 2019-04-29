@@ -1,0 +1,64 @@
+<h1>Upgrading to HtmlRapier 19 and Bootstrap 4</h1>
+<p>This document will describe how to update to HtmlRapier 19 and along with that either update to Bootstrap 4 or keep Bootstrap 3, but make the needed changes to the famework so you can keep updating the rest of your front end scipts. It is ideal to upgrade to bootstrap 4 as only that will get new features from here on out, but 3 will be supported for the forseeable future.</p>
+<p>If you decide to go to bootstrap 4 you will have to change some html in your app. You can stay on 3 and do these upgrades with no additional work.</p>
+<h2>Upgrade Nuget Packages</h2>
+<p>Update the nuget package&nbsp;<strong>HtmlRapier.TagHelpers</strong>. This part may have already been done, if so your app will also have the code from the sections below.</p>
+<h3>Keep Using Bootstrap 3</h3>
+<p>To keep using bootstrap 3 just add the following code to your Startup.cs. Replace any existing call to <strong>ConfigureHtmlRapierTagHelpers</strong>. This will instruct the HtmlRapier.TagHelpers library to use Bootstrap 3 mode.</p>
+<p><code>services.ConfigureHtmlRapierTagHelpers(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; o.FrontEndLibrary = HtmlRapier.TagHelpers.FrontEndLibrary.Bootstrap3;
+	<br />});</code></p>
+<p>This will set everything up. If you are going to keep using Bootstrap 3 you are done.</p>
+<h3>Use Bootstrap 4</h3>
+<p>If you are going to use Bootstrap 4 replace your call to&nbsp;ConfigureHtmlRapierTagHelpers with:</p>
+<p><code>services.ConfigureHtmlRapierTagHelpers(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; o.FrontEndLibrary = HtmlRapier.TagHelpers.FrontEndLibrary.Bootstrap4;
+	<br />});</code></p>
+<p>This will instruct&nbsp;the library&nbsp;to use Bootstrap 4 instead.</p>
+<h2>Upgrade Client Side Libraries</h2>
+<p>Update the following libraries to the given versions, if a new higher one is available, use that instead. You will do these updates no matter which verison of bootstrap you want to stay on.</p>
+<p><code>&quot;htmlrapier&quot;: &quot;^19.0.0&quot;,
+	<br />&quot;htmlrapier.bootstrap&quot;: &quot;^7.0.0&quot;,
+	<br />&quot;htmlrapier.bootstrap.datetime&quot;: &quot;^3.1.0&quot;,</code></p>
+<p>Next you need to update your <strong>bundleconfig.json</strong> to handle the changes to htmlrapier.bootstrap.datetime. The location of the css file has changed and the javascript is now compiled with the rest of our typescript.</p>
+<p>In the bundle.min.css section change the line:</p>
+<p><code>&quot;wwwroot/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css&quot;</code></p>
+<p>to:</p>
+<p><code>&quot;wwwroot/lib/htmlrapier.bootstrap.datetime/css/bootstrap-datetimepicker.css&quot;</code></p>
+<p>In the bundle.min.js section remove the line:</p>
+<p><code>&quot;wwwroot/lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js&quot;,</code></p>
+<p>The reason htmlrapier went to version 19 was because it no longer includes the components needed to use the formbuilder. You will need to add the appropriate package to your project to get this to work, which we will do below depending on your version of bootstrap.</p>
+<h3>Keep Using Bootstrap 3</h3>
+<p>If you don&#39;t want to upgrade to bootstrap 4 add the following package to your package.json to bring in the bootstrap 3 form components. If you are going to update to Bootstrap 4 skip to the next section.</p>
+<p><code>&quot;htmlrapier.form.bootstrap3&quot;: &quot;^1.0.0&quot;,</code></p>
+<p>You should&nbsp;be on the threax.bootstrap library version 1.0.0.</p>
+<p><code>&quot;threax.bootstrap&quot;: &quot;^1.0.0&quot;,</code></p>
+<p>After you do this run the following commands.</p>
+<p><font color="#c7254e" face="Consolas" style="background-color: rgb(249, 242, 244);">npm install</font></p>
+<p>Get the latest version of all packages.</p>
+<p><font color="#c7254e" face="Consolas" style="background-color: rgb(249, 242, 244);">npm upgrade</font></p>
+<p>This helps keep the lockfile updated and will grab any other updates you might have.</p>
+<p>In the task runner explorer run the <code>import-tsconfig</code> task and then run <code>build</code>.</p>
+<p>If you are staying on bootstrap 3 you are finished. You should go to one of your crud pages and make sure that the auto generated forms still work.</p>
+<h3>Use Bootstrap 4</h3>
+<p>In your package.json find your entry for&nbsp;threax.bootstrap and replace it with:</p>
+<p><code>&quot;threax.bootstrap4&quot;: &quot;^0.0.1&quot;,</code></p>
+<p>Add the form package for bootstrap 4.</p>
+<p><code>&quot;htmlrapier.form.bootstrap4&quot;: &quot;^1.0.0&quot;,</code></p>
+<p>Also erase bootstrap from the resolutions section in package.json or it will try to stay on version 3.</p>
+<p>After you do this run the following commands.</p>
+<p><font color="#c7254e" face="Consolas" style="background-color: rgb(249, 242, 244);">npm install</font></p>
+<p>Get the latest version of all packages.</p>
+<p><font color="#c7254e" face="Consolas" style="background-color: rgb(249, 242, 244);">npm upgrade</font></p>
+<p>This helps keep the lockfile updated and will grab any other updates you might have.</p>
+<p>In the task runner explorer run the <code>import-tsconfig</code> task.</p>
+<h3>Change app.less to app.scss</h3>
+<p>Rename the Client\Less folder to Client\Scss.</p>
+<p>Rename app.less to app.scss. If you have custom css and it is in less format change it to css format.</p>
+<h3>Upgrade threax-npm-tk</h3>
+<p>You should install the latest threax-npm-tk on your computer so you can compile the sass files in bootstrap. Just run&nbsp;<code>npm install -g&nbsp;threax-npm-tk</code> from any command line. You only need to do this once.</p>
+<p>Now that all of your client side code is updated and you have the latest tools you should be able to run the <code>build</code> task in the task runner explorer and it should work correctly. The next step will be to update some of the html in your app to work with Bootstrap 4.</p>
+<h2>Updating Markup</h2>
+<p>A lot of the markup is already fixed from the tag helpers. However, you will probably still have to fix some things yourself. Visit your site and see what needs to be changed. At the very least you will probably need to upgrade the navbars.</p>

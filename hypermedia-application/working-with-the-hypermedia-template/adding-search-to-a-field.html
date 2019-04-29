@@ -1,0 +1,64 @@
+<h1>Adding Search to a Field</h1>
+<p>This page will show you how to turn an individual field in your application into a search box. This is useful if you want to provide data from an external source, but there is far too much data to load into a ValueProvider. A good example of this is the user accounts.</p>
+<h2>Add the SearchValue Attribute to Your Model</h2>
+<p>First you need to add the SearchValue attribute to your model. Usually you will use 2 fields for this. The first would be the id, likely a guid, that you store in your database. The second is a property that contains the actual current value. You will need to add both of these to your input and view models. You then define a SearchValue attribute that defines how this works for htmlrapier.</p>
+<p>An example of a user search would have the following properties. UserId is defined as [AbstractOnInputModel] and [AbstractOnViewModel] in the model schema. Add the following code to the input and view models you want to add search to.</p>
+<p><code>[SearchValue(&quot;UserSearch&quot;, CurrentValuePropertyName = nameof(Name))]
+	<br />public override Guid UserId { get; set; }</code></p>
+<p><code>[HiddenUiType]
+	<br />public string Name { get; set; }</code></p>
+<p>This sets the UserId field to be a search box. It will tell htmlrapier to use a search provider called UserSearch, which we will set up a bit later. It also tells the front end that the current value needed is on the Name property. The name property itself is setup as a hidden ui so it wont appear on the forms and it is not actually used or stored in the database. The entity class does not have a Name property, instead this is looked up from the authority when the data is accessed.</p>
+<h2>Add a Search Endpoint to your API</h2>
+<p>You might not need to do this if you already have an appropriate api endpoint you can call, but for our user search example we need to forward the search onto the authority. To do this add a function like the following. Have it search whatever you actually need it to for your use case.</p>
+<p><code>[HttpGet(&quot;[action]&quot;)]
+	<br />[HalRel(nameof(FindUsers))]
+	<br />public async Task&lt;SupportInfoUserCollection&gt; FindUsers([FromQuery] SupportInfoUserQuery query, [FromServices] IUserSearchService userSearchService)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; //This is empty, but it reads from the authority to search users, do whatever search you need for your app here
+	<br />}</code></p>
+<p>Also add the link to this to the entry point. Set the controller and action method names appropriately.</p>
+<p><code>[HalActionLink(typeof(SupportInfosController), nameof(SupportInfosController.FindUsers), &quot;FindUsers&quot;)]</code></p>
+<h2>Load the Current Values in your Repository</h2>
+<p>The next step would be to load the current value into Name when loading values in your repository. This usually takes the form of loading the page of data you need into a list and then getting the unique ids for that page and then loading them from whatever the external source is. This is highly app depenent, but the idea is to load something user understandable into the Name property (or whatever you used as your current value property).</p>
+<h2>Create a User Search Service in Typescript</h2>
+<p>After the above steps are done run your program in UpdateClient mode to add the api to your client.</p>
+<p>Next you need to create a search service that will perform the search when the user types something into the box on the UI. Create a file in your Client/Libs folder and write a class similar to the following in it. Call the appropriate functions on your api to do this.</p>
+<p><code>import * as formBuilder from &#39;hr.formbuilder&#39;;
+	<br />import * as iterable from &#39;hr.iterable&#39;;
+	<br />import * as controller from &#39;hr.controller&#39;;
+	<br />import * as client from &#39;clientlibs.ServiceClient&#39;;</code></p>
+<p><code>export class UserSearch {
+	<br />&nbsp;&nbsp;&nbsp; public static get InjectorArgs(): controller.DiFunction&lt;any&gt;[] {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [client.EntryPointInjector];
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; constructor(private injector: client.EntryPointInjector) {</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public async search(args: formBuilder.ISearchArgs): Promise&lt;iterable.IterableInterface&lt;formBuilder.SearchResult&gt;&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var entry = await this.injector.load();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var otherValue = args.getFormValue(&quot;name&quot;);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var results = await entry.findUsers({
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; limit: 10,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; searchTerm: args.searchTerm
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new iterable.Iterable(results.items).select(i =&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var item: formBuilder.SearchResult = {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; title: i.data.name,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; value: i.data.userId,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return item;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p><code>export function addServices(builder: controller.InjectedControllerBuilder) {
+	<br />&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(UserSearch, UserSearch);
+	<br />&nbsp;&nbsp;&nbsp; formBuilder.SearchResultProvider.addFactory(&quot;UserSearch&quot;, () =&gt; builder.createUnbound(UserSearch));
+	<br />}</code></p>
+<p>The idea here is to write the class and do the appropriate search inside the search funciton. This will return the list of values that the ui will display. The addServices function will register the search provider with htmlrapier with the same name &quot;UserSearch&quot; we defined when we made the property searchable above.</p>
+<h2>Setup the Search Provider on Your Page</h2>
+<p>The final step is to actually register the search provider with the app. You can do this in Client\Libs\Startup.ts if you want to always have it on every page, or you can do it on the code behind file for an individual page.</p>
+<p>First import the search service you created:</p>
+<p><code>import * as userSearch from &#39;clientlibs.UserSearch&#39;;</code></p>
+<p>Then add the services before creating the crud table:</p>
+<p><code>userSearch.addServices(builder);</code></p>
+<p>This will make sure everything is registered and available when the input form is created.</p>
+<p>Now running your program and typing something into the search property in the editor popup should search the users without needing to preload them all into a value provider, which doesn&#39;t work well for thousands of records.</p>

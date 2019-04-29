@@ -1,0 +1,28 @@
+<h1>Adding an App to Id Server</h1>
+<p>First though we need to add&nbsp;our&nbsp;client project&nbsp;to the Identity Server as a client and the Api to the Identity Server as a scope. We can take advantage of our metadata to do this for us.</p>
+<h2>Adding Client</h2>
+<p>First open your local App Dashboard. If IIS Express is running you can use the tray icon to open the website.</p>
+<p>Once you log in you will see the following screen.</p>
+<p><img class="fitImage" src="/AutoUploads\e3016dce-b946-4323-8e62-511f5c1fb3d2.png" /></p>
+<p>Click Clients to go to the clients. You will see a screen that lists all the clients currently in the Identity Server.</p>
+<p><img class="fitImage" src="/AutoUploads\5214af31-ee92-4c0a-b4bb-1408ab9f6b3c.png" /></p>
+<p>Mine has a couple in it already. Click Add from Metadata to add your new client. Enter the base url for your client into the box. Yours will be similar to mine, but will have a different port.</p>
+<p><img class="fitImage" src="/AutoUploads\e3343499-ada6-420e-842f-e4c1d15f1967.png" /></p>
+<p>Click Ok and the app&#39;s metadata will load.</p>
+<p><img class="fitImage" src="/AutoUploads\a108acf0-45cd-4efb-a2ef-57e93d700e04.png" /></p>
+<p>Click Save changes at the bottom&nbsp;of the popup and your new app should appear in the list of apps.</p>
+<h2>Adding Client Credentials</h2>
+<p>Click the Add from Client Credentials Metadata button on the clients screen.</p>
+<p><img class="fitImage" src="/AutoUploads\5c660240-685b-4600-9fbf-efee754e31b8.png" /></p>
+<p>Click Ok and the Client Credentials metadata will load.</p>
+<p><img class="fitImage" src="/AutoUploads\db74898d-566f-4328-bf22-62da3b4f856f.png" /></p>
+<p>Click Save Changes at the bottom of the screen to save the client credentials. This also creates this app as an application&nbsp;user in&nbsp;the identity server.</p>
+<h2>Adding Scope</h2>
+<p>Now click the Resources link. This will list all the resource scopes currently defined.</p>
+<p><img class="fitImage" src="/AutoUploads\d8ffd7df-8d59-4b41-9702-826ec8a9e26e.png" /></p>
+<p>Click Add from Metadata and put in the base url of your api.</p>
+<p><img class="fitImage" src="/AutoUploads\6a82ef84-3c08-4d59-aa4c-030abbd7b4b8.png" /></p>
+<p>This will load the scope&#39;s metadata. There is nothing to modify here, click Save changes at the bottom of the screen to add the new scope.</p>
+<p><img class="fitImage" src="/AutoUploads\3757ff52-b7ff-4687-8600-491fb066824f.png" /></p>
+<p>This will add the new scope.</p>
+<p>With that your app is configured in identity server. You should now be able to log in without getting an error about unauthorized client.</p>

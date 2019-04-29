@@ -1,0 +1,30 @@
+<h1>Updating to .Net Core 2.2</h1>
+<p>This document will describe how to update to .net core 2.2.</p>
+<h2>Modify Csproj for App and Test Project</h2>
+<p>First modify your csproj. Change the element</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.1&lt;/TargetFramework&gt;</code></p>
+<p>to</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.2&lt;/TargetFramework&gt;</code></p>
+<p>Next make sure your reference to Microsoft.AspNetCore.App has no version number. It should look like the following:</p>
+<p><code>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; /&gt;</code></p>
+<p>Do both of these steps to your test project as well.</p>
+<h2>Update HtmlRapier.TagHelpers</h2>
+<p>This library needed updates to work with .net core 2.2. You will get runtime errors if you don&#39;t update it. Make sure it is on version 7.0.0 or greater.</p>
+<p><code>&lt;PackageReference Include=&quot;HtmlRapier.TagHelpers&quot; Version=&quot;7.0.0&quot; /&gt;</code></p>
+<h2>Modify Startup.cs</h2>
+<p>Find the line that says:</p>
+<p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);</code></p>
+<p>and change it to</p>
+<p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);</code></p>
+<p>Next add the following somewhere in AddServices:</p>
+<p><code>services.AddLogging(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; o.AddConfiguration(Configuration.GetSection(&quot;Logging&quot;))
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddConsole()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddDebug();
+	<br />});</code></p>
+<p>Finally erase the following 2 lines from Configure. They might not be next to each other and should have deprecation warnings:</p>
+<p><code>loggerFactory.AddConsole(Configuration.GetSection(&quot;Logging&quot;));
+	<br />loggerFactory.AddDebug();</code></p>
+<h2>Finish Up</h2>
+<p>This should complete the upgrade to 2.2. If you get build problems erase all the bin and obj folders from your project (or check it out again). That should force nuget to reload everything properly.</p>

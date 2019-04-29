@@ -1,0 +1,188 @@
+<h1>Updating to App Mapper</h1>
+<p>Version 8.0.0 and above of the threax-modelgen tool sets up mapping in a different way than the older versions did. The new strategy still uses automapper under the hood, but introduces a new class called AppMapper to your project. This class creates a well defined interface for mapping between your model types. This new strategy makes it easier to aggregate data from multiple sources when you are loading data.</p>
+<p>Older projects can be updated to work with the new app mapper code. You need to make the following changes to be compatible:</p>
+<h2>Modify CSProj</h2>
+<p>Find the <strong>DotNetCliToolReference</strong> for <strong>Threax.ModelGen</strong> and set it to at least version <strong>8.0.0</strong>.</p>
+<p>Run <code>dotnet restore --no-cache</code> in the package manager console to install the latest version.</p>
+<h2>AppMapper.cs and Profiles</h2>
+<p>First add a new class in your Mappers folder called AppMapper. Give it the following implementation:</p>
+<p><code>/// &lt;summary&gt;
+	<br />/// The app mapper defines all the object mappings that this application can perform.
+	<br />/// Usually this is just a thin wrapper over automapper, but it establishes what mappings
+	<br />/// are supported and enables more advanced mappings between multiple objects.
+	<br />/// &lt;/summary&gt;
+	<br />public partial class AppMapper
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; private IMapper mapper;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public AppMapper(IMapper mapper)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.mapper = mapper;
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>The acutal mapping functions will be in partial classes in your various profile class files. You can add a simple mapping for each of these by adding something like the following to your ModelProfile files:</p>
+<p><code>public partial class AppMapper
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; public ValueEntity MapValue(ValueInput src, ValueEntity dest)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return mapper.Map(src, dest);
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public Value MapValue(ValueEntity src, Value dest)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return mapper.Map(src, dest);
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>This example is for a model called Value. All you are doing is defining the source and destination classes and then handing them off to automapper. This might seem pointless, but it has 2 advantages. First it creates a strongly defined interface for what types can map to what other types. Additionally if you had multiple data sources to build up the result you can include them as arguments here and any code using those mapping will no longer compile and you must load the additional data you need. This makes your app much more maintainable.</p>
+<p>The general pattern is to call your mapping function MapModel and take in the source and destination objects. You should add one of these for any existing models in your app.</p>
+<h2>AppDatabaseServiceExtensions.cs</h2>
+<p>This class has been modified because we can now use the built in dependency injection when writing unit tests. As a result the old SetupMappings and UseAppDatabase functions have been changed.</p>
+<p>Erase this code from your Database\AppDatabaseServiceExtensions class.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Setup mappings, this is separate so it can be called by a unit test without
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// spinning up the whole system. No need to call manually unless needed in a unit test.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;returns&gt;&lt;/returns&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static MapperConfiguration SetupMappings()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Setup mappings between your objects here
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Check out the AutoMapper docs for more info
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //https://github.com/AutoMapper/AutoMapper/wiki
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var mapperConfig = new MapperConfiguration(cfg =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Auto find profile classes
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cfg.AddProfiles(typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return mapperConfig;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Setup the app database, will also setup repositories and mappings.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;services&quot;&gt;The service collection.&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;connectionString&quot;&gt;The connection string for the database.&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;returns&gt;&lt;/returns&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IServiceCollection UseAppDatabase(this IServiceCollection services, string connectionString)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Add the database
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddAuthorizationDatabase&lt;AppDbContext&gt;()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddDbContextPool&lt;AppDbContext&gt;(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.UseSqlServer(connectionString, options =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; options.MigrationsAssembly(typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Setup the mapper
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var mapperConfig = SetupMappings();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddScoped&lt;IMapper&gt;(s =&gt; mapperConfig.CreateMapper(s.GetRequiredService));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddScoped&lt;AppMapper&gt;();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Setup repositories
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.ConfigureReflectedServices(typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return services;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>And paste in the following instead:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Setup the app database. This will register AppDbContext in the services.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;services&quot;&gt;The service collection.&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;connectionString&quot;&gt;The connection string for the database.&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;returns&gt;&lt;/returns&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IServiceCollection AddAppDatabase(this IServiceCollection services, string connectionString)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Add the database
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddAuthorizationDatabase&lt;AppDbContext&gt;()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddDbContextPool&lt;AppDbContext&gt;(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.UseSqlServer(connectionString, options =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; options.MigrationsAssembly(typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return services;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Setup the app mapper. This will make the AppMapper class available in services.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;services&quot;&gt;The service collection&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;includeAutomapperConfig&quot;&gt;Set this to true to register the automapper config in the services. This is used to allow the automapper unit test to work.&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;returns&gt;&lt;/returns&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IServiceCollection AddAppMapper(this IServiceCollection services, bool includeAutomapperConfig = false)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Setup mappings between your objects here
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Check out the AutoMapper docs for more info
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //https://github.com/AutoMapper/AutoMapper/wiki
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var mapperConfig = new MapperConfiguration(cfg =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Auto find profile classes
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cfg.AddProfiles(typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (includeAutomapperConfig)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddSingleton&lt;MapperConfiguration&gt;(mapperConfig);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Register the AppMapper, The Automapper config is hidden behind the AppMapper, which is what should be used by your classes.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddScoped&lt;AppMapper&gt;(s =&gt; new AppMapper(mapperConfig.CreateMapper(s.GetRequiredService)));</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return services;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Setup the app repositories. This will setup the services with the repositories defined in this program.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;param name=&quot;services&quot;&gt;&lt;/param&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;returns&gt;&lt;/returns&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IServiceCollection AddAppRepositories(this IServiceCollection services)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.ConfigureReflectedServices(typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return services;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>This separates the database, repository and mapper registrations so they can be used separately in the unit tests. This change to the database extensions class will break the compilation of your app, so we will fix this next.</p>
+<h2>Startup.cs</h2>
+<p>In Startup.cs find the line:</p>
+<p><code>services.UseAppDatabase(appConfig.ConnectionString);</code></p>
+<p>and replace it with</p>
+<p><code>services.AddAppDatabase(appConfig.ConnectionString);
+	<br />services.AddAppMapper();
+	<br />services.AddAppRepositories();</code></p>
+<p>This will register everything correctly in your app again.</p>
+<h2>Mocks.cs and Unit Tests</h2>
+<p>Similar to Startup.cs we need to inject the correct stuff in Mocks.cs in your test project.</p>
+<p>Find and remove the following lines:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mockup.Add&lt;MapperConfiguration&gt;(m =&gt; AppDatabaseServiceExtensions.SetupMappings());
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mockup.Add&lt;IMapper&gt;(m =&gt; m.Get&lt;MapperConfiguration&gt;().CreateMapper(mockup.Get));</code></p>
+<p>and replace them with the following:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mockup.MockServiceCollection.AddTimeTracking();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mockup.MockServiceCollection.AddAppMapper(includeAutomapperConfig: true);</code></p>
+<p>This will setup the time tracking and the AppMapper in the mock services. You may need to manually go through your tests and replace IMapper uses with AppMapper uses instead. Follow the strategy outlined in the repository section to do these modifications. Some errors won&#39;t appear until you update your repository.</p>
+<h2>Repository</h2>
+<p>The repository is where the majority of the changes will come in. If you didnt really make any changes to your repository classes in your app it might be easiest to erase your repository class and then regenerate your models. However, if you need or want to do it by hand follow this strategy:</p>
+<ol>
+	<li>Replace IMapper with AppMapper in the member variables and the constructor arguments. This will give you a ton of compiler errors.</li>
+	<li>Go through all of your old calls to Map, which will be highlighted for you.
+	<ol>
+		<li>Change the signature from Map to MapModel (where Model is your model name).</li>
+		<li>Add a second argument creating a new destination model unless you were already passing a 2nd argument like some of them will.</li>
+	</ol></li>
+	<li>There seems to be a bug in ef or something with the list function. If you look at what was already in the code you would have something like this
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public async Task&lt;ValueCollection&gt; List(ValueQuery query)
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var dbQuery = await query.Create(this.Entities);</p>
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var total = await dbQuery.CountAsync();
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbQuery = dbQuery.Skip(query.SkipTo(total)).Take(query.Limit);
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var resultQuery = dbQuery.Select(i =&gt; mapper.Map&lt;Value&gt;(i));
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var results = await resultQuery.ToListAsync();</p>
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new ValueCollection(query, total, results);
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+		<br />The line
+		<br /><code>var resultQuery = dbQuery.Select(i =&gt; mapper.Map&lt;Value&gt;(i)); </code>
+		<br />won&#39;t work when converted, which would look like this
+		<br /><code>var resultQuery = dbQuery.Select(i =&gt; mapper.MapValue(i, new Value()));</code>
+		<br />For whatever reason this will pass the same destination value over and over instead of giving the mapper a new Value() each time. The i argument is correctly different each time, but the new Value is always the same.
+		<br />To fix this do the Select after reading the values from the database. The basic list function converted would look like the following:</p>
+	<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public async Task&lt;ValueCollection&gt; List(ValueQuery query)
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var dbQuery = await query.Create(this.Entities);</code></p>
+	<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var total = await dbQuery.CountAsync();
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbQuery = dbQuery.Skip(query.SkipTo(total)).Take(query.Limit);
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var results = await dbQuery.ToListAsync();</code></p>
+	<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new ValueCollection(query, total, results.Select(i =&gt; mapper.MapValue(i, new Value())));
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code>
+		<br />Notice that we do the ToListAsync() on the dbQuery and store the values in results. Then when building the final collection we call Select on results and convert it to the type that the ValueCollection needs. This will work correctly and you will get each value. You need to test your list function and modify it like this if needed. This pattern is nice if you have to lookup external data anyway since you only hit the app database once and then you can reuse the results in results to lookup what you need from the external service before doing your final map into the result collection.</p></li>
+</ol>
+<p>That should be everything you need to do. You can now generate new models or regenerate your existing ones with the latest model generator and everything will work.</p>

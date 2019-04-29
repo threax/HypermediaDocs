@@ -1,0 +1,26 @@
+<h1>.Net Core Hypermedia App</h1>
+<p>The hypermedia apps are implemented as .Net Core MVC websites. They will usually have a separation between ui and api controllers. In addition the ui controllers will be accessible with cookies and the api will be accessible using bearer tokens. This helps secure the site, since the browser will not just automatically send bearer tokens like it does cookies. If all the actions take place in the api and not on the ui controllers this creates a strong barrier against XSRF attacks. In addition appropriate http verbs should be used for each api action and most all of the ui requests should be get requests.</p>
+<p>Note that in the most recent template the service and client applications are a single web applicaiton, but these concepts can be separated if needed. In addition another service or ui might make use of the service your application is exposing, where these concepts will still apply.</p>
+<h2>Models (InputModels, ViewModels, Database)</h2>
+<p>At its most basic most any web application is going to be a ton of CRUD operations over a set of data likely stored in a database. To do database operations in .net core we use Entity Framework core and create models either using a database first or code first approach. So this leaves us with one type of model class we must create, Entities. In addition to this best practices reccomend against directly returning entities or using them directly for input. This can be fine if your doing something simple, but falls apart as the application grows. As a result we are defining&nbsp;up to 4&nbsp;classes for each model type. These are the following:</p>
+<ul>
+	<li>ModelEntity - The database entity. Should be marked up with entity framework specific attributes to create your database.</li>
+	<li>ModelInput - The input model, probably varies slightly from the other models, and may take in less data.</li>
+	<li>Model - The view model, typically these are named plainly with no suffix for cleanlyness in generated code. These define what data is returned when a user asks for it. These will also define the HalLinks that link the models to their next actions.</li>
+	<li>ModelQuery - The query class that is used on the list function for a model&#39;s api. This will change what data is looked up based on the properties in the query.</li>
+</ul>
+<p>Since mapping between all these model types could be obnoxioius the template includes AutoMapper a library that can help us do just that very easily. Doing this sets up the flow for our objects shown below:</p>
+<p><img class="fitImage" src="/AutoUploads\6f0269c9-9de3-484b-8ad6-42dad4de912e.png" /></p>
+<p>Obviously every request and every page is not going to involve every step of this, but this shows how the data is transformed between the various models. The transformations are automatic happening courtesy of AutoMapper on the server side and HtmlRapier on the client side.</p>
+<h2>Database</h2>
+<p>The database is pretty straightforward Entity Framework core. You can use whatever techniques you want. You will see a Database folder in your service. Inside is a class called AppDbContext, which is the db context you should modify. You will also see a AppDatabaseServiceExtensions.cs class. This is the class you want to modify to add your custom database related code, setup mappings and register repositories. In addition your entity models can go in this folder.</p>
+<h2>Controllers</h2>
+<p>Controllers for your service. Mostly the same as normal .net controllers, however, each controller should have a class called Rels inside it that define all the rels for that controller. A rel is the name of a link. The rels should be unique on any particular view model and you can override a link&#39;s default rel when adding the link attribute to a view model.</p>
+<ul>
+	<li><strong>EndpointDocController</strong> - This controller handles generating and returning the endpoint docs for a given service endpoint (url). These docs&nbsp;are json&nbsp;objects with json schemas inside that&nbsp;describe the endpoint&#39;s Request, Response and Query objects. These docs are how the client side knows what to build automaticly.</li>
+	<li><strong>EntryPointController </strong>- A controller that returns the EntryPoint object. This does not do much on its own, but the Entry point should define most of the links for the system. While just returning what is essentially an empty object seems pointless, the links will be scanned to make sure the current user can actually visit them.</li>
+	<li><strong>RolesController</strong> - Provides an api for editing user roles in the system.</li>
+</ul>
+<h2>UI</h2>
+<p>The ui controllers are usually very simple, they just return their appropriate view. They can also set the authorization attributes if only certain users should view a page.</p>
+<p>The view .cshtml pages themselves are more intersting. If you create a typescript file with the same name as your .cshtml file that file will be automatically executed when that particular view is loaded. These files usually just contain code to bootstrap the CRUD page from HtmlRapier.Widgets, but you can program anything you want here.</p>

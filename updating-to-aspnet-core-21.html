@@ -1,0 +1,87 @@
+<h1>Updating to Asp.Net Core 2.1</h1>
+<p>This page describes how to update an app to asp.net core 2.1.</p>
+<h2>Modify csproj</h2>
+<h3>Update NetCoreApp Version</h3>
+<p>Right click your project&#39;s .csproj file and change target framework from</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.0&lt;/TargetFramework&gt;</code></p>
+<p>to</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.1&lt;/TargetFramework&gt;</code></p>
+<p>Also do this to your test project.</p>
+<p>After you do this try to rebuild. If you get an error that sdk 2.1 is not supported install the latest sdk from <a href="https://www.microsoft.com/net/download/windows">here</a>.</p>
+<h3>Remove Packages</h3>
+<p>The following packages can be removed from your .csproj.</p>
+<h4>From PackageReferences</h4>
+<p>You can remove all the microsoft package references. This list is an example you might have a couple more.</p>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Routing&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Server.IISIntegration&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Server.Kestrel&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Configuration.EnvironmentVariables&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Configuration.FileExtensions&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Configuration.Json&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Configuration.UserSecrets&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.StaticFiles&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Logging&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Logging.Console&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Logging.Debug&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.Extensions.Options.ConfigurationExtensions&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.SqlServer&quot; Version=&quot;2.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Design&quot; Version=&quot;2.1.0&quot; PrivateAssets=&quot;All&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc.Razor.ViewCompilation&quot; Version=&quot;2.1.0&quot; PrivateAssets=&quot;All&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.IdentityModel.Tokens&quot; Version=&quot;5.2.2&quot; /&gt;</code></p>
+<h4>From DotNetClieToolReference</h4>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;DotNetCliToolReference Include=&quot;Microsoft.EntityFrameworkCore.Tools.DotNet&quot; Version=&quot;2.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;DotNetCliToolReference Include=&quot;Microsoft.Extensions.SecretManager.Tools&quot; Version=&quot;2.0.0&quot; /&gt;</code></p>
+<p>These are included in the rollup package Microsoft provides now, so this will fix a warning about that.</p>
+<p>Add Package Reference</p>
+<p>Add the following package reference, it intentionally does not have a version number.</p>
+<p><code>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; /&gt;</code></p>
+<h2>Fix Startup.cs</h2>
+<p>You might need to remove the line</p>
+<p><code>IdentityModelEventSource.ShowPII = appConfig.ShowPII;</code></p>
+<p>from Startup.cs. You can also remove the ShowPII property from your AppConfig.cs.</p>
+<p>Also in ConfigureServices in the .AddMvc call chain add</p>
+<p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);</code></p>
+<p>You might need to add <code>using Microsoft.AspNetCore.Mvc;</code></p>
+<p>It should look something like the following when your done:</p>
+<p><code>// Add framework services.
+	<br />services.AddMvc(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; o.UseExceptionErrorFilters();
+	<br />&nbsp;&nbsp;&nbsp; o.UseConventionalHalcyon(halOptions);
+	<br />})
+	<br />.AddJsonOptions(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; o.SerializerSettings.SetToHalcyonDefault();
+	<br />&nbsp;&nbsp;&nbsp; o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+	<br />})
+	<br />.AddConventionalIdServerMvc()
+	<br />.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);</code></p>
+<h2>Fix Tests</h2>
+<p>Your tests project might not compile. Change the target framework to <code>netcoreapp2.1</code> and add the following to the package reference item group:</p>
+<p><code>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; /&gt;</code></p>
+<h2>Update Nuget Packages</h2>
+<p>Next update the nuget packages for your whole solution. It should be safe to take all updates.</p>
+<h2>Fix Framework Changes</h2>
+<p>Most everything updated without an issue, but there were a couple things that needed to change.</p>
+<h3>Threax.AspNetCore.UserBuilder.Entities</h3>
+<p>The Threax.AspNetCore.UserBuilder.Entities library that handles the user table for our apps was unable to load due to changes in the EntityFramework.SqlServer libraries. In order to fix this the dependency on the Sql Server part of ef was refactored out of this library for version 4.0.0. This means that it can no longer do your database service setup for you. This is easy to fix, however.</p>
+<p>Go to Database\AppDatabaseServiceExtensions.cs</p>
+<p>Find the UseAppDatabase function.</p>
+<p>Change it from:</p>
+<p><code>services.AddAuthorizationDatabase&lt;AppDbContext&gt;(connectionString, typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);</code></p>
+<p>to</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddAuthorizationDatabase&lt;AppDbContext&gt;()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddDbContextPool&lt;AppDbContext&gt;(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.UseSqlServer(connectionString, options =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; options.MigrationsAssembly(typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>After this your app should compile and everything should still work.</p>
+<h3>Model Generator</h3>
+<p>Make sure your model generator is on version 6.0.0 or else it won&#39;t really work since older versions run on netcoreapp2.0 instead of netcoreapp2.1 and they will be missing some libraries.</p>
+<p><code>&lt;DotNetCliToolReference Include=&quot;Threax.ModelGen&quot; Version=&quot;6.0.0&quot; /&gt;</code></p>

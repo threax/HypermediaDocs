@@ -1,0 +1,24 @@
+<h1>Service Client Template</h1>
+<p>In addition to the app and test templates there is also one for a service client. This makes it easy to create a c# client for your app that can be used with dependency injection in another app. This document will show how to create an app client using the template and then how to modify your app to keep the client up to date automatically while you work on your app.</p>
+<h2>Create Client Project</h2>
+<p>In your app&#39;s folder create a new folder called YourAppName.Client.</p>
+<p>Open this folder and open an command window. Enter the command:</p>
+<p><code>dotnet new appclient --appname YourAppName</code></p>
+<p>The client project is created in the folder. Next it should be added to your app&#39;s solution.</p>
+<p>Once you get the project in your solution you should be able to build. If not fix any compiler errors. Due to the way names are replaced if your YourAppName variable had a period in it you might need to remove it by hand from stuff that didnt compile.</p>
+<h2>Auto Generate the Client</h2>
+<p>The final step is to get the client to update automatically. We can tap into the template&#39;s Update Client process to do this. Add a second clientgen command when running UpdateClient by changing it from</p>
+<p><code>&quot;commandLineArgs&quot;: &quot;tools \&quot;clientgen Client\\Libs\\ServiceClient.ts\&quot;&quot;,</code></p>
+<p>to</p>
+<p><code>&quot;commandLineArgs&quot;: &quot;tools \&quot;clientgen Client\\Libs\\ServiceClient.ts\&quot; \&quot;clientgen ..\\YourAppName.Client\\ServiceClient.cs\&quot;&quot;,</code></p>
+<p>where YourAppName.Client is set to the folder your app&#39;s client project is in.</p>
+<p>Now whenever you run the app in Update Client mode it will update both the typescript and c# clients. You can publish you c# client to \\webdev1\nuget as you make updates to it, which makes it easy to have other applications include the client in their references. Be sure to bump the version number when you do this.</p>
+<p>Also note that these generated clients do not rely on the original app in any way. Including a client will not include the app itself as a dependency or anything since all of its code is generated.</p>
+<h2>Creating Nuget Package</h2>
+<p>The best way to distribute the C# clients is through nuget. Set your library up as a nuget package and deploy it to your preferred nuget repository. Remember all you need for a basic nuget repository is a shared folder defined somewhere Visual Studio can see it, although this will not scale very well as the number of custom packages you have increases.</p>
+<h2>Using the Client</h2>
+<p>Clients have 2 modes you can use them in. These are determined by how you want to authenticate with the service.</p>
+<p>Client Credentials: UseYourServiceWithClientCredentials. To use this you must define a client and secret in the identity server. Then you add the guid for this client from id server to your applicaiton as a user. Also make sure your app can accept Application users in its user builder.</p>
+<p>User Access Token: UseYourServiceWithUserAccessToken. This will pass the current user along to the target service. Use this if you want to keep the user between service calls.</p>
+<p>Call one of these functions in your ConfigureServices function in Startup.cs for the app you want to use the client in.</p>
+<p>Now inject the EntryPointInjector class from this library into whatever controller or class you want to use it in. From there call the Load function to get the real entry point. This will automatically use the credentials you setup without any further action on your part.</p>

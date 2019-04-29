@@ -1,0 +1,47 @@
+<h1>Removing Yarn</h1>
+<p>There is no longer a need for yarn after npm v3. To remove yarn from your projects, make the following changes:</p>
+<h2>Update Packages</h2>
+<p>First make sure you are on the latest packages. Run <code>yarn upgrade --flat</code> in your project and make sure the typescript still compiles.</p>
+<p>Commit these changes too.</p>
+<h2>Erase yarn.lock</h2>
+<p>Next erase the yarn.lock file.</p>
+<h2>Edit package.json</h2>
+<p>Open the package.json file and erase the following lines:</p>
+<p><code>&quot;yarn-install&quot;: &quot;yarn install --flat&quot;,
+	<br />&quot;yarn-upgrade&quot;: &quot;yarn upgrade --flat&quot;,</code></p>
+<p>If you have a &quot;resolutions&quot; section you can erase it. That is a yarn thing.</p>
+<p>You do not need to add anything to this file, however, if you are still using bootstrap 3 see that section at the bottom of the page before continuing to make sure you get 3.4.1 (or higher) instead of 4.x.x.</p>
+<p>Close Visual Studio and then reopen your solution.</p>
+<p>In the task runner explorer run <strong>install</strong>. If you get an error run <code>npm install</code> from the command line in your project folder. When you do this a file will be created called package-lock.json.</p>
+<p>Run your program and make sure the front end works as expected.</p>
+<h2>Update azure-pipelines.yml</h2>
+<p>Open azure-pipelines.yml in the root of your repository.</p>
+<p>Replace this entire task</p>
+<p><code>- task: geeklearningio.gl-vsts-tasks-yarn.yarn-task.Yarn@2
+	<br />&nbsp; displayName: &#39;Yarn install --flat&#39;
+	<br />&nbsp; inputs:
+	<br />&nbsp;&nbsp;&nbsp; ProjectDirectory: $(projectDir)
+	<br />&nbsp;&nbsp;&nbsp; Arguments: &#39;install --flat&#39;</code></p>
+<p>with this</p>
+<p><code>- task: Npm@1
+	<br />&nbsp; displayName: &#39;Npm install&#39;
+	<br />&nbsp; inputs:
+	<br />&nbsp;&nbsp;&nbsp; workingDir: $(projectDir)
+	<br />&nbsp;&nbsp;&nbsp; command: &#39;install&#39;</code></p>
+<p>and replace this entire task</p>
+<p><code>- task: geeklearningio.gl-vsts-tasks-yarn.yarn-task.Yarn@2
+	<br />&nbsp; displayName: &#39;Yarn run build&#39;
+	<br />&nbsp; inputs:
+	<br />&nbsp;&nbsp;&nbsp; ProjectDirectory: $(projectDir)
+	<br />&nbsp;&nbsp;&nbsp; Arguments: &#39;run build&#39;</code></p>
+<p>with this</p>
+<p><code>- task: Npm@1
+	<br />&nbsp; displayName: &#39;Npm run build&#39;
+	<br />&nbsp; inputs:
+	<br />&nbsp;&nbsp;&nbsp; workingDir: $(projectDir)
+	<br />&nbsp;&nbsp;&nbsp; command: &#39;custom&#39;
+	<br />&nbsp;&nbsp;&nbsp; customCommand: &#39;run build&#39;</code></p>
+<p>That will make the build scripts run with npm instead of yarn.</p>
+<p>No other changes should be needed. Commit your code and let it build and release to test. Verify that everything is correct in test.</p>
+<h2>Bootstrap 3</h2>
+<p>If you are still using Bootstrap 3 in your project, which is perfectly ok, you will want to add it to your dependencies. Add <code>&quot;bootstrap&quot;: &quot;^3.4.1&quot;,</code> to your dependencies section.</p>

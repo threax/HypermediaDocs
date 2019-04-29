@@ -1,0 +1,74 @@
+<h1>Client Side Asset Bundles</h1>
+<p>The template can bundle up client side assets using the BundlerMinifier.Core library. Using this is just a couple simple steps.</p>
+<ol>
+	<li>Define your assets to bundle in bundleconfig.json</li>
+	<li>Drop in an <code>&lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;</code> element where you want to use the bundle. JS bundles will output javascript and CSS bundles will output css elements.</li>
+	<li>Depending on the setting of your AppConfig.UseAssetBundles property this will output either the bundled file or the individual files in the bundle.</li>
+</ol>
+<p>Here the asset-bundle tag helper will look at our config settings to output the correct file. All of the files that will be bundled should be placed in wwwroot. Since all the assets to be bundled are defined in the bunleconfig.json file it is easy to change around the files in the bundes without needing to modify all the layout pages.</p>
+<h2>Adding to an Existing Project</h2>
+<p>This feature was added in HtmlRapier.TagHelpers version 5.1.1. If your project already has this version then it is likely setup already. Otherwise do the following steps to enable this feature in an older application.</p>
+<ol>
+	<li>Updated your NuGet packages. Make sure HtmlRapier.TagHelpers is &gt;= 5.1.1.</li>
+	<li>In AppConfig.cs add the following
+	<p><code>/// &lt;summary&gt;
+		<br />/// Set this to true to use asset bundles instead of individual client side files.
+		<br />/// &lt;/summary&gt;
+		<br />public bool UseAssetBundles { get; set; } = false;</code></p></li>
+	<li>
+	<p>In your .csproj file add the following to the ItemGroup with the DotNetCliToolReference elements
+		<br /><code>&lt;DotNetCliToolReference Include=&quot;BundlerMinifier.Core&quot; Version=&quot;2.6.362&quot; /&gt;</code></p></li>
+	<li>
+	<p>In Startup.cs add
+		<br /><code>services.AddAssetBundle(o =&gt;
+		<br />{
+		<br />&nbsp;&nbsp;&nbsp; o.UseBundles = appConfig.UseAssetBundles;
+		<br />});</code></p></li>
+	<li>
+	<p>In Views/Account/Relogin.cshtml change the script elements to be the following (remove the old ones)
+		<br /><code>&nbsp;&nbsp;&nbsp; &lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;
+		<br />&nbsp;&nbsp;&nbsp; &lt;script type=&quot;text/javascript&quot; src=&quot;~/lib/hr-run.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;</code></p></li>
+	<li>
+	<p>In Views/Shared/_Layout.cshtml replace the css elements with the following:
+		<br /><code>&lt;asset-bundle src=&quot;~/bundle.min.css&quot;&gt;&lt;/asset-bundle&gt;</code>
+		<br />And the script elements with the following:
+		<br /><code>&nbsp;&nbsp;&nbsp; &lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;
+		<br />&nbsp;&nbsp;&nbsp; @RenderSection(&quot;scripts&quot;, required: false)
+		<br />&nbsp;&nbsp;&nbsp; &lt;script type=&quot;text/javascript&quot; src=&quot;~/lib/hr-run.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;</code></p></li>
+	<li>
+	<p>In appsettings.Development.json add the following to AppConfig. Note you will need to set this to true to actually get the bundles, this is the config setting.
+		<br /><code>&nbsp;&nbsp;&nbsp; &quot;UseAssetBundles&quot;: false</code></p></li>
+	<li>
+	<p>Add a file called bundleconfig.json to the root of the project with the following settings:</p>
+	<p><code>// Configure bundling and minification for the project.
+		<br />// More info at https://go.microsoft.com/fwlink/?LinkId=808241
+		<br />[
+		<br />&nbsp; {
+		<br />&nbsp;&nbsp;&nbsp; &quot;outputFileName&quot;: &quot;wwwroot/bundle.min.css&quot;,
+		<br />&nbsp;&nbsp;&nbsp; &quot;inputFiles&quot;: [
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/bootstrap/dist/css/SpcBootstrap.css&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css&quot;
+		<br />&nbsp;&nbsp;&nbsp; ]
+		<br />&nbsp; },
+		<br />&nbsp; {
+		<br />&nbsp;&nbsp;&nbsp; &quot;outputFileName&quot;: &quot;wwwroot/bundle.min.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp; &quot;inputFiles&quot;: [
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/jquery/dist/jquery.min.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/bootstrap/dist/js/bootstrap.min.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/moment/min/moment.min.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/polyfill.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/tslib.js&quot;,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/tsbin.js&quot;
+		<br />&nbsp;&nbsp;&nbsp; ],
+		<br />&nbsp;&nbsp;&nbsp; &quot;minify&quot;: {
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;enabled&quot;: true,
+		<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;renameLocals&quot;: true
+		<br />&nbsp;&nbsp;&nbsp; },
+		<br />&nbsp;&nbsp;&nbsp; &quot;sourceMap&quot;: false
+		<br />&nbsp; }
+		<br />]</code></p></li>
+	<li>
+	<p>In package.json change the build line to read
+		<br /><code>&quot;build&quot;: &quot;node Build/build.js &amp;&amp; dotnet bundle&quot;,</code></p></li>
+</ol>

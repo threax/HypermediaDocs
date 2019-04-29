@@ -1,0 +1,46 @@
+<h1>Adding a Value Provider</h1>
+<p>Sometimes data on a form needs to have constant values or possibly a selection of values from the database. There are 2 major ways you can make this work. The first is to use enums the second is to define Value Providers that provide values for properties by marking them with an attribute. There are both an async and sync version. The async allows the use of await and will correctly give up the thread to keep throughput high. The sync version elminates some of the boilerplate code if you already know the results.</p>
+<h2>Using Enums</h2>
+<ol>
+	<li>Define an enum for gender somewhere in your application.
+	<pre style="background: rgb(255, 255, 255); color: rgb(0, 0, 0);"><span style="color: rgb(105, 105, 105);">/// &lt;summary&gt;</span>
+<span style="color: rgb(105, 105, 105);">/// Gender values</span>
+<span style="color: rgb(105, 105, 105);">/// &lt;/summary&gt;</span>
+<span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">enum</span> Gender
+<span style="color: rgb(128, 0, 128);">{</span>
+    Male<span style="color: rgb(128, 128, 48);">,</span>
+    Female
+<span style="color: rgb(128, 0, 128);">}</span></pre></li>
+	<li>In the model schema add a Gender property.
+	<pre style="background: rgb(255, 255, 255); color: rgb(0, 0, 0);">Gender Gender <span style="color: rgb(128, 0, 128);">{</span> get<span style="color: rgb(128, 0, 128);">;</span> set<span style="color: rgb(128, 0, 128);">;</span> <span style="color: rgb(128, 0, 128);">}</span></pre></li>
+	<li>Regenerate the Person model <code>dotnet threax-modelgen YourAppNamespace.ModelSchemas.Person</code>.</li>
+	<li>Run <code>dotnet ef migrations add gender</code> in your service project folder to update the migrations.</li>
+	<li>Run your service in project name mode to update your database.</li>
+	<li>Running the solution will show the changes on the person crud table. You should be able to select between Male and Female in a combo box.</li>
+</ol>
+<h3>Enum Null Values</h3>
+<p>You can provide null values by making your enum property nullable (put a ? after the type name). The framework will find this and add a null option with a default label of None. If you want to change this label add a NullEnumLabel attribute to the enum (to provide the label to everything that uses that enum) or to the property itself, which will apply the label on just that property. If both are present the one on the property wins.</p>
+<h2>Using Value Providers</h2>
+<p>If your new values do not fit nicely into an enum you can create a ValueProvider class that will also provide label value pairs to the docs. The following example will show how this is done in another system to provide locations out of the database.</p>
+<p>First create a ValueProvider class. This is usually added to a ValueProviders folder in your project. You will have to create this folder if you have not added any yet. Make the class look like the following:</p>
+<pre style="background: rgb(255, 255, 255); color: rgb(0, 0, 0);"><span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">class</span> LocationValueProvider <span style="color: rgb(128, 0, 128);">:</span> LabelValuePairProvider
+<span style="color: rgb(128, 0, 128);">{</span>
+    ILocationRepository repo<span style="color: rgb(128, 0, 128);">;</span>
+
+    <span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> LocationValueProvider<span style="color: rgb(128, 128, 48);">(</span>ILocationRepository repo<span style="color: rgb(128, 128, 48);">)</span>
+    <span style="color: rgb(128, 0, 128);">{</span>
+        <span style="color: rgb(128, 0, 0); font-weight: bold;">this</span><span style="color: rgb(128, 128, 48);">.</span>repo <span style="color: rgb(128, 128, 48);">=</span> repo<span style="color: rgb(128, 0, 128);">;</span>
+    <span style="color: rgb(128, 0, 128);">}</span>
+
+    <span style="color: rgb(128, 0, 0); font-weight: bold;">protected</span> override Task<span style="color: rgb(128, 128, 48);">&lt;</span>IEnumerable<span style="color: rgb(128, 128, 48);">&lt;</span>LabelValuePair<span style="color: rgb(128, 128, 48);">&gt;</span><span style="color: rgb(128, 128, 48);">&gt;</span> GetSources<span style="color: rgb(128, 128, 48);">(</span><span style="color: rgb(128, 128, 48);">)</span>
+    <span style="color: rgb(128, 0, 128);">{</span>
+        <span style="color: rgb(128, 0, 0); font-weight: bold;">return</span> repo<span style="color: rgb(128, 128, 48);">.</span>LocationValues<span style="color: rgb(128, 128, 48);">(</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 0, 128);">;</span>
+    <span style="color: rgb(128, 0, 128);">}</span>
+<span style="color: rgb(128, 0, 128);">}</span></pre>
+<p>Here the LocationValueProvider inherits from the LabelValuePairProvider. It will take in the ILocationRepository instance and return the location values from that instance. Since it used the default value provider class we can take advantage of async / await and Task in the value providers, which helps keep website throughput high.</p>
+<p>Next go to Startup.cs and add the following to ConfigureServices:</p>
+<p><code>services.AddScoped&lt;LocationValueProvider, LocationValueProvider&gt;();</code></p>
+<p>Finally this attribute would be added to any models that want to provide the location values from the database.</p>
+<p><code>[ValueProvider(typeof(LocationValueProvider))]</code></p>
+<p>If you were to add this to and run the hypothetical project it belongs to you would see the locations that have been defined in the database be provided like the genders were above. If you added more to the database it would add more options to the pages automatically. This is a great way to link various tables together on a ui that is still easy for the user to use.</p>
+<p>If you know the values without needing async code, and can&#39;t use an enum there is also a superclass LabelValueProviderSync that will not maintain the async context when getting your code. This should be fairly rare, since you can use enums for most static info.</p>

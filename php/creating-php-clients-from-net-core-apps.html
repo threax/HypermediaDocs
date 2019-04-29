@@ -1,0 +1,31 @@
+<h1>Creating PHP Clients from .Net Core Apps</h1>
+<p>Please do not take this as an endorsement of PHP. The fact that this architecture can be connected to PHP apps is a strength of its flexibility, not because PHP should ever be used.</p>
+<p>This page describes how to setup .Net Core generated clients to work with composer without publishing them publicly.</p>
+<h2>Create Library Repository</h2>
+<p>First create a new repository somewhere for your php client.</p>
+<p>Next clone the repo and add a file called <code>composer.json</code> like the following:</p>
+<p><code>{
+	<br />&nbsp;&nbsp;&nbsp; &quot;name&quot;: &quot;<strong>{YourApp}</strong>/client&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;description&quot;: &quot;<strong>{Description}</strong>&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;require&quot;: {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;threax/halcyonclient&quot;: &quot;&gt;=0.0.0&quot;
+	<br />&nbsp;&nbsp;&nbsp; },
+	<br />&nbsp;&nbsp;&nbsp; &quot;autoload&quot;: {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;classmap&quot;: [<strong>&quot;</strong>ServiceClient<strong>.</strong>php&quot;]
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>Replace <strong>{YourApp}</strong> with a namespace for this app and <strong>{Description}</strong> with a description. The name should match the namespace provided in the Startup.cs file in your .Net Core Project, but the slashes go the other way.</p>
+<p>This establishes the name of the library along with specifying that the classes come out of the ServiceClient.php file.</p>
+<p>Next commit this and push it to your private repository.</p>
+<h2>Add Library Repository as Submodule to .Net Core App</h2>
+<p>Add the repository you just created as a submodule in your main project. Put it in a folder in the root called <code>PhpClient</code>.</p>
+<p>Open the .Net Core Solution in Visual Studio.</p>
+<p>Go to Project-&gt;Properties-&gt;launchsettings.json.</p>
+<p>Find the UpdateClient entry and add <code>\&quot;clientgen ..\\PhpClient\\ServiceClient.php\&quot;</code> to the <strong>commandLineArgs</strong> setting.</p>
+<p>Run your app in UpdateClient mode to generate the php client.</p>
+<p>Commit the PHP client submodule. Also go ahead and tag it with <code>v0.0.0</code> to test the initial revision. Push the tags and code to your repository.</p>
+<p>From here you should be able to use it in a php app as described in Connecting PHP Apps to .Net Core Apps.</p>
+<h2>Maintaining Library</h2>
+<p>When things change the .Net Core app regenerate the client and push it to your repository.</p>
+<p>Set a tag with vX.X.X where X.X.X is the version you want the library to have.</p>
+<p>This version can be used in consuming apps to specify which version of the library you want to use. This is all controlled by git tags.</p>

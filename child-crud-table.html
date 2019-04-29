@@ -1,0 +1,60 @@
+<h1>Child Crud Table</h1>
+<p>This shows a partial example of getting a child crud table to work. It is not complete.</p>
+<p>import * as standardCrudPage from &#39;hr.widgets.StandardCrudPage&#39;;
+	<br />import * as startup from &#39;clientlibs.startup&#39;;
+	<br />import * as deepLink from &#39;hr.deeplink&#39;;
+	<br />import { HealthProgramCrudInjector } from &#39;clientlibs.HealthProgramCrudInjector&#39;;
+	<br />import { RequirementCrudInjector } from &#39;clientlibs.RequirementCrudInjector&#39;;
+	<br />import * as controller from &#39;hr.controller&#39;;
+	<br />import * as childCrud from &#39;hr.widgets.ChildCrudTable&#39;;
+	<br />import * as crudPage from &#39;hr.widgets.CrudPage&#39;;</p>
+<p>/**
+	<br />&nbsp;* Create a ChildCrudTable instance for the requirement editor on the main form.
+	<br />&nbsp;* @param builder
+	<br />&nbsp;*/
+	<br />function buildRequirementTable(builder: controller.InjectedControllerBuilder) {
+	<br />&nbsp;&nbsp;&nbsp; var childBuilder = builder.createChildBuilder();
+	<br />&nbsp;&nbsp;&nbsp; standardCrudPage.addServices(childBuilder, RequirementCrudInjector);
+	<br />&nbsp;&nbsp;&nbsp; childBuilder.Services.addShared(childCrud.ChildCrudTable, childCrud.ChildCrudTable);
+	<br />&nbsp;&nbsp;&nbsp; var listingSettings = new crudPage.ListingDisplayOptions();
+	<br />&nbsp;&nbsp;&nbsp; listingSettings.setLoadingOnStart = false;
+	<br />&nbsp;&nbsp;&nbsp; childBuilder.Services.addSharedInstance(crudPage.ListingDisplayOptions, listingSettings);
+	<br />&nbsp;&nbsp;&nbsp; var crudSettings = new standardCrudPage.Settings();
+	<br />&nbsp;&nbsp;&nbsp; crudSettings.pageNumbersName = &quot;requirementsPageNumbers&quot;;
+	<br />&nbsp;&nbsp;&nbsp; crudSettings.entryEditorName = &quot;requirementsEntryEditor&quot;;
+	<br />&nbsp;&nbsp;&nbsp; crudSettings.mainTableName = &quot;requirementsTable&quot;;
+	<br />&nbsp;&nbsp;&nbsp; crudSettings.searchName = &quot;requirementsSearch&quot;; //This isn&#39;t on the page, just changing name from default
+	<br />&nbsp;&nbsp;&nbsp; crudSettings.addItemEditorName = null; //Disable separate add item editor
+	<br />&nbsp;&nbsp;&nbsp; standardCrudPage.createControllers(childBuilder, crudSettings);</p>
+<p>&nbsp;&nbsp;&nbsp; return childBuilder.createUnbound(childCrud.ChildCrudTable);
+	<br />}</p>
+<p>/**
+	<br />&nbsp;* Use the extensions class to be alerted when the item editor is loading its data.
+	<br />&nbsp;*/
+	<br />class CrudItemEditorControllerExtensions extends crudPage.CrudItemEditorControllerExtensions {
+	<br />&nbsp;&nbsp;&nbsp; public static get InjectorArgs(): controller.InjectableArgs {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [childCrud.ChildCrudTable];
+	<br />&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; constructor(private childTable: childCrud.ChildCrudTable) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super();
+	<br />&nbsp;&nbsp;&nbsp; }</p>
+<p>&nbsp;&nbsp;&nbsp; /**
+	<br />&nbsp;&nbsp;&nbsp;&nbsp; * Called after data is loaded but before it is put on the form. You should
+	<br />&nbsp;&nbsp;&nbsp;&nbsp; * return in the passed data even if you don&#39;t want it modified. Otherwise you
+	<br />&nbsp;&nbsp;&nbsp;&nbsp; * can modify it, or respond to other events here.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp; * @param editor
+	<br />&nbsp;&nbsp;&nbsp;&nbsp; */
+	<br />&nbsp;&nbsp;&nbsp; afterDataLoad(editor: crudPage.CrudItemEditorController, data: any): Promise&lt;any&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.childTable.setCurrent(data);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return Promise.resolve(data);
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</p>
+<p>//This is the normal page load pretty much, except now we add the buildRequirementTable result to the main builder.
+	<br />var injector = HealthProgramCrudInjector;
+	<br />var builder = startup.createBuilder();
+	<br />var mainTableBuilder = builder.createChildBuilder();
+	<br />deepLink.addServices(mainTableBuilder.Services);
+	<br />mainTableBuilder.Services.addTransient(crudPage.CrudItemEditorControllerExtensions, CrudItemEditorControllerExtensions);
+	<br />standardCrudPage.addServices(mainTableBuilder, injector);
+	<br />mainTableBuilder.Services.addSharedInstance(childCrud.ChildCrudTable, buildRequirementTable(builder));
+	<br />standardCrudPage.createControllers(mainTableBuilder, new standardCrudPage.Settings());</p>

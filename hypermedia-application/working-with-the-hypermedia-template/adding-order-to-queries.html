@@ -1,0 +1,57 @@
+<h1>Adding Sort Order to Queries</h1>
+<p>The Threax.AspNetCore.Halcyon.Ext library contains some helper classes for getting ordering working really easily on your query classes. You won&#39;t need to make any changes to your project except to make sure you are Threax.AspNetCore.Halcyon.Ext version 12.2.1 or greater.</p>
+<p>To add ordering to your query class make the following changes.</p>
+<h3>Modify Query</h3>
+<p>First go to your model&#39;s query class. Inside the Create function in the if(CreateGenerated) if statement add the following:</p>
+<p><code>if (OrderBy != null)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; query = query.OrderByProperty(OrderBy, Order);
+	<br />}</code></p>
+<p>Next add the following properties to your query:</p>
+<p><code>[UiSearch]
+	<br />[ValueProvider(typeof(PropertyNameValueProvider&lt;<strong>ModelEntity</strong>&gt;))]
+	<br />public String OrderBy { get; set; } = nameof(ValueEntity.Name);</code></p>
+<p><code>[UiSearch]
+	<br />public OrderDirection Order { get; set; }</code></p>
+<p>Replace <strong>ModelEntity</strong> with your model&#39;s entity class. This will look at the entity to find any properties that we could sort by. If you want to sort by clicking on column headers don&#39;t include the [UiSearch] and [ValueProvider] lines above OrderBy.</p>
+<h3>Modify Entity</h3>
+<p>In order to read the properties from the entity it must be a HalModel since under the hood we use the schema generator to make sure names come out correctly for the entity. If you try to run your program as is it will fail since you entity is not a HalModel by default. To fix this go to your entity and add a [HalModel] attribute to the top of the class.</p>
+<h3>Test It Out</h3>
+<p>This version will add ordering to your search query. If you follow the example the properties will show up on the ui. If you have a search ui for your data, you should see the results right away and can begin sorting, otherwise add a search ui to your model&#39;s view page and then you should be able to order the results.</p>
+<h2>How Does It Work?</h2>
+<p>All this is really doing is giving you a standard to use when creating ordering. This works by taking a string for the property we want to order on and a OrderDirection enum, which will be used by our custom OrderByProperty extension method to determine which ordering should be used. Ultimately everything is under your control, from the properties in your query to the way you build the IQueryable. You could send the list of columns to order by with another value provider if you wanted, you could not let the user send in an order, whatever you need should be controllable from this class.</p>
+<h2>Sort By Clicking Column Headers</h2>
+<p>If you are using the HtmlRapier.Widgets crud page it includes support for a controller that allows you to click on the column names in your table and use them to trigger sorts. If you add a controller named <code>mainTableSort</code> to your page this will be activated automatically.</p>
+<p>An abstract version of this looks like the following:</p>
+<p><code>&lt;thead&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;tr data-hr-controller=&quot;mainTableSort&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;ColumnName&quot;&gt;ColumnName &lt;span data-hr-toggle=&quot;ColumnNameOrderToggle&quot; data-hr-class-asc=&quot;&quot; data-hr-class-desc=&quot;&quot; data-hr-class-off=&quot;&quot;&gt;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/tr&gt;
+	<br />&lt;/thead&gt;</code></p>
+<p>You will put a data-hr-controller on the row itself. Call it <code>mainTableSort</code> so the convention can find it. <code>data-hr-controller=&quot;mainTableSort&quot;</code>.</p>
+<p>Then each column should call the sort function when it is clicked (or whatever event you want to trigger on). <code>data-hr-on-click=&quot;sort&quot;</code></p>
+<p>You need to set the <strong>data-hr-sort-name</strong> to the name of the column on the entity. This will need to be in CamelCase. <code>data-hr-sort-name=&quot;<strong>ColumnName</strong>&quot;</code>.</p>
+<p>Finally create a toggle, this example creates a span that uses classes, but you can create any kind of toggle or use styles if needed. This toggle has 3 states instead of the standard on and off. These are asc, desc and off. Asc is what should appear when the table is sorted in ascending order, Desc is what should appear when the table is sorted in descending order. Off is used when that column is not being used to sort. <code>data-hr-toggle=&quot;ColumnNameOrderToggle&quot; data-hr-class-asc=&quot;&quot; data-hr-class-desc=&quot;&quot; data-hr-class-off=&quot;&quot;</code></p>
+<p>You should not need to change any typescript to get this to work. Once you are done you should be able to click the column headers and the data will be sorted by that column. Clicking it again will reverse the sort order.</p>
+<h3>Bootstrap 4 Example</h3>
+<p>Below is an example of this layout using bootstrap 4 on a table with StartDate, EndDate and Order columns that can be sorted and some other columns that cannot be.</p>
+<p><code>&lt;thead&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;tr data-hr-controller=&quot;mainTableSort&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th&gt;Image&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;StartDate&quot;&gt;Start Date &lt;span data-hr-toggle=&quot;StartDateOrderToggle&quot; data-hr-style-asc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9650;&lt;/span&gt;&lt;span data-hr-toggle=&quot;StartDateOrderToggle&quot; data-hr-style-desc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9660;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;EndDate&quot;&gt;End Date &lt;span data-hr-toggle=&quot;EndDateOrderToggle&quot; data-hr-style-asc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9650;&lt;/span&gt;&lt;span data-hr-toggle=&quot;EndDateOrderToggle&quot; data-hr-style-desc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9660;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th&gt;Link&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;Order&quot;&gt;Order &lt;span data-hr-toggle=&quot;OrderOrderToggle&quot; data-hr-style-asc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9650;&lt;/span&gt;&lt;span data-hr-toggle=&quot;OrderOrderToggle&quot; data-hr-style-desc=&quot;display:inline;&quot; class=&quot;startHidden&quot;&gt;&amp;#9660;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th&gt;Edit&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/tr&gt;
+	<br />&lt;/thead&gt;</code></p>
+<h3>Bootstrap 3 Example</h3>
+<p>Below is a simple example of this layout using bootstrap 3 on a table with Course, ClassSection and Description columns that can be sorted.
+	<br /><code>&lt;thead&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;tr data-hr-controller=&quot;mainTableSort&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;Course&quot;&gt;Course &lt;span data-hr-toggle=&quot;CourseOrderToggle&quot; data-hr-class-asc=&quot;glyphicon glyphicon-triangle-top&quot; data-hr-class-desc=&quot;glyphicon glyphicon-triangle-bottom&quot;&gt;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;ClassSection&quot;&gt;Section &lt;span data-hr-toggle=&quot;ClassSectionOrderToggle&quot; data-hr-class-asc=&quot;glyphicon glyphicon-triangle-top&quot; data-hr-class-desc=&quot;glyphicon glyphicon-triangle-bottom&quot;&gt;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;th data-hr-on-click=&quot;sort&quot; data-hr-sort-name=&quot;Description&quot;&gt;Description &lt;span data-hr-toggle=&quot;DescriptionOrderToggle&quot; data-hr-class-asc=&quot;glyphicon glyphicon-triangle-top&quot; data-hr-class-desc=&quot;glyphicon glyphicon-triangle-bottom&quot;&gt;&lt;/span&gt;&lt;/th&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/tr&gt;
+	<br />&lt;/thead&gt;</code></p>
+<p>You should create some appropriate css to indicate that your columns can be sorted.</p>

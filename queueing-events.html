@@ -1,0 +1,243 @@
+<h1>Queueing Events</h1>
+<p>This page describes how to add events to your application that can be fired on a shared queue to other applications. This is implemented using the MassTransit library on top of the RabbitMQ message broker.</p>
+<p>This page will only describe how to integrate it into your app with an example. If you need more information about <a href="http://masstransit-project.com/">MassTransit </a>or <a href="https://www.rabbitmq.com/">RabbitMQ </a>see their websites.</p>
+<p>This also assumes you have <a href="https://www.rabbitmq.com/install-windows.html">RabbitMQ installed</a>. You might also want to enable the <a href="https://www.rabbitmq.com/management.html">management gui</a> so you can see what is happening on your queue. Once you get the management ui running you can access it at <a href="http://localhost:15672/" target="_blank">http://localhost:15672/</a>.</p>
+<h2>Get the Libraries</h2>
+<p>The first thing you must do is install the libraries needed in your project. You can drop the following into your csproj to get what you need. But you probably want to update them to the latest version after you do this.</p>
+<p><code>&lt;PackageReference Include=&quot;Threax.AspNetCore.MessageQueue&quot; Version=&quot;1.0.1&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;Threax.AspNetCore.MessageQueue.MassTransit&quot; Version=&quot;1.2.1&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;MassTransit&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;MassTransit.RabbitMQ&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;MassTransit.Extensions.DependencyInjection&quot; Version=&quot;4.0.0&quot; /&gt;</code></p>
+<h2>Inject the Dependencies</h2>
+<p>Next you need to setup the dependencies and activate the mass transit bus in your application. The threax libraries for this help with setting up and configuring the queue, but they are very basic wrappers around the real functionality. Currently only one queue server per application is supported, but this is a limitation of our integration, not MassTransit or RabbitMQ. This can be improved later if needed.</p>
+<p>In Startup.cs in the ConfigureServices function add the following code:</p>
+<p><code>services.AddThreaxMassTransit(o =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;MessageQueue&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp; o.QueueName = o.QueueName ?? authConfig.Scope;
+	<br />});</code></p>
+<p>This will bind the mass transit options to your config&#39;s MessageQueue section. It will also use your app&#39;s scope name as the name of the queue unless you specify one in your config file.</p>
+<p>Add the following to the end of the ToolRunner defintion likely after UseClientGenTools().</p>
+<p><code>.AfterTools(a =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; a.Scope.ServiceProvider.StopThreaxMassTransit();
+	<br />});</code></p>
+<p>This will stop the mass transit bus when running in tools mode correctly, otherwise your application will never close when running in tools mode.</p>
+<p>Next go to the configure function and add the following line. The order for this does not matter since all this does is start the mass transit bus, it does not add anything to the http pipeline.</p>
+<p><code>app.UseThreaxMassTransit();</code></p>
+<p>If all you need to do is send messages this is all of the setup you need. If you need to listen for messages go to the Listening to Messages section below.</p>
+<p>Finally if you have a ClientGen test (you will if you used the test template). Open that file (ClientGen.cs) and add the following to the end of the Run function:</p>
+<p><code>host.Services.StopThreaxMassTransit();</code></p>
+<p>This will make sure to stop the bus during unit tests.</p>
+<h2>Change Configuration</h2>
+<p>Add a message queue node to the config file with the appropriate settings. For development go ahead and use</p>
+<p><code>&quot;MessageQueue&quot;: {
+	<br />&nbsp; &quot;Host&quot;: &quot;rabbitmq://localhost&quot;,
+	<br />&nbsp; &quot;Username&quot;: &quot;guest&quot;,
+	<br />&nbsp; &quot;Password&quot;: &quot;guest&quot;
+	<br />}</code></p>
+<p>Which will connect to the queue as setup out of the box. If you changed the user/password set those here (or better yet in the project secrets).</p>
+<h2>Send a Message</h2>
+<p>You can send messages using MassTransit directly by injecting a IPublishEndpoint into the class you want to send messages from. However, most of the time you will probably be sending messages based on changes you are making to the database through your repository. The threax integration library makes this easy by providing an IEventQueue&lt;T&gt; interface, where T is the type of message you want to send. Also, due to the way MassTransit works, you will need to create a library for your messages since you will be creating an interface for each type of message that you want to send.</p>
+<h3>Create a Message Library</h3>
+<p>Before sending any messages you need to create a library to hold the interfaces for your message types. The message interfaces can contain whatever data you want, but each property should be get only and don&#39;t try to include any funcitons. These classes are data transfer objects and represent the literal message itself. To create the library add a new Class Library (.NET Standard) to your solution. A good naming convention for this library is YourAppName.Messages.</p>
+<p>Next define the interfaces for any messages you intend to send in this library. Additionally go to the Package tab in the project properties and check the box that says <var>Generate NuGet package on build</var>. This will build a nuget package you can put onto webdev1 for this library to make it easy to share with client applications. You might want to set the other nuget package options that make sense here too.</p>
+<p>An example of a message interface would look like the following:</p>
+<p><code>public interface IAdBuildingChanged
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; Guid BuildingId { get; }
+	<br />}</code></p>
+<p>Here we are passing the id of the building that updated. Really though your messages can have whatever format you want. Just be careful about sending secret info since the queue does not offer the same level of security that applications do. This example is a simple format that will require consumers to look the data back up from the original service.</p>
+<p>Finally reference this library from your main application.</p>
+<h3>Send Messages Based on Entity Framework Changes</h3>
+<h4>Prepare Repository</h4>
+<p>Your applications can send messages for any reason they might need to, however, the most likely scenerio is that you will send updates to other applications when you change data in your repositories. This section describes an easy way to handle this case.</p>
+<p>First go to the repository that will fire the messages. If you have several calls to <code>await this.dbContext.SaveChangesAsync();</code> in this repository you should centralize them in a function called SaveChanges that looks like the following:</p>
+<p>private async Task SaveChanges()
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; await this.dbContext.SaveChangesAsync();
+	<br />}</p>
+<p>Then go through the repo and replace all calls to&nbsp;<code>await this.dbContext.SaveChangesAsync();</code> with <code>await SaveChanges();</code>. Right now this code just does the same thing, but we will use this function to determine what changed.</p>
+<p>Next go to your IRepository interface and add the argument <code>IEventQueue&lt;IMessageInterfaceName&gt; eventQueue</code> to all of the functions that change data. By default this is Add, AddRange, Delete and Update, but you might have more. With the way this code is written if you follow the directions you won&#39;t be able to miss one. Following the building example this is what the final building repository looks like for the Active Directory service.</p>
+<p><code>public partial interface IAdBuildingRepository
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;AdBuilding&gt; Add(AdBuildingInput value, IEventQueue&lt;IAdBuildingChanged&gt; eventQueue);
+	<br />&nbsp;&nbsp;&nbsp; Task AddRange(IEnumerable&lt;AdBuildingInput&gt; values, IEventQueue&lt;IAdBuildingChanged&gt; eventQueue);
+	<br />&nbsp;&nbsp;&nbsp; Task Delete(Guid id, IEventQueue&lt;IAdBuildingChanged&gt; eventQueue);
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;AdBuilding&gt; Get(Guid adBuildingId);
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;bool&gt; HasAdBuildings();
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;AdBuildingCollection&gt; List(AdBuildingQuery query);
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;AdBuilding&gt; Update(Guid adBuildingId, AdBuildingInput value, IEventQueue&lt;IAdBuildingChanged&gt; eventQueue);
+	<br />&nbsp;&nbsp;&nbsp; Task UpdateCache(AdCacheLookupResults lookupResults, IEventQueue&lt;IAdBuildingChanged&gt; eventQueue);
+	<br />&nbsp;&nbsp;&nbsp; Task&lt;IEnumerable&lt;ILabelValuePair&gt;&gt; GetLabels();
+	<br />}</code></p>
+<p>Notice that this interface has an extra UpdateCache function that also modifies the database, so it also takes in the eventQueue argument.</p>
+<h4>Fix Compiler Errors</h4>
+<p>Building now should give a bunch of compiler errors that your concrete repository class does not implement the interface correctly. Your controllers will likely be unhappy as well since they are not passing all the required arguments.</p>
+<p>Fix the repository by adding the IEventQueue&lt;T&gt; argument to each of its function signatures.</p>
+<p>Fix the controller by injecting an IEventQueue&lt;T&gt; into its constructor. Also add a private variable and assign it in the constructor. Now pass this as an argument to the appropriate functions.</p>
+<p>These steps should get your program to compile again. If you have tests you might need to fix them as well. If you are using the Threax.Tests.Mockup class you can just call m.Get&lt;IEventQueue&lt;T&gt;&gt;() to get a mockup queue. You do not need to define it the automatic mock is good enough.</p>
+<h4>Populate the Queue</h4>
+<p>Now we need to fill up the queue and actually fire it. Fortunately EntityFramework makes this really easy for us. A big part of ef is tracking changes made to entities before saving them to the database, so only what is changed is actually updated. We can tap into this easily to fill up the event queue for changes to our model.</p>
+<p>However, before we can do this we have to define a concrete message type. Unfortunately this appears to be the best way to do this even though it is a bit annoying. Add a folder to your main project called Messages. Inside that implement all of your message interfaces as real classes. The AdBuildingChanged example looks like the following:</p>
+<p><code>public class AdBuildingChanged : IAdBuildingChanged
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; public Guid BuildingId { get; set; }
+	<br />}</code></p>
+<p>Next go to your SaveChanges function in your repository and modify it to look something like the following:</p>
+<p><code>private async Task SaveChanges(IEventQueue&lt;IAdBuildingChanged&gt; eventQueue)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; if (eventQueue != null)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach (var change in dbContext.ChangeTracker.Entries&lt;AdBuildingEntity&gt;()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Where(i =&gt; i.State == EntityState.Added
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; || i.State == EntityState.Deleted
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; || (i.State == EntityState.Modified &amp;&amp; i.Properties.Any(p =&gt; p.IsModified &amp;&amp; p.Metadata.Name != nameof(BuildingEntity.Modified))))
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Select(i =&gt; new AdBuildingChanged()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AdBuildingId = i.Entity.AdBuildingId
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }))
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eventQueue.Add(change);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; await this.dbContext.SaveChangesAsync();
+	<br />}</code></p>
+<p>What this does is ask EntityFramework for all the changes to AdBuildingEntities where the state is Added, Deleted or Modified. It then creates a concrete AdBuildingChanged instance for each change it detects passing the id. It will also ignore modified changes if only the Modified property is changed on the entity, this way we don&#39;t fire events over and over just because we changed the modified date and nothing else. If you don&#39;t have a modified property on your entity, modify the query as needed.</p>
+<p>You might have compiler errors on your calls to SaveChanges, fix them by passing the queue argument. This is also where you might find any functions that update data that you may have missed adding the queue as an arguement to.</p>
+<h4>Firing Events</h4>
+<p>Now we have a populated queue of all the data that changed. However, this queue is still only in our local application memory. We must publish the results to MassTransit back in the controller or whatever class was calling our repository to make changes.</p>
+<p>To fire events from a controller all you need to do is add the following function to it. This assumes you named your event queue eventQueue otherwise change that as needed.</p>
+<p><code>public override void OnActionExecuted(ActionExecutedContext context)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; base.OnActionExecuted(context);
+	<br />&nbsp;&nbsp;&nbsp; eventQueue.FireAndForget();
+	<br />}</code></p>
+<p>This function will be called after each action method finishes executing. It will fire the queue in FireAndForget mode, which will execute it in the background without making the caller wait for it to complete before returning the HTTP result. You can also use the Fire function with await if you needed to await queuing the event for some reason, however, you will probably have to do this in each action method since OnActionExecuted is not async. However, most of the time this is all you should need to do in a controller to fire updates.</p>
+<p>One other note about this approach in controllers. This will fire the queue even on List or Get requests since its fired on each request. However, in these cases the queue should be empty making it do nothing. If the overhead from this is a problem (it shouldn&#39;t be) you can fire it in each action method.</p>
+<p>If you made updates from somewhere else, perhaps in the seed function or as part of a tool you will need to call Fire or FireAndForget after you make the changes to the repository.</p>
+<p>With these changes you can now fire events from your application. Mass transit will handle wiring up everything, which it does based on our message interface names.</p>
+<h2>Consuming Messages</h2>
+<p>The next step is to consume messages in another application. If your doing this to learn and want to try it out without getting another application involved you can make the changes described below to the one you are testing with, its possible for an applicaiton to listen to messages from itself over the queue, however, most likely you will be doing this from another applicaiton.</p>
+<p>First add a reference to the messages library for your application on nuget. Make sure you added your message library to the webdev1/nuget folder. If you are adding this to another application do the Get the Libraries and Inject Dependencies sections on this page again for that application.</p>
+<h3>Adding an IConsumer&lt;T&gt;</h3>
+<p>Next create a folder called Consumers. Consumers are like controllers, but instead of responding to HTTP requests they respond to events from MassTransit. A very simple implementation of this would look like the following for our building example:</p>
+<p><code>public class BuildingChangedConsumer : IConsumer&lt;IAdBuildingChanged&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; private IBuildingRepository repo;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public BuildingChangedConsumer(IBuildingRepository repo)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.repo = repo;
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public async Task Consume(ConsumeContext&lt;IAdBuildingChanged&gt; context)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine(context.Message.AdBuildingId);
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>This class implements the IConsumer&lt;T&gt; interface from MassTransit. T here is the message interface type we want this consumer to handle, in this case IAdBuildingChanged. We are also injecting the repository we want to update in our local application. You can inject anything you have registered in the DI here just like a controller. Assuming this is another applicaiton this IBuildingRepsitory is not related to the one from the other service and can contain whatever data we need it to contain. However, in spite of injecting this we don&#39;t actually use it instead this example just prints the AdBuildingId property form the interface.</p>
+<p>Notice that in our consumer application we did not need to implement a concrete version of the IAdBuildingChanged message interface, MassTrasit does this for us automatically.</p>
+<p>Consumers and Sagas will be found automatically. You can also register them by hand to give them a different lifetime if needed. The default is scoped. You can also add an [IgnoreMessages] attribute to your Consumer or Saga class and it will not be auto registered.</p>
+<h3>Reading Data from Source Service</h3>
+<p>If you run this applicaiton and make changes from the source application you should see the changed ids print out to the log. This shows how the 2 apps are now connected together over the event queue. However, this is not very useful on its own since no updates are actually made to the repository. In order to facilitate this you should create a c# client for your source application. This can be done quite easily using the template and generating the client code. This is discussed on the <a href="/service-client-template">Service Client Template</a> page.</p>
+<p>Once you have a client you can modify the consumer to look something like the following:</p>
+<p><code>public class BuildingChangedConsumer : IConsumer&lt;IAdBuildingChanged&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; private IBuildingRepository repo;
+	<br />&nbsp;&nbsp;&nbsp; private Spc.SpcActiveDirectory.Client.EntryPointInjector entryPointInjector;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public BuildingChangedConsumer(IBuildingRepository repo, Spc.SpcActiveDirectory.Client.EntryPointInjector entryPointInjector)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.repo = repo;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.entryPointInjector = entryPointInjector;
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public async Task Consume(ConsumeContext&lt;IAdBuildingChanged&gt; context)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var entryPoint = await entryPointInjector.Load();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (entryPoint.CanListCampuses)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var message = context.Message;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var result = await entryPoint.ListBuildings(new Spc.SpcActiveDirectory.Client.BuildingQuery()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BuildingId = message.BuildingId,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Limit = 1
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (result.Data.Total &gt; 0)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await this.repo.SyncFromAd(result.Items.Select(i =&gt; i.Data));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>Here we use the generated service client from the Active Directory service to access the changed building and update its data in the repository. However, the repository probably doesn&#39;t currently have a SyncFromAd function, so implement it like the following:</p>
+<p><code>public async Task SyncFromAd(IEnumerable&lt;Spc.ActiveDirectory.Client.Building&gt; adBuildings)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; foreach (var item in adBuildings)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var entity = await Entities.Where(i =&gt; i.AdSyncId == item.BuildingId).FirstOrDefaultAsync();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (entity == null)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entity = new BuildingEntity();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.dbContext.Add(entity);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mapper.Map(item, entity);
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; await this.dbContext.SaveChangesAsync();
+	<br />}</code></p>
+<p>Note that SyncFromAd here means Sync From Active Directory, you should name your function appropriately depending on its source service.</p>
+<p>In addition to implementing this funciton you should also add a mapping profile that goes from the Spc.ActiveDirectory.Client.Building class to your service&#39;s building class. That would likely look something like the following:</p>
+<p><code>CreateMap&lt;Spc.SpcActiveDirectory.Client.Building, BuildingEntity&gt;()
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(i =&gt; i.BuildingId, opt =&gt; opt.Ignore())
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(i =&gt; i.CampusId, opt =&gt; opt.ResolveUsing&lt;ICampusIdResolver&gt;())
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(i =&gt; i.AdSyncId, opt =&gt; opt.MapFrom(j =&gt; j.BuildingId))
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(i =&gt; i.Display, opt =&gt; opt.MapFrom(j =&gt; j.Display))
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(d =&gt; d.Created, opt =&gt; opt.ResolveUsing&lt;ICreatedResolver&gt;())
+	<br />&nbsp;&nbsp;&nbsp; .ForMember(d =&gt; d.Modified, opt =&gt; opt.ResolveUsing&lt;IModifiedResolver&gt;())
+	<br />&nbsp;&nbsp;&nbsp; .ForAllOtherMembers(opt =&gt; opt.Ignore());</code></p>
+<p>Note that this has a mapping that will look up the campus id from the current database. That is a detail of synchronizing buildings, your models might not require something like that. The key is that anything the source object does not know about in the destination object is ignored. This is done with the call to <code>.ForAllOtherMembers(opt =&gt; opt.Ignore());</code></p>
+<h3>Seeding Data from the Source Service</h3>
+<p>A good place to also sync data is the Seed function in AppDatabaseServiceExtensions.cs. Here you can call the list function and get all the items from the source service and sync them into your local cache.</p>
+<p>Here is the complete seed function from the infrastructure service. Notice that it uses the same classes as the Consumers.</p>
+<p><code>public static async Task Seed(this ToolArgs toolArgs)
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; //Seed the authorization database, this will automatically manage roles and will add
+	<br />&nbsp;&nbsp;&nbsp; //any roles not currently in the database.
+	<br />&nbsp;&nbsp;&nbsp; var context = toolArgs.Scope.ServiceProvider.GetRequiredService&lt;AppDbContext&gt;();
+	<br />&nbsp;&nbsp;&nbsp; await context.SeedAuthorizationDatabase(Roles.DatabaseRoles());</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; try
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Get entry point
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var adEntryPointInjector = toolArgs.Scope.ServiceProvider.GetRequiredService&lt;Spc.SpcActiveDirectory.Client.EntryPointInjector&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var adEntryPoint = await adEntryPointInjector.Load();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Seed campuses from active directory
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (adEntryPoint.CanListCampuses)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var campusRepo = toolArgs.Scope.ServiceProvider.GetRequiredService&lt;ICampusRepository&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var page = await adEntryPoint.ListCampuses(new SpcActiveDirectory.Client.CampusQuery() { Limit = 100 });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await campusRepo.SyncFromAd(page.Items.Select(i =&gt; i.Data));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (page.CanNext)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; page = await page.Next();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await campusRepo.SyncFromAd(page.Items.Select(i =&gt; i.Data));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Seed buildings from active directory
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (adEntryPoint.CanListBuildings)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var buildingRepo = toolArgs.Scope.ServiceProvider.GetRequiredService&lt;IBuildingRepository&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var page = await adEntryPoint.ListBuildings(new SpcActiveDirectory.Client.BuildingQuery() { Limit = 100 });
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await buildingRepo.SyncFromAd(page.Items.Select(i =&gt; i.Data));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (page.CanNext)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; page = await page.Next();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await buildingRepo.SyncFromAd(page.Items.Select(i =&gt; i.Data));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; catch(Exception ex)
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var log = toolArgs.Scope.ServiceProvider.GetRequiredService&lt;ILogger&lt;Spc.SpcActiveDirectory.Client.EntryPointInjector&gt;&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; log.LogError($&quot;{ex.GetType().Name} occured seeding data from the active directory service. Message: {ex.Message}&quot;);
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p>This function gets the entry point to the active directory service. After that it lists the buildings and campuses. It makes sure to go through all pages until no items are left.</p>
+<p>&nbsp;</p>
