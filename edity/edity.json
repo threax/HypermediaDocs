@@ -1,8 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/threax/EdityMcEditface/master/SchemaGenerator/Schema/EdityProject.json",
   "vars": {
-    "siteTitle": "Threax Hypermedia Framework and Architecture",
+    "siteTitle": "Threax Hypermedia Framework and Architecture"
+  },
+  "buildVars":{
     "pathBase": "HypermediaDocs"
   },
-  "additionalContent": [ "menus/mainmenu.json" ]
+  "additionalContent": [  ]
 }
