@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queueing Events</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -200,7 +200,7 @@
 <p>Notice that in our consumer application we did not need to implement a concrete version of the IAdBuildingChanged message interface, MassTrasit does this for us automatically.</p>
 <p>Consumers and Sagas will be found automatically. You can also register them by hand to give them a different lifetime if needed. The default is scoped. You can also add an [IgnoreMessages] attribute to your Consumer or Saga class and it will not be auto registered.</p>
 <h3>Reading Data from Source Service</h3>
-<p>If you run this applicaiton and make changes from the source application you should see the changed ids print out to the log. This shows how the 2 apps are now connected together over the event queue. However, this is not very useful on its own since no updates are actually made to the repository. In order to facilitate this you should create a c# client for your source application. This can be done quite easily using the template and generating the client code. This is discussed on the <a href="/service-client-template">Service Client Template</a> page.</p>
+<p>If you run this applicaiton and make changes from the source application you should see the changed ids print out to the log. This shows how the 2 apps are now connected together over the event queue. However, this is not very useful on its own since no updates are actually made to the repository. In order to facilitate this you should create a c# client for your source application. This can be done quite easily using the template and generating the client code. This is discussed on the <a href="/HypermediaDocs/service-client-template">Service Client Template</a> page.</p>
 <p>Once you have a client you can modify the consumer to look something like the following:</p>
 <p><code>public class BuildingChangedConsumer : IConsumer&lt;IAdBuildingChanged&gt;
 	<br>{
@@ -309,12 +309,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

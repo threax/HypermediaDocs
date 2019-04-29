@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roles and User Builders</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -79,11 +79,11 @@
 <p>You can define as many special roles as you want for your application. If you open up Roles.cs you will see a static class called Roles that defines several String constants for each role you want in your system. By default there is an EditValues role in here that defines a role to allow the user to edit values. Personally I like to define fine grained roles to give permisisions to each individual type of model or action that a user can perform, but it would also be possible to define more generic roles here like normal user, administrator, etc. You can define whatever types of roles make the most sense for your application.</p>
 <p>The other thing you will see in the Roles class is a function called DatabaseRoles. This function yield returns all the roles that you want to add to the database. This will usually be all the roles you define, but you might have roles that are only given out on certain external conditions and not have them able to be manually assigned, so you would not include those roles in this function. There will be more info about this later using a custom IUserBuilder instance later on this page.</p>
 <p>Finally you will see another class at the bottom of this file called RoleAssignments. This class acts and both the input and view model for editing the roles, which takes place in the RolesController. Any roles you want visible on the UI should have a property added for them in this class. Additionally you can include other properties that you might want the user editors to be able to edit when defining users to this class. If you do this you will need to modify the Controllers/Api/RolesController.cs file as well.</p>
-<p><img class="fitImage" src="/AutoUploads\a9e11194-e662-4722-84dd-0c9bdbbc654e.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\a9e11194-e662-4722-84dd-0c9bdbbc654e.png"></p>
 <p>This screenshot shows the users table for the example application. You can see the users in the system and search for them based on user name or current roles.</p>
-<p><img class="fitImage" src="/AutoUploads\e4396904-e526-4b93-b0d1-988a6ee73350.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\e4396904-e526-4b93-b0d1-988a6ee73350.png"></p>
 <p>Clicking edit will show the roles that the user currently has. It also lets you rename your user. This name is only referenced in the user list on this page, the name the app sees will come out of the access token.</p>
-<p><img class="fitImage" src="/AutoUploads\11b618cd-ccc3-409e-8865-4acd8455e476.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\11b618cd-ccc3-409e-8865-4acd8455e476.png"></p>
 <p>Clicking add lets you search&nbsp;the Identity Server&nbsp;for users that you wish to edit. Clicking Edit Roles will let you edit the roles for that user. It also lets you&nbsp;add them as an offical user if you are using a whitelist. You can also add guids manually if you know what they are ahead of time.</p>
 <h2>Custom Rules for Assigning Roles</h2>
 <p>In addition to storing roles in the database you can also use code to assign them. The interface to do this is IUserBuilder in the Threax.AspNetCore.Authorization library. However, you will likely want to use&nbsp;UserAuthorizerBuilderLink superclass since this handles chaining multiple user builders together. In fact all of the built in role assignment classes including the one that does the database roles also inherit from this class. This is how you can easily make different combinations of rules.</p>
@@ -138,7 +138,7 @@
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public List&lt;int&gt; Categories { get; set; }
 	<br>&nbsp;&nbsp;&nbsp; }</code></code></p>
 <p>This class is pretty big and defines a lot of roles. However, notice that it also has fields like First for first names and Phone for phone numbers. In addition at the bottom is a List of integer ids for categories, so users can be restricted to editing only particular categories on the website. Please note that logic would have to be written into the controllers to enforce the limited categories, but this is about assigning those roles, not enforcing them. This gives us a more advanced editor than the basic one above.
-	<br><img class="fitImage" src="/AutoUploads\6f5d6666-b53d-4b2b-a0f8-b6882e0bc131.png"></p>
+	<br><img class="fitImage" src="/HypermediaDocs/AutoUploads\6f5d6666-b53d-4b2b-a0f8-b6882e0bc131.png"></p>
 <p>Here you can see the fields for the user information, the roles and then the sites that this user is allowed to edit. The RolesController will handle assigning the roles with the check boxes in the screenshot above, but the user information and the site assignments must be handled by the application itself. To understand this better take a look at a customized&nbsp;RolesController that handles the extra fields.</p>
 <p><code>&nbsp; &nbsp; [Route(&quot;api/[controller]&quot;)]
 	<br>&nbsp; &nbsp; [Area(&quot;Api&quot;)]
@@ -181,12 +181,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create the Project</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -93,7 +93,7 @@
 <h2>Setup Database</h2>
 <ol>
 	<li>In the dropdown that says IIS Express change it to the profile SetupDb.
-	<br><img class="fitImage" src="/AutoUploads\777e4cd5-9771-4170-a995-f797eb801f8e.png"></li>
+	<br><img class="fitImage" src="/HypermediaDocs/AutoUploads\777e4cd5-9771-4170-a995-f797eb801f8e.png"></li>
 	<li>Running that will run the tools with migrate and seed, which will setup your database.</li>
 	<li>Your service now has a database with user tables in it.</li>
 	<li>Your databases are running using localdb. You can see the connection string in appsettings.json. The name of the database will match the project name.</li>
@@ -124,7 +124,7 @@
 <ol>
 	<li>In Visual Studio click on the tab that says Package Manager Console. This lets you use powershell commands from Visual Studio, you can also open a command window externally if you want to work that way.</li>
 	<li>cd into your application project directory. By default it starts in the base solution folder.</li>
-	<li>In this window type <code>dotnet run tools &quot;addadmin YOUR_GUID&quot;</code> replace YOUR_GUID with your guid from the <a href="/seeding-accounts">Seeding Accounts</a> page. Be sure to keep the quotes.</li>
+	<li>In this window type <code>dotnet run tools &quot;addadmin YOUR_GUID&quot;</code> replace YOUR_GUID with your guid from the <a href="/HypermediaDocs/seeding-accounts">Seeding Accounts</a> page. Be sure to keep the quotes.</li>
 	<li>Your guid will now be added as a user with all of the roles defined in the system.</li>
 </ol>
 <h2>Run the Application</h2>
@@ -142,12 +142,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

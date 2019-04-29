@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hypermedia Concepts</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -63,9 +63,9 @@
 <p>This page will describe the high level concept of Hypermedia applications and how the app template works. The apps use a concept known as Hypermedia as the Engine of Application State or HATEOAS or&nbsp;just plain&nbsp;&quot;hypermedia.&quot; The idea here is that the service is responsible for the application flow, determining what can happen next and using links to express those transitions. This concept makes client side processing significantly easier. All the client side has to worry about is if there is a link to do the action it wants to or not. If the link is not present it cannot do the action and nothing should be displayed on the ui to do that action, conversely if the link is present then the ui should be modified so the user can perform the action. The client side does not care why the action cannot be performed, just that the link is not present. The why could be because the user does not have permission or maybe the action the link represents makes no sense given the current data state. This helps keep the code dry (Don&#39;t Repeat Yourself) and prevents you from needing to reimplement your app on the client and server side.</p>
 <p>Using the knowledge of what transitions are possible given a set of links it is possible to create &quot;smart&quot; uis that can respond as needed. For example when you run the app you will see all the values on a crud table. If you didn&#39;t have permissions to add, edit or delete an item those buttons would disappear from the ui since the response for the collection and individual items would not contain links to do those actions. As a result of this we can reuse almost all of the crud page ui, since it has now become a crud page that is aware that hypermedia will help it determine what actions it can take at a given time.</p>
 <p>To see this in action a bit run the project you just created. In the browser window for the ui go to /ApiExplorer. This will open the Api Explorer. If you put in your hypermedia service url, which should be there already, and click Go it will load the entry point into the viewer. This viewer is not aware of any aspect of your application instead only working with the raw links returned in the reponse.</p>
-<p><img class="fitImage" src="/AutoUploads\ec0ea429-2d68-4905-b943-b869a260f3db.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\ec0ea429-2d68-4905-b943-b869a260f3db.png"></p>
 <p>Here we can see the entry point for our service with the default values links exposed. See that we get a form to fill out to make a request to list the values in the service. If you enter a limit &gt; 0 and click ListValues the ui will update to show the values you requested.</p>
-<p><img class="fitImage" src="/AutoUploads\e000e5ee-a28b-40b7-bd19-559576e5fa79.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\e000e5ee-a28b-40b7-bd19-559576e5fa79.png"></p>
 <p>This is the result of listing out 5 values. Notice that we get the info about the collection of values with its links, self, addValue, next, first and last and all the embedded data, which has its own links like self, updateValue and deleteValue. Since all of this is controlled by the service we can build this generic ui over and over to represent any data that might come out of our service. Keep playing around following links and whatever. If you need to get back to the starting point scroll all the way to the bottom and click Go again. Notice that as you are doing this its almost as if you are going around to different pages in a (somewhat confusing) ui. This is the key concept&nbsp;behind these types of apps. All of the state and all of the interactions in the service are defined by the service, as a result we can point a dumb ui like this at it and be able to do anything and everything the service allows us to do. From here we are only trying to build uis to make that interaction easier not a ui that handles any of this program flow logic.</p>
 <p>The simplest example of this is say we had a crud table where anyone could add and edit items but only a special type of user would be able to delete them. In a non-hypermedia approach we might define a way to get to that data and permissions on the server to block the user from deleting if they are not able. Then on the client side we would be aware of those roles and somehow have to pass them from the service to the client and then check to see if we can delete values and then hide the button. This duplicates logic and makes it difficult to keep everything in sync.</p>
 <p>The alternative to the above is to use hypermedia in the api. Now we define our service, which has its roles and prevents users from deleting items they are now allowed to. However, since we have now made the service in charge of application flow it will also include links in its repsonse to what it can do next. If the user is allowed to delete items the delete link is included, otherwise it is not. The client side now only checks to see if that link exists to determine if the button should appear or not. This becomes more powerful when you realize that now the UI totally does not care about <strong>why </strong>a user cannot delete a link, only that they cannot. Say we had a requirement change that every third tuesday of the month we are not allowed to delete items for some reason. In spite of being a werid requirement it is easy to handle, just adjust the service to not return a delete link if the user does not have permission or it is the third tuesday of the month&nbsp;and we are done. If we had a downstream application calling this api we wouldn&#39;t even have to redeploy it.&nbsp;The app&nbsp;will automatically pick up the changes because it only cares that it <strong>can </strong>delete not <strong>why</strong>.</p>
@@ -105,12 +105,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>.Net Core Hypermedia App</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -71,7 +71,7 @@
 	<li>ModelQuery - The query class that is used on the list function for a model&#39;s api. This will change what data is looked up based on the properties in the query.</li>
 </ul>
 <p>Since mapping between all these model types could be obnoxioius the template includes AutoMapper a library that can help us do just that very easily. Doing this sets up the flow for our objects shown below:</p>
-<p><img class="fitImage" src="/AutoUploads\6f0269c9-9de3-484b-8ad6-42dad4de912e.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\6f0269c9-9de3-484b-8ad6-42dad4de912e.png"></p>
 <p>Obviously every request and every page is not going to involve every step of this, but this shows how the data is transformed between the various models. The transformations are automatic happening courtesy of AutoMapper on the server side and HtmlRapier on the client side.</p>
 <h2>Database</h2>
 <p>The database is pretty straightforward Entity Framework core. You can use whatever techniques you want. You will see a Database folder in your service. Inside is a class called AppDbContext, which is the db context you should modify. You will also see a AppDatabaseServiceExtensions.cs class. This is the class you want to modify to add your custom database related code, setup mappings and register repositories. In addition your entity models can go in this folder.</p>
@@ -92,12 +92,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

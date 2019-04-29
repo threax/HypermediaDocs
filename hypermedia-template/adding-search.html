@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adding Search</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -101,14 +101,14 @@
 </ol>
 <h2>Testing the Search</h2>
 <p>Running the program now and going to the Values page will now show a 2 column ui. On the left will be the table and on the right will be a search box with a name field in it. Typing a value into the Name box and pressing search will find all the values who&#39;s names match excatly what you entered. Enter something like&nbsp;&quot;Value 10&quot;&nbsp;and press search. You should see&nbsp;1 result with 1 page. In addition the page&#39;s url should modify itself to be&nbsp;<a href="https://localhost:44321/Values?name=Value%2010&amp;offset=0&amp;limit=10&amp;total=1">https://localhost:44321/Values?name=Value%2010&amp;offset=0&amp;limit=10&amp;total=1</a>&nbsp;notice the name=Value%2010 in the query string. You can press back and the page will go back to the full results. Pressing forward should go back to the search results. This shows how your search results are part of the deep linking for the page with no work on your part.</p>
-<p><img class="fitImage" src="/AutoUploads\b6625791-37fb-4457-b55f-6dde9a7c3bfc.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\b6625791-37fb-4457-b55f-6dde9a7c3bfc.png"></p>
 <p>As you can see you get a pretty rich search control experience with a small amount of code. The structure of the search ui changes automatically as you modify the SearchQuery class. It will show any properties you mark with the [UiSearch] attribute. Since we didn&#39;t mark the id field with this attribute it does not show up on the ui, but its still part of the api if someone wants to query for an exact value. In fact this is what happens if click the edit button and then reload the page with the edit ui showing. You can add search properties for whatever is appropriate for your model and this page will automatically update the ui and handle deep linking for you.</p>
 <p>This example only shows an exact match because that is what the model generator will make by default. If you wanted to have a more useful search you could go into InputModels/ValueQuery.cs. Look for the Create function and find the line
 	<br><code>query = query.Where(i =&gt; i.Name == Name);</code>
 	<br>Change it to read
 	<br><code>query = query.Where(i =&gt; i.Name.Contains(Name));</code></p>
 <p>Ef will translate the contains into a database like call. Now you can search for partial names and the search will return all the matching results.</p>
-<p><img class="fitImage" src="/AutoUploads\5f72ef11-86a5-4d73-8099-f5b44d62b117.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\5f72ef11-86a5-4d73-8099-f5b44d62b117.png"></p>
                         <div class="footer"></div>
                     </div>
                 </div>
@@ -116,12 +116,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 

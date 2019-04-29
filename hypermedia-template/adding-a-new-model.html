@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adding a New Model</title>
-    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
-<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429052117" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429052117" type="text/css">
 
 </head>
 
@@ -19,7 +19,7 @@
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
         <div class="navbar-header navbar-nowrap">
-            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
         </div>
     </nav>
 
@@ -30,7 +30,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -106,7 +106,7 @@
 <p>This defines a model called person with a first and last name and a description. The first and last name are marked as required. It also marks the plural name of the model to be People instead of the automatically generated Persons name. If just adding a &quot;s&quot; to the model name is ok you can erase the &quot;PlurarlName&quot; attribute to generate this automatically.</p>
 <ol>
 	<li>To generate the classes for this model click on the Package Manager Console in Visual Studio.
-	<br><img class="fitImage" src="/AutoUploads\354e2d3f-b648-4c6e-93c7-46973669aa0b.png"></li>
+	<br><img class="fitImage" src="/HypermediaDocs/AutoUploads\354e2d3f-b648-4c6e-93c7-46973669aa0b.png"></li>
 	<li>cd into your application&#39;s directory. By default the console in this window starts in the folder with the Solution.</li>
 	<li>Next type in <code>dotnet threax-modelgen YourAppNamespace.ModelSchemas.Person</code> and the model generator will run and generate all of the Person classes for us. Be sure to replace YourAppNamespace with the namespace of your application. This should match the project name.</li>
 	<li>After you do this the model classes described above have been created for the Person model. If you expand the InputModels, Controllers/Api, Repository or ViewModels folders you should see all of the new classes.</li>
@@ -138,13 +138,13 @@
 </ol>
 <h3>Testing it Out</h3>
 <p>Once all of the changes above are complete you should be able to edit people with a crud ui. Run the project and visit <a href="https://localhost:44321/People" target="_blank">https://localhost:44321/People</a>. You should get something like the following:</p>
-<p><img class="fitImage" src="/AutoUploads\f86fb2be-6aca-4e0d-b2a8-e861ba8def45.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\f86fb2be-6aca-4e0d-b2a8-e861ba8def45.png"></p>
 <p>Clicking add should show the add item dialog.</p>
-<p><img class="fitImage" src="/AutoUploads\04551b21-9217-452e-ad66-112de3e26a54.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\04551b21-9217-452e-ad66-112de3e26a54.png"></p>
 <p>Trying to save without adding anything should give some errors.</p>
-<p><img class="fitImage" src="/AutoUploads\6f57dd7c-aa75-4737-b322-0fbb67a20d99.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\6f57dd7c-aa75-4737-b322-0fbb67a20d99.png"></p>
 <p>Entering some actual values should add the person to the database.</p>
-<p><img class="fitImage" src="/AutoUploads\2e167ef8-0d22-4249-9ebb-64c4f5d264da.png"></p>
+<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\2e167ef8-0d22-4249-9ebb-64c4f5d264da.png"></p>
 <h3>Conclusion</h3>
 <p>This shows what you get using the model generator. The model generator was introduced to reduce the effort of adding new data to an app. Before all of the classes that this generates needed to be written by hand or copied from the Values example. From this point you will customize your code as you need to to make your app&#39;s data work as you expect.</p>
 <p>You can also change the data in your Json Schema and regenerate your models. You will want to repeat each step above if you update your data this way. Howver, note that if you have done any customizations to the code that was generated regenerating the model will override those changes. If you make sure to commit to git first you will be able to diff and bring your customizations back if you need to. Regenerating models to update them isn&#39;t really how the model generator is designed to work, its really more for getting you started with some basic code.</p>
@@ -155,12 +155,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
-<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429052117"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429052117"></script>
 
 </body>
 
