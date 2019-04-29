@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updating to .Net Core 2.2</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Updating to .Net Core 2.2</h1>
+<p>This document will describe how to update to .net core 2.2.</p>
+<h2>Modify Csproj for App and Test Project</h2>
+<p>First modify your csproj. Change the element</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.1&lt;/TargetFramework&gt;</code></p>
+<p>to</p>
+<p><code>&lt;TargetFramework&gt;netcoreapp2.2&lt;/TargetFramework&gt;</code></p>
+<p>Next make sure your reference to Microsoft.AspNetCore.App has no version number. It should look like the following:</p>
+<p><code>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; /&gt;</code></p>
+<p>Do both of these steps to your test project as well.</p>
+<h2>Update HtmlRapier.TagHelpers</h2>
+<p>This library needed updates to work with .net core 2.2. You will get runtime errors if you don&#39;t update it. Make sure it is on version 7.0.0 or greater.</p>
+<p><code>&lt;PackageReference Include=&quot;HtmlRapier.TagHelpers&quot; Version=&quot;7.0.0&quot; /&gt;</code></p>
+<h2>Modify Startup.cs</h2>
+<p>Find the line that says:</p>
+<p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);</code></p>
+<p>and change it to</p>
+<p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);</code></p>
+<p>Next add the following somewhere in AddServices:</p>
+<p><code>services.AddLogging(o =&gt;
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; o.AddConfiguration(Configuration.GetSection(&quot;Logging&quot;))
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddConsole()
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddDebug();
+	<br>});</code></p>
+<p>Finally erase the following 2 lines from Configure. They might not be next to each other and should have deprecation warnings:</p>
+<p><code>loggerFactory.AddConsole(Configuration.GetSection(&quot;Logging&quot;));
+	<br>loggerFactory.AddDebug();</code></p>
+<h2>Finish Up</h2>
+<p>This should complete the upgrade to 2.2. If you get build problems erase all the bin and obj folders from your project (or check it out again). That should force nuget to reload everything properly.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

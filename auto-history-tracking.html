@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto History Tracking</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Auto History Tracking</h1>
+<p>There is a library called Microsoft.EntityFrameworkCore.AutoHistory. This library will add a table and track any changes you make to your entites. All you need to do is call a function before calling SaveChangesAsync().</p>
+<p>However, this library was a bit limited, so we enchanced it so we can further customize the table it creates. This library is <a href="https://github.com/threax/AutoHistory">Threax.EntityFrameworkCore.AutoHistory</a>. The official version accepted our changes, so you should be able to use the fork or official version for this.</p>
+<h2>Integration</h2>
+<h3>Csproj</h3>
+<p>Add the following package reference</p>
+<p><code>&lt;PackageReference Include=&quot;Threax.EntityFrameworkCore.AutoHistory&quot; Version=&quot;2.0.3&quot; /&gt;</code></p>
+<h3>Add ChangeHistory Class</h3>
+<p>In the Database folder add a class called ChangeHistory. Give it the following implementation:</p>
+<p><code>public class ChangeHistory : AutoHistory
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br>&nbsp;&nbsp;&nbsp; /// The user id of the person who changed the history.
+	<br>&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br>&nbsp;&nbsp;&nbsp; public Guid? UserId { get; set; }
+	<br>}</code></p>
+<h3>Database/AppDbContext.cs</h3>
+<p>You will need to modify your OnModelCreating function to have the modelBuilder.EnableAutoHistory call below. If you don&#39;t have this function you can use the whole block.</p>
+<p><code>modelBuilder.EnableAutoHistory&lt;ChangeHistory&gt;(o =&gt;
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; o.RowIdMaxLength = 40 * 2; //Enough room for 2 guids (using 40 for that) per table, if you make a join table with more than 2 keys change 2 accordingly.
+	<br>&nbsp;&nbsp;&nbsp; o.LimitChangedLength = false;
+	<br>});</code></p>
+<p>&nbsp;</p>
+<p>This will setup the db with our custom history class and set the limit of the changed field to unlimited. This field stores the data that was in the table that was altered or deleted.</p>
+<p>&nbsp;</p>
+<h3>Add ChangeHistoryService and Interface</h3>
+<p>This class will serve as a centralized location that we use to create our auto history user. It also makes it easy to use dependency injection with items we add to history.</p>
+<p>Create a file in your Services folder called ChangeHistoryService. Give it the following implementation:</p>
+<p><code>public class ChangeHistoryService : IChangeHistoryService
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; private IHttpContextAccessor httpContextAccessor;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public ChangeHistoryService(IHttpContextAccessor httpContextAccessor)
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.httpContextAccessor = httpContextAccessor;
+	<br>&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public void TrackChanges(DbContext dbContext)
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dbContext.EnsureAutoHistory&lt;ChangeHistory&gt;(() =&gt; new ChangeHistory()
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UserId = httpContextAccessor.HttpContext?.User?.GetUserGuid()
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br>&nbsp;&nbsp;&nbsp; }
+	<br>}</code></p>
+<p>Create a file called IChangeHistoryService. Give it the following implementation:</p>
+<p><code>public interface IChangeHistoryService
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; void TrackChanges(DbContext dbContext);
+	<br>}</code></p>
+<p>Don&#39;t forget to import namespaces.</p>
+<p>Finally add the following line to ConfigureServices in Startup.cs</p>
+<p><code>services.TryAddScoped&lt;IChangeHistoryService, ChangeHistoryService&gt;();</code></p>
+<h3>Track Entities</h3>
+<p>Tracking can be implemented per call to DbContext.SaveChangesAsync(). To do this you call ChangeHistoryService.TrackChanges. This function will look at the currently changed and deleted entities and will add a new history table entry for each entity that it finds. Therefore it makes the most sense to do this right before saving, since you have made all the updates required. You should inject your IChangeHistoryService into all classes that call DbContext.SaveChangesAsync().</p>
+<h3>Update ModelGen Repo</h3>
+<p>If you are followiing the model generator repo pattern you can make the following changes to your repository to enable auto tracking. Do this for all repos where you want change tracking. Note that the change tracker will track the changes to ALL entities, the system is not aware of the repos, so whatever is changed will show up in the changes table.</p>
+<h4>Add Private Variable to Repo</h4>
+<p>Add the following to your repository class definition:</p>
+<p><code>private IChangeHistoryService changeHistoryService;</code></p>
+<h4>Inject the IChangeHistoryService</h4>
+<p>Add it to your constructor as well:</p>
+<p><code>public ValueRepository(AppDbContext dbContext, IMapper mapper, IChangeHistoryService changeHistoryService)</code></p>
+<p>Don&#39;t just copy this whole line, add the IChangeHistoryService argument.</p>
+<h4>Call TrackChanges</h4>
+<p>In your repo&#39;s SaveChanges function call</p>
+<p><code>this.changeHistoryService.TrackChanges(dbContext);</code></p>
+<p>before dbContext.SaveChangesAsync().</p>
+<p>The finished code will look like this:</p>
+<p><code>protected virtual async Task SaveChanges()
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; this.changeHistoryService.TrackChanges(dbContext);
+	<br>&nbsp;&nbsp;&nbsp; await this.dbContext.SaveChangesAsync();
+	<br>}</code></p>
+<h3>Fix Tests</h3>
+<p>If you modified your repository it will likely break compiliation for the tests. Just inject a mock IChangeHistoryService. There is no need to implement it since doing nothing is ok. The calls should change to something like the following:</p>
+<p><code>mockup.Add&lt;IStudentRepository&gt;(m =&gt; new StudentRepository(m.Get&lt;AppDbContext&gt;(), m.Get&lt;IMapper&gt;(), m.Get&lt;IChangeHistoryService&gt;()));</code></p>
+<h3>Add Migration</h3>
+<p>Now that you can compile again you need to add a migration. The history table is actually added to the db context when you call EnableAutoHistory, so we need to make our actual database aware of that.</p>
+<p>First run:</p>
+<p><code>dotnet ef migrations add history</code></p>
+<p>Then run the program in SetupDb mode.</p>
+<h2>Finished</h2>
+<p>This should enable auto tracking for whatever repos you setup. If you run your app and make an edit (not addition) or delete you should see changes start populating in the ChangeHistory table.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

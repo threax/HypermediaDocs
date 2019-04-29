@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Values</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Removing Values</h1>
+<p>Usually you won&#39;t want the built in values classes. Models can be removed with the threax-modelgen tool as well, but this will only erase the classes that this would have created on its own. You will have to erase the values ui off of the _Layout page in Views/Shared.</p>
+<h2>Removing Model Classes</h2>
+<p>In the package manager console run the command <code>dotnet threax-modelgen remove YourAppNamespace.ModelSchemas.Model</code></p>
+<p>This will remove most of the values classes.</p>
+<h2>Additional Compilation Issues</h2>
+<p>Also fix the compilation issues in the following files by removing the lines with the errors:</p>
+<ul>
+	<li><strong>AppDatabaseServiceExtensions.cs</strong>
+	<ul>
+		<li>Erase the mappings for Values in SetupMappings()</li>
+		<li>Erase the ValueCreator function.</li>
+	</ul></li>
+	<li><strong>Roles.cs</strong> - Remove the EditValues role for the example you can set the roles class to the following:
+	<pre style="background: rgb(255, 255, 255); color: rgb(0, 0, 0);"><span style="color: rgb(105, 105, 105);">/// &lt;summary&gt;</span>
+<span style="color: rgb(105, 105, 105);">/// This class makes it easy to keep track of role constants throught the system.</span>
+<span style="color: rgb(105, 105, 105);">/// &lt;/summary&gt;</span>
+<span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">static</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">class</span> Roles
+<span style="color: rgb(128, 0, 128);">{</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;summary&gt;</span>
+    <span style="color: rgb(105, 105, 105);">/// All roles, any roles added above as constants should be yield returned here.</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;/summary&gt;</span>
+    <span style="color: rgb(105, 105, 105);">/// &lt;returns&gt;&lt;/returns&gt;</span>
+    <span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">static</span> IEnumerable<span style="color: rgb(128, 128, 48);">&lt;</span><span style="color: rgb(121, 121, 151);">String</span><span style="color: rgb(128, 128, 48);">&gt;</span> All<span style="color: rgb(128, 128, 48);">(</span><span style="color: rgb(128, 128, 48);">)</span>
+    <span style="color: rgb(128, 0, 128);">{</span>
+        <span style="color: rgb(128, 0, 0); font-weight: bold;">yield</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">break</span><span style="color: rgb(128, 0, 128);">;</span>
+    <span style="color: rgb(128, 0, 128);">}</span>
+<span style="color: rgb(128, 0, 128);">}</span>
+
+<span style="color: rgb(128, 128, 48);">[</span>HalModel<span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalSelfActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>GetUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>SetUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 128, 48);">[</span>HalActionLink<span style="color: rgb(128, 128, 48);">(</span>RolesControllerRels<span style="color: rgb(128, 128, 48);">.</span>DeleteUser<span style="color: rgb(128, 128, 48);">,</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">typeof</span><span style="color: rgb(128, 128, 48);">(</span>RolesController<span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">)</span><span style="color: rgb(128, 128, 48);">]</span>
+<span style="color: rgb(128, 0, 0); font-weight: bold;">public</span> <span style="color: rgb(128, 0, 0); font-weight: bold;">class</span> RoleAssignments <span style="color: rgb(128, 0, 128);">:</span> ReflectedRoleAssignments
+<span style="color: rgb(128, 0, 128);">{</span>
+        
+<span style="color: rgb(128, 0, 128);">}</span></pre></li>
+	<li><strong>Views\Shared\_Layout.cshtml</strong> - Remove the link to the Values page from the navbar.</li>
+</ul>
+<p>Building now should build the app sucessfully.</p>
+<h2>Updating Migrations</h2>
+<p>Now that the code can build again run <code>dotnet ef migrations add removevalues</code> in the Package Manager Console.</p>
+<h2>Updating Database</h2>
+<p>Change the program start mode to SetupDb and run the application. This will migrate the database and remove the Values table.</p>
+<h2>Update Client</h2>
+<p>Change the program start mode to UpdateClient and run the application. This will update Client\Libs\ServiceClient.ts to remove the Values classes.</p>
+<h2>Conclusion</h2>
+<p>This is all the work to remove the values model. Other models can be removed by following these steps as well. You can also erase the ModelSchemas\Values.cs file if you want.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

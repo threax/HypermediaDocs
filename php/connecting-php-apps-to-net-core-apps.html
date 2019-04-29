@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecting PHP Apps to .Net Core Apps</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Connecting PHP Apps to .Net Core Apps</h1>
+<p>Please do not take this as an endorsement of PHP. The fact that this architecture can be connected to PHP apps is a strength of its flexibility, not because PHP should ever be used.</p>
+<p>We have a <a href="https://packagist.org/packages/threax/halcyonclient">library in composer</a> that can connect to the Hypermedia apis that are exposed by the .net core apps. Using this you can call the .net core apis from PHP. In addition the .Net Core Apps are capable of generating clients for PHP like they can for c# and typescript.</p>
+<h2>Adding Composer Libraries to your Project</h2>
+<p>The first step is to add the threax/halcyonclient composer package and any clients you need to your project. If you do not yet have a composer.json file in your project add one now with the following contents:</p>
+<p><code>{
+	<br>&nbsp;&nbsp;&nbsp; &quot;repositories&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;url&quot;: https://internalgit.you.com/repo,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;type&quot;: &quot;git&quot;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp; ],
+	<br>&nbsp;&nbsp;&nbsp; &quot;require&quot;: {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;threax/halcyonclient&quot;: &quot;^0.0.0&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;your/phpclient&quot;: &quot;^0.0.0&quot;
+	<br>&nbsp;&nbsp;&nbsp; }
+	<br>}</code></p>
+<p>This will tell composer that it should download the threax/halcyonclient project and to look at the repository for the phpclient and download version 0.0.0 of it when you update. You should add the git repositories for all the private composer libraries you want to connect to. Finally add the libraries you want with the versions you want to the require section.</p>
+<p>Next run <code>composer update</code> in your project folder to install the packages.</p>
+<h2>Write a Program to Connect to the Api</h2>
+<p>The next step is to write your program. The following is a simple test program that loads the first term in the repository.</p>
+<p><code>&lt;?php
+	<br>require __DIR__ . &#39;/vendor/autoload.php&#39;;</code></p>
+<p><code>use threax\halcyonclient\CurlHelper;
+	<br>use threax\halcyonclient\AccessTokenCurlExtension;</code></p>
+<p><code>$curlHelper = new CurlHelper();
+	<br>$bearerExt = new AccessTokenCurlExtension(&#39;https://localhost:44390&#39;, &#39;PHPTest&#39;, &#39;notyetdefined&#39;, &#39;OneOfYourScopes&#39;);
+	<br>$curlHelper-&gt;addRequestExtension($bearerExt);
+	<br>//Only do this in dev, leave the cert validation active in prod
+	<br>$bearerExt-&gt;setIgnoreCertErrors(true);
+	<br>$curlHelper-&gt;setIgnoreCertErrors(true);</code></p>
+<p><code>$injector = new your\phpclient\EntryPointInjector(&quot;https://www.yournetcoreapp.com/api&quot;, $curlHelper);
+	<br>$entry = $injector-&gt;load();</code></p>
+<p><code>if(!$entry-&gt;canListThings()) {
+	<br>&nbsp;&nbsp;&nbsp; throw new Exception(&quot;Can&#39;t list things, do you have permission?&quot;);
+	<br>}</code></p>
+<p><code>$things = $entry-&gt;canListThings([]);
+	<br>var_dump($things-&gt;getItems()[0]-&gt;getData());</code></p>
+<p>This program creates a CurlHelper instance that can log into the Id Server using the AccessTokenCurlExtension. Next that curl helper is sent to a your\phpclient\EntryPointInjector along with the entry point url of the authority running on your machine. From there we load the entry point and then load the terms. The client handles all the urls and web requests back to the api and you can interact with it through the higher level api.</p>
+<h2>Add Client Credentials to the Id Server</h2>
+<p>If you were to run that program right now you would likely get an error that you cannot log in. We need to configure the client credentials in the Id Server for this to work.</p>
+<ol>
+	<li>Go to <a href="https://localhost:44391/Clients" target="_blank">https://localhost:44391/Clients</a>.</li>
+	<li>Click on Add.</li>
+	<li>Under <strong>Client Id</strong> enter <code>PHPTest</code>. This corresponds to the 2nd argument to AccessTokenCurlExtension above.</li>
+	<li>Under Name enter <code>PHPTest</code>. This is just a pretty name for display. Usually duplicating the ClientId is fine.</li>
+	<li>Under <strong>Allowed Grant Types</strong> check <code>Client Credentials</code>.</li>
+	<li>Under <strong>Allowed Scopes</strong> click Add and enter the scopes this client can connect to. This corresponds to the 4th argument in the call to AccessTokenCurlExtension above. You can add as many scopes as you need.</li>
+	<li>Under <strong>Access Token Lifetime</strong> enter <code>600</code> for 10 minutes. There is no easy way to persist credentials between requests to your app in php, so you will have to log in each time anyway. This ensures that the tokens that are handed out only last a short amount of time before they expire. If you are going to have a long running job you may need a longer lifetime.</li>
+	<li>Click Save Changes to save this client definition to the id server.</li>
+	<li>If you are doing this on the production or dev servers you should click Create Secret next to your app in the list. Copy the secret over <strong>notyetdefined</strong> in the code above. If you are working off of your local machine we usually leave this as the default, which is <strong>notyetdefined</strong>, so your code is more portable between developer machines. <strong>It is extremely important to set a secret in production</strong> or else it is super easy to guess the credentials and log in, which will give the attack access to any scopes you have setup here.</li>
+</ol>
+<h2>Add the Client Credentials Application User to the Target Application</h2>
+<p>If you were to run the program now you would log into the id server, but then it would fail to load and would throw the exception in the if statement in the code above. This is because you need to register the client credentials application inside the&nbsp;target application&nbsp;and give it the permissions it needs. To set this up do the following:</p>
+<ol>
+	<li>Go to your .net core service and visit the Edit Users page.</li>
+	<li>Click on Add.</li>
+	<li>Under <strong>User Type</strong> choose <code>Application</code>.</li>
+	<li>Under <strong>User Name</strong> enter <code>PHPTest</code>.</li>
+	<li>Click <strong>Search</strong>.</li>
+	<li>You should see PHPTest pop up under Active Directory Results. Click <strong>Edit Roles</strong> under it.</li>
+	<li>Check all the roles except <code>Edit Roles</code> and <code>Super Admin</code>. In a real produciton scenerio try to limit the roles you give to an app to just what it needs, but for this example give them all so you can try loading different things.</li>
+	<li>Click <strong>Save Changes</strong> to save this user.</li>
+</ol>
+<h2>Run the Test Application</h2>
+<p>At this point you should be able to run the test application. Please note that this example is not real, you will need to modify it to fit your code, but this is conceptually how to connect to apps with PHP.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

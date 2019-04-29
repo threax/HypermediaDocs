@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles and User Builders</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Roles and User Builders</h1>
+<p>Up to this point you have only had 1 role to work with which is EditValues. This role gives permission to the user to edit the values in the system. There are actually several configurations for user roles that can be setup depending on the needs of your system.</p>
+<h2>Types of Users</h2>
+<p>The reference implementation defines 2&nbsp;types of users.</p>
+<ul>
+	<li>User Account&nbsp;- The user account is someone registered through&nbsp;the&nbsp;Identity Server.</li>
+	<li>Application - The user account is actually another application trying to read data. Applications can actually read data from other applications 2 different ways. The first is as the application itself, the other is by forwarding the access token, which will preserve the calling user. These are created automatically when Client Credentials are added for an application through the App Dashboard.</li>
+</ul>
+<h2>Authorized User&nbsp;Configuration</h2>
+<p>By default the app template sets up the permissions for your app to let in anyone who is whitelisted in the app itself. This is the line that sets up these users. There are actually several configurations that the Spc.AspNetCore.Authorization library makes available to you if this configuration does not suit your needs.</p>
+<ul>
+	<li><strong>AddUserBuilderForAllUsersWithRoles</strong> -&nbsp;Make the IUserBuilder policy one that allows all user types&nbsp;and assignes some of them&nbsp;additional roles.</li>
+	<li><strong>AddUserBuilderForAnybody</strong> - Allow any users, does not populate roles for individual users.</li>
+	<li><strong>AddUserBuilderForUserWhitelist</strong> - Only allows in users that are defined in the user table to access the system. This version does not allow custom roles.</li>
+	<li><strong>AddUserBuilderForUserWhitelistWithRoles</strong> - Only allows in users defined in the user table to access the system. This version additionally allows those users to have defined roles.</li>
+</ul>
+<h2>Defining Roles for Your Application</h2>
+<p>You can define as many special roles as you want for your application. If you open up Roles.cs you will see a static class called Roles that defines several String constants for each role you want in your system. By default there is an EditValues role in here that defines a role to allow the user to edit values. Personally I like to define fine grained roles to give permisisions to each individual type of model or action that a user can perform, but it would also be possible to define more generic roles here like normal user, administrator, etc. You can define whatever types of roles make the most sense for your application.</p>
+<p>The other thing you will see in the Roles class is a function called DatabaseRoles. This function yield returns all the roles that you want to add to the database. This will usually be all the roles you define, but you might have roles that are only given out on certain external conditions and not have them able to be manually assigned, so you would not include those roles in this function. There will be more info about this later using a custom IUserBuilder instance later on this page.</p>
+<p>Finally you will see another class at the bottom of this file called RoleAssignments. This class acts and both the input and view model for editing the roles, which takes place in the RolesController. Any roles you want visible on the UI should have a property added for them in this class. Additionally you can include other properties that you might want the user editors to be able to edit when defining users to this class. If you do this you will need to modify the Controllers/Api/RolesController.cs file as well.</p>
+<p><img class="fitImage" src="/AutoUploads\a9e11194-e662-4722-84dd-0c9bdbbc654e.png"></p>
+<p>This screenshot shows the users table for the example application. You can see the users in the system and search for them based on user name or current roles.</p>
+<p><img class="fitImage" src="/AutoUploads\e4396904-e526-4b93-b0d1-988a6ee73350.png"></p>
+<p>Clicking edit will show the roles that the user currently has. It also lets you rename your user. This name is only referenced in the user list on this page, the name the app sees will come out of the access token.</p>
+<p><img class="fitImage" src="/AutoUploads\11b618cd-ccc3-409e-8865-4acd8455e476.png"></p>
+<p>Clicking add lets you search&nbsp;the Identity Server&nbsp;for users that you wish to edit. Clicking Edit Roles will let you edit the roles for that user. It also lets you&nbsp;add them as an offical user if you are using a whitelist. You can also add guids manually if you know what they are ahead of time.</p>
+<h2>Custom Rules for Assigning Roles</h2>
+<p>In addition to storing roles in the database you can also use code to assign them. The interface to do this is IUserBuilder in the Threax.AspNetCore.Authorization library. However, you will likely want to use&nbsp;UserAuthorizerBuilderLink superclass since this handles chaining multiple user builders together. In fact all of the built in role assignment classes including the one that does the database roles also inherit from this class. This is how you can easily make different combinations of rules.</p>
+<p>To build your own add a new folder to your app called UserBuilders. In that folder create the class for your custom rule. The minimal version of this class will look something like the following:</p>
+<p><code>public class CustomUserBuilder : UserAuthorizerBuilderLink
+	<br>{
+	<br>&nbsp; &nbsp; public CustomUserBuilder(IUserBuilder next = null) : base(next)
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; public override async Task&lt;bool&gt; ValidateAndBuildUser(ClaimsPrincipal principal)
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; bool valid = false;</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; //Your logic here to determine if the user is allowed to to assign additional roles to the principal.
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; //Be sure to set valid to true, if the user is valid.</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; return await this.ChainNext(valid, principal);
+	<br>&nbsp; &nbsp; }
+	<br>}</code></p>
+<p>Add your logic where the comment specifies. Finally change the registration of your user builder to have a callback function that returns your custom user builder. This will add it to the end of the validation chain that is setup automatically by the mode you select. This will look something like the following:</p>
+<p><code>services.AddUserBuilderForUserTypesWithRoles(SpcUserType.Employee, p =&gt;
+	<br>{
+	<br>&nbsp; &nbsp; return new CustomUserBuilder();
+	<br>});</code></p>
+<h2>Advanced Role Editing</h2>
+<p>As noted above your RoleAssignments class can actually contain any type of data you want. However, if you add custom data you will need to save it yourself somewhere. As an example lets look at the RoleAssignments class with extra data.</p>
+<p><code>&nbsp;&nbsp;&nbsp; [HalModel]
+	<br>&nbsp;&nbsp;&nbsp; [HalSelfActionLink(RolesControllerRels.GetUser, typeof(RolesController))]
+	<br>&nbsp;&nbsp;&nbsp; [HalActionLink(RolesControllerRels.SetUser, typeof(RolesController))]
+	<br>&nbsp;&nbsp;&nbsp; [HalActionLink(RolesControllerRels.DeleteUser, typeof(RolesController))]
+	<br>&nbsp;&nbsp;&nbsp; public class RoleAssignments : ReflectedRoleAssignments
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Required(ErrorMessage = &quot;You must enter a first name.&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string First { get; set; }
+	<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Required(ErrorMessage = &quot;You must enter a last name.&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Last { get; set; }</code>
+	<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Required(ErrorMessage = &quot;You must enter a phone number.&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Phone]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Phone { get; set; }</code>
+	<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Required(ErrorMessage = &quot;You must enter a email address.&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [EmailAddress]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Email { get; set; }</code>
+	<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Display(Name = &quot;Edit Values&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool EditValues { get; set; }</code>
+	<br><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Display(Name = &quot;Categories&quot;)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ValueProvider(typeof(CategoryValueProvider))]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [SelectUiType]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [UiOrder(int.MaxValue, -1)]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public List&lt;int&gt; Categories { get; set; }
+	<br>&nbsp;&nbsp;&nbsp; }</code></code></p>
+<p>This class is pretty big and defines a lot of roles. However, notice that it also has fields like First for first names and Phone for phone numbers. In addition at the bottom is a List of integer ids for categories, so users can be restricted to editing only particular categories on the website. Please note that logic would have to be written into the controllers to enforce the limited categories, but this is about assigning those roles, not enforcing them. This gives us a more advanced editor than the basic one above.
+	<br><img class="fitImage" src="/AutoUploads\6f5d6666-b53d-4b2b-a0f8-b6882e0bc131.png"></p>
+<p>Here you can see the fields for the user information, the roles and then the sites that this user is allowed to edit. The RolesController will handle assigning the roles with the check boxes in the screenshot above, but the user information and the site assignments must be handled by the application itself. To understand this better take a look at a customized&nbsp;RolesController that handles the extra fields.</p>
+<p><code>&nbsp; &nbsp; [Route(&quot;api/[controller]&quot;)]
+	<br>&nbsp; &nbsp; [Area(&quot;Api&quot;)]
+	<br>&nbsp; &nbsp; [ResponseCache(NoStore = true)]
+	<br>&nbsp; &nbsp; public class RolesController : RolesControllerBase&lt;RoleAssignments, UserCollection&gt;
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; private&nbsp;ICategoryRepository categoryRepo;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; private IUserInfoRepository userInfoRepo;</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public RolesController(IRoleManager roleManager,&nbsp;ICategoryRepository categoryRepo, IHttpContextAccessor contextAccessor, IUserInfoRepository userInfoRepo)
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; : base(roleManager, contextAccessor)
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; this.categoryRepo = categoryRepo;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; this.userInfoRepo = userInfoRepo;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; protected override UserCollection GetUserCollection(RolesQuery query, int total, IEnumerable&lt;RoleAssignments&gt; users)
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return new UserCollection(query, total, users);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public override async Task&lt;RoleAssignments&gt; SetUser(Guid userId, [FromBody] RoleAssignments value)
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; var assignments = await base.SetUser(userId, value);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; await this.categoryRepo.SetUserCategories(userId, value.Sites);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; await userInfoRepo.UpdateFromRoleAssignments(value);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; assignments.Categories = new List&lt;int&gt;(await this.categoryRepo.GetUserCategories(userId));
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return assignments;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public override async Task&lt;RoleAssignments&gt; GetUser(Guid userId)
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; var assignments = await base.GetUser(userId);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; await this.userInfoRepo.AddToRoleAssignments(assignments);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; assignments.Categories = new List&lt;int&gt;(await this.siteRepo.GetUserCategories(userId));
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return assignments;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; }
+	<br>&nbsp; &nbsp; }</code></p>
+<p>In the GetUser and SetUser funcitons notice that there are additional calls to additional repositories to set the custom information when the user is edited. If you want to have more advanced role editing you will need to do something similar in your application.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

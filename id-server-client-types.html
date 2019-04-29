@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Types</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Client Types</h1>
+<p>Id server can support a copule of different client types. Which mode you want depends mostly on what kind of user are you trying to log in. The major user categories from the id server perspective are: Registered User and Application. Registered users create accounts in the id server by registering. The application users are created automatically from Client Credentials users. To log in users we provide all the front channel info like login/logout urls and mark the grant type as <strong>Hybrid</strong>. For applications we use <strong>Client Credentials</strong> instead. Users is pretty straightforward, but there are a couple of options when setting up applicaitons with Client Credentials, so that will be discussed below.</p>
+<h2>Clients for Users</h2>
+<p>Clients for users allow anyone with a valid account to log into an application as themselves. Their guid will represent their user account and the token will grant access to everything defined in the client&#39;s scopes. The jwts returned by this process will usually be stored as cookies in the user&#39;s browser. Clients set up this way will also participate in federated logout where logging out of one site will cause all the sites logged in with id server to log out.</p>
+<p>These credentials can be flowed between apps using bearer tokens. However, the token must contain scopes for all the applications you wish to visit.</p>
+<h2>Clients for Applications</h2>
+<p>Just like we have user accounts for humans we can create clients in id server that act as user accounts for applications. By creating a client with Client Credentials as its grant type you can then log into that client. This will use the App User Guid as the user id for the tokens it creates and the scopes will be what was defined in the client. Anything posessing this token can then use it to access other applications. Note that it is probably not enough to just define a client like this. You will likely also need to go to the individual apps that will be accessed and set the permissions required.</p>
+<p>Given this setup there are 2 major ways we could define our client credentials clients. The first would be to create a single client and secret that represents a service and then use those credentials in all the applications that need to connect to the service. This is much easier to setup than the alternative, since you really only need to set things up once and then share the client id and secret between all your apps. However, the maintainence downsides are huge. If you ever need to change the secret you will have to hunt down each app and update the secret in each one. In addition any apps logging in are in an all or nothing position with permissions. They must either take all the permissions granted by the login or potentially have too many permissions. It is impossible to change them on a per app basis, unless you make another log in and so on.</p>
+<p>The alternative to this approach is to setup a client credential client for any applications that need to communicate on the back end with their own credentials. So for example if you have an event service that needs to send emails using the email service you would create a client credential for your event service and then grant that credential the scope for the email service. You then take the app&#39;s user guid and add it to the email service with whatever permissions are appropriate for the events service. This way each client credential entry is used by exactly 1 website, which means its secret can be changed easily since only 1 site will need to change. In addition we will have a unique user for each applicaiton logging into the email service, so we can set each one&#39;s permissions accordingly.</p>
+<p>Scenerio 2 is the one I would like to see used most often. The apps are already set up to handle this with separate metadata for client credentials. There is a property on <strong>IdServerAuthAppOptions </strong>called <strong>ClientCredentialsScopes </strong>that provides a way to setup which scopes your app will need. Then, when setting up id server, these will be brought in as metadata.</p>
+<h2>What About Resources/Scopes</h2>
+<p>The other word you will see flying around in these discussions of id server is resource or scope. We are using these interchangeably since we mostly have a 1 scope per resource setup. These are just what you can access given a particular token. This prevents credentials for one service from being used with another, unless the 2nd service is included in the scopes supported by a token, then it will be allowed. These are all defined in the id server so that clients must follow those rules instead of asking for every possible scope, effectively logging you into all applications.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

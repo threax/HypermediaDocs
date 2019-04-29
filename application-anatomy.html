@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicaiton Anatomy</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Application Anatomy</h1>
+<p>This section will describe the various parts of an individual app. It is broken down by the folders each piece will go into. The template does not have them all, but if you need to add one of these types add the folder for it also. The order is alphabetical not by importance.</p>
+<h3>Base Folder</h3>
+<p>The application base folder contains several files which are described below.</p>
+<ul>
+	<li>AppConfig.cs - The strongly typed configuration class that configures your applicaiton. If you need any custom server side config put it here. This class can safely contain secret info as well, but don&#39;t put any actual secrets in it, since it is committed. It is mapped from the AppConfig section in the appsettings.json file.</li>
+	<li>appsettings.json (and appsettings.CurrentEnvironment.json) - The json config files for your project. These configure anything that can be configured without changing code for your project. These will usually contain the following sections
+	<ul>
+		<li>Logging - The logging configuration for the app.</li>
+		<li>AppConfig - Mapped to the AppConfig.cs class. Contains common and custom applicaiton configuration.</li>
+		<li>Cors - Configures the cors settings for your application. You should not open unlimited access for production apps, but instead provide the list of domains allowed to access this data.</li>
+		<li>JwtAuth - The web token configuration. Usually defines the authority, which is the url of the id server.</li>
+		<li>ClientConfig - The configuration that is sent to the client. Values in this configuration are visible on the final rendered webpage, DO NOT put secret info in this section as anyone will be able to see it.</li>
+	</ul></li>
+	<li>artifacts.json - The project specific artifacts file to copy static client side content with the build system. You only need to include artifacts that you add manually to the project the other artifacts from your node_modules will be included automatically.</li>
+	<li>ClientConfig.cs - The strongly typed client config that is sent to the client pages. This should not have any secret info in it since anything included here is visible by anyone visitng the website.</li>
+	<li>install.bat - Artifact from the template, you can erase this. It is only used to install the template.</li>
+	<li>package.json - The npm configutaion for the project. This is where the client side dependencies and build tasks are configured.</li>
+	<li>Program.cs - The file that contains the main for your application.</li>
+	<li>Roles.cs - This file defines the roles for users in your application. You should try to be fine grained and define roles for each type of model that can be edited, but mostly this is up to you. The roles class has an All funciton in it that returns all the roles you want to put into the database. There is also a RoleAssignments class in this folder that should have all the roles defined in it that you want to display on the built in role editor. You can also add custom non role values to this, it acts and the input and view model for the roles table.</li>
+	<li>Startup.cs - This file configures the application as appropriate for our apps. It is just an expanded version of the standard asp.net core startup class.</li>
+	<li>tsconfig.json - The typescript configuration for the application. It is mostly autoconfigured by running the import tsconfig npm task.</li>
+	<li>tsimport.json - The project specific tsconfig imports. You only need to define your app&#39;s imports here the ones in your node_modules will be added automatcally by the import tsconfig npm task.</li>
+</ul>
+<h3>Client</h3>
+<p>This folder contains the client side code, which usually all resides in the Libs subfolder. The template will contain the following files, but you might have more if the client side code has defined more shared modules.</p>
+<ul>
+	<li>ServiceClient.ts - The generated typescript code for your application. You can generate this file by running your project in update client mode. You should not modify this file by hand, always use the generated code.</li>
+	<li>ModelCrudInjector.ts - The crud table injector classes for a particular model. One will be created for each model you want to have a crud page for. These classes wire up the model specific functions to make them discoverable by the generic crud tables. You should write one for each model you wish to create a crud table for.</li>
+	<li>startup.ts - This file sets up the common services and configuration for the client side pages.</li>
+	<li>Scss\app.scss - This file will be included in the main build of bootstrap from scss (or less if using bootstrap 3). You can customize variables here or add custom css classes if needed. You can use the bootstrap variables in your file.</li>
+	<li>UserSearchClientEntryPointInjector.ts - This file sets up the user search injector used to lookup users.</li>
+	<li>All other files - These will be common code that was defined for the project&#39;s specific client side needs.</li>
+</ul>
+<h3>Controllers</h3>
+<p>The controllers are the standard mvc controller classes from asp.net. These apps will define ui controllers directly in the controllers folder and api controllers in the api subfolder.</p>
+<ul>
+	<li>Ui Controllers - All ui controllers should pretty much just forward to the view you want to display. Any data lookup should be done on the client side through your app&#39;s api. You can put authorize attributes on the controllers / action methods to restrict acess to the ui if you need to, but be aware that you must also secure any api endpoints the same way, restricting access here only blocks the ui from being shown. Routing is setup to use the action method names directly from the home controller and to use ControllerName/ActionMethodName for all other controllers.</li>
+	<li>Api Controllers - These controllers should do the actual data lookup / read / write operations using your Input / Query models and View models. Be sure to secure your api endpoints with authorize attributes if you need to restrict access. Otherwise these controllers will probably inject the repository for the data you want to access and forward most of the work along to those. If you need any other security checks for your user they should go into the controllers also.</li>
+</ul>
+<h3>Customizers</h3>
+<p>Sometimes you need to customize one of the json documentation schemas depending on system conditions or user roles. These classes will implement ISchemaCustomizer and should be used with the CustomizeSchema attribute on the property you wish to customize. They can have dependencies injected into them and should modify the documentation schemas as appropriate. This folder does not exist by default since the template does not use them.</p>
+<h3>Database</h3>
+<p>This folder contains all of the entity classes for your project&#39;s dbcontext as well as the AppDbContext class itself that provides the database definition for Entity Framework for your application. It also has the AppDatabaseServiceExtensions.cs class that sets up the dependencies for the database, the repositories and the mappers. The entity view of your models should be named ModelNameEntity.</p>
+<h3>Input Models</h3>
+<p>This folder contains all of the data input and query models for the data in your application. These models will be included in generated client code automatically if they are used as input to a controller.</p>
+<ul>
+	<li>Input Model - A type of model that defines how data comes into the application controllers. These can be decorated with attributes to define their order on the ui, their display names, value providers and other customizations. These are used to generate the documentation schemas that are used to generate the forms that the user sees and fills out to edit the data. These should be named ModelNameInput.</li>
+	<li>Query Model - This type of model defines the query to the listing function for a particular set of data. The minimal version will take in the id of the piece of data you want to lookup. You can add additional properties to add additional search capabilities to a model&#39;s crud page. These classes all define a Create function that takes their current state and applies it to an IQueryable instance. Queries will likely extend the PagedCollecitonQuery superclass to provide paged access to the data. These should be named ModelNameQuery.</li>
+</ul>
+<h3>Mappings</h3>
+<p>The applicaitons use a library called AutoMapper to assist with creating the code to move data between the different model classes. This is wrapped in a class called AppMapper, which is a partial class that contains all the different mapping functions. This creates a strong interface of what things can be mapped and what requirements they have. Usually the individual functions, MapModel and ProjectModel will just call automapper, but you can customize the mapping to whatever your needs are.</p>
+<p>The other class you will see in these files is the ModelProfile that defines how automapper should setup the mapping for a particular model. Fore more information about how this works see the automapper&nbsp;<a href="https://github.com/AutoMapper/AutoMapper/wiki/Configuration" target="_blank">configuration</a> page.</p>
+<h3>Migrations</h3>
+<p>This folder contains the Entity Framework code first migrations. You will never likely write code for this folder, but instead let the Entity Framework tools write these classes for you as your models change.</p>
+<h3>Models</h3>
+<p>This is a legacy folder you will see in some projects. It contains interfaces that were intended to help bind the model types together. This idea did not really do much in practice so it has been dropped from newer projects. If you have issues in an older project because of these interfaces you can remove them.</p>
+<h3>Repository</h3>
+<p>This folder should contain the repository classes that actually access the data for your controllers. Usually you will define a concrete repository and an interface for it that will be used throughout the rest of the system. Usually these will use Entity Framework to access the database for the data, but they could also call out to another api or some other data source. These classes will likely contain the bulk of your application crud and business logic that is not related to assignment since that is taken care of in the mapper profile classes.</p>
+<h3>Resolvers</h3>
+<p>This folder contains any custom value resolvers that are used by the mapping classes. This folder does not exist by default in the template, so create it if you need to. These classes will inherit from the automapper IValueResolver interface and should be registered in the mapping profile classes. There is <a href="https://github.com/AutoMapper/AutoMapper/wiki/Custom-value-resolvers" target="_blank">more information</a> about this on the automapper wiki. You can inject dependencies into the constructors for these classes.</p>
+<h3>ValueProviders</h3>
+<p>This folder contains classes that provide custom values to properties on input and view models. This makes it easy to build a list of options for a user to select from instead of making them input the value manually when not using an enum to provide the values. These classes will implement the IValueProvider interface, but most likely you will want to use the LabelValuePairProvider or LabelValuePairProviderSync superclasses when implementing these classes. The non sync version allows you to use async code to lookup data from somewhere else in an async context or you can use the sync version if you know the values you want to provide directly. You can also inject dependencies into the constructors of these classes to lookup data from a repostory or do other customizations, such as restricting the options certain users can see. If you do that kind of restriction be sure to enforce it in a mapping resolver so the user can&#39;t just send the data anyway. Use the ValueProvider attribute on the property you want to provide values for with the type of the provider as the argument to its constructor.</p>
+<h3>ViewModels</h3>
+<p>The view model classes are how data is returned to the client after it has been accessed. These models will usually contain individual ids and other data that might not be present on the input models to provide a the complete picture of the data vs the more limited input models. These classes will also define the links to other operations that can be performed with the data. It can be helpful to think of the view models as the pages your api would return if it was returning html views of your data. These links will be used to create ModelResult classes that allow you to call the links with funcitons when generating a client for the api. The view models themselves will also be created in generated client side code. There are typically 3 types of view models that you will see in this folder.</p>
+<ul>
+	<li>ModelName - The plain name model is the actual data for a particular individual instance of a model. It should define a self refresh link, and update and delete links unless one of those is not appropriate. Usually these will implement your IModelName and IModelNameId classes.</li>
+	<li>ModelNameCollection - This class represents a colleciton of ModelName instances. Usually you will want to use PagedCollectionViewWithQuery&lt;ModelName, QueryName&gt; as your superclass, which will define the collection as a paged accessor to your data, so you don&#39;t have to load it all at once. It will also auto discover your query properties and add them to the final model. These classes should define a self refresh link, an add link and links to access the next, previous, first and last pages of the collection data.</li>
+	<li>EntryPoint - This view model contains no data, but will define links out to the other controller actions that can be performed from the entry point. Usually these are the list and add functions for each model&#39;s controller, but could contain others depending on your application.</li>
+</ul>
+<h3>Views</h3>
+<p>The views folder is pretty much the normal mvc views folder. The primary difference is that you will see a bunch of .ts files named the same as the .cshtml files in these folders. Those typescript files are the code for the individual page that is being displayed. You do not have to include one if your final html page has no javascript behavior. Most of the time all these pages do is map the injector for the data you want to display into the crud table classes. However, if you have a more complex page likely these files will do more. You can add whatever you need to these files, but if you are creating client side classes consider putting the classes in modules in the shared Client/Libs folder. These code behind files will be configured to run automatically by the HtmlRapier.TagHelpers library&nbsp;when the page is rendered, you do not need to configure them.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

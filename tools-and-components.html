@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools and Components</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h2>Tools and Components</h2>
+<p>These are the primay tools and components we use to build apps.</p>
+<ul>
+	<li>Asp.net Core - Primary framework</li>
+	<li>Visual Studio 2019 - IDE</li>
+	<li>Nuget - This is the package manager for .net.</li>
+	<li>Identity Server 4 - Open ID Connect Middleware, will build an Identity Server using this.</li>
+	<li>Node.js - Javascript runtime, used to process and compile the front end code for our applications.</li>
+	<li>Npm - The Node Package Mangager. This program will retrieve the front end packages.</li>
+	<li>Typescript - Really nice javascript syntax sugar, integrates well with Visual Studio including code analysis and refactoring, also allows you to use modern javascript techniques and compile them down to ECMAScript 5 (or other targets).</li>
+	<li><a href="https://threax.github.io/HtmlRapierDocs/">HtmlRapier</a> - Lightweight javascript front end library.</li>
+	<li>jsns - Javascript module manager that allows for async loading (out of order) and provides wrappers for wrapping up node modules inside files. Also enables you to compile modules to one or many files instead of having to bundle it all up.</li>
+	<li>Boostrap - Css and UI framework.</li>
+	<li>Threax Hypermedia Framework - Extensions to .net core to enable HATEOAS (Hypermedia as the Engine of Application State) apis and identity management for microservices/microapps using identity server.</li>
+	<li>SqLite is the default database provider, but any database back end for Entity Framework Core should work. All database access in the templates and core services is done through the ef abstractions.</li>
+</ul>
+<h2>Apps</h2>
+<p>In addition to the above tools each environment will have a few apps that are needed to make everything work.&nbsp;This is&nbsp;a microservice framework, so the following microservices will be available in any environment.</p>
+<p>Identity Server - This service provides identity management for apps. The reference implementation in Threax.IdServer handles human user accounts and the applications defined in it as users. This allows you to give permissions to individual applications to access other applications.</p>
+<ul>
+	<li>Local Dev Environment - <a href="https://localhost:44390">https://localhost:44390</a></li>
+</ul>
+<p>App Dashboard - This app allows you to edit the apps and properties of the Identity Server.</p>
+<ul>
+	<li>Local Dev Environment - <a href="https://localhost:44391">https://localhost:44391</a></li>
+</ul>
+<ol></ol>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

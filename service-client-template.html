@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Client Template</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Service Client Template</h1>
+<p>In addition to the app and test templates there is also one for a service client. This makes it easy to create a c# client for your app that can be used with dependency injection in another app. This document will show how to create an app client using the template and then how to modify your app to keep the client up to date automatically while you work on your app.</p>
+<h2>Create Client Project</h2>
+<p>In your app&#39;s folder create a new folder called YourAppName.Client.</p>
+<p>Open this folder and open an command window. Enter the command:</p>
+<p><code>dotnet new appclient --appname YourAppName</code></p>
+<p>The client project is created in the folder. Next it should be added to your app&#39;s solution.</p>
+<p>Once you get the project in your solution you should be able to build. If not fix any compiler errors. Due to the way names are replaced if your YourAppName variable had a period in it you might need to remove it by hand from stuff that didnt compile.</p>
+<h2>Auto Generate the Client</h2>
+<p>The final step is to get the client to update automatically. We can tap into the template&#39;s Update Client process to do this. Add a second clientgen command when running UpdateClient by changing it from</p>
+<p><code>&quot;commandLineArgs&quot;: &quot;tools \&quot;clientgen Client\\Libs\\ServiceClient.ts\&quot;&quot;,</code></p>
+<p>to</p>
+<p><code>&quot;commandLineArgs&quot;: &quot;tools \&quot;clientgen Client\\Libs\\ServiceClient.ts\&quot; \&quot;clientgen ..\\YourAppName.Client\\ServiceClient.cs\&quot;&quot;,</code></p>
+<p>where YourAppName.Client is set to the folder your app&#39;s client project is in.</p>
+<p>Now whenever you run the app in Update Client mode it will update both the typescript and c# clients. You can publish you c# client to \\webdev1\nuget as you make updates to it, which makes it easy to have other applications include the client in their references. Be sure to bump the version number when you do this.</p>
+<p>Also note that these generated clients do not rely on the original app in any way. Including a client will not include the app itself as a dependency or anything since all of its code is generated.</p>
+<h2>Creating Nuget Package</h2>
+<p>The best way to distribute the C# clients is through nuget. Set your library up as a nuget package and deploy it to your preferred nuget repository. Remember all you need for a basic nuget repository is a shared folder defined somewhere Visual Studio can see it, although this will not scale very well as the number of custom packages you have increases.</p>
+<h2>Using the Client</h2>
+<p>Clients have 2 modes you can use them in. These are determined by how you want to authenticate with the service.</p>
+<p>Client Credentials: UseYourServiceWithClientCredentials. To use this you must define a client and secret in the identity server. Then you add the guid for this client from id server to your applicaiton as a user. Also make sure your app can accept Application users in its user builder.</p>
+<p>User Access Token: UseYourServiceWithUserAccessToken. This will pass the current user along to the target service. Use this if you want to keep the user between service calls.</p>
+<p>Call one of these functions in your ConfigureServices function in Startup.cs for the app you want to use the client in.</p>
+<p>Now inject the EntryPointInjector class from this library into whatever controller or class you want to use it in. From there call the Load function to get the real entry point. This will automatically use the credentials you setup without any further action on your part.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

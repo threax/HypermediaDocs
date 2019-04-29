@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Set Widget</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Get Set Widget</h1>
+<p>So far all of the discussion has been about crud pages for data. However, this is not always appropriate, for example you might have data where the user is allowed to edit their copy, but not view all of the other data in the system. HtmlRapier.Widgets has a way of managing this type of ui in addition to the CrudPage stuff. This page will discuss an overview of how to implement this pattern.</p>
+<h2>Repository</h2>
+<p>Your model&#39;s repository will likely be very much the same as a crud repository. In fact you probably want to have crud access to the data as well, so mostly you can use the same repository code as you would for any other model. The major differences is that in your Get(id) function you will want to return a default version of the data, with the appropriate id set and your update function should handle the case where the data did not yet exist. For example consider a hypothetical user info repository for data about a specific user.</p>
+<p>The Get(Guid id) function would look like the following:</p>
+<p><code>public async Task&lt;UserInfo&gt; Get(Guid id)
+	<br>{
+	<br>&nbsp; &nbsp; var entity = await this.Entity(id);
+	<br>&nbsp; &nbsp; if(entity == null) //If the entity is null, create a default
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; entity = new UserInfoEntity()
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; UserId = id
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; };
+	<br>&nbsp; &nbsp; }
+	<br>&nbsp; &nbsp; return mapper.Map&lt;UserInfo&gt;(entity);
+	<br>}</code></p>
+<p>Notice that if the entity was null, which means it isn&#39;t found, we create a default one with the id and then map that back. This way there is some starter data for the Get/Set widget.</p>
+<p>The update function would look like the following:</p>
+<p><code>public async Task&lt;UserInfo&gt; Update(Guid id, UserInfoInput value)
+	<br>{
+	<br>&nbsp; &nbsp; var entity = await this.Entity(id);
+	<br>&nbsp; &nbsp; if (entity != null)
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; mapper.Map(value, entity);
+	<br>&nbsp; &nbsp; }
+	<br>&nbsp; &nbsp; else
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; entity = mapper.Map&lt;UserInfoEntity&gt;(value);
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; entity.UserId = id;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; this.dbContext.Add(entity);
+	<br>&nbsp; &nbsp; }
+	<br>&nbsp; &nbsp; await this.dbContext.SaveChangesAsync();
+	<br>&nbsp; &nbsp; return mapper.Map&lt;UserInfo&gt;(entity);
+	<br>}</code></p>
+<p>Here we look up the entity, if it is not found it is added instead of mapping the results back over the old entity.</p>
+<p>Other than these changes the repository contains the normal crud operations. This way it can be used with both a crud table and individual items.</p>
+<h2>Controller</h2>
+<p>The controller should have 2 additional action methods added to it. If you were using data specific to the user they might be GetMine and SetMine. These functions would look like the following:</p>
+<p><code>[HttpGet]&nbsp;
+	<br>[HalRel(GetSetRels.Get)]
+	<br>public Task&lt;UserInfo&gt; GetMine()
+	<br>{
+	<br>&nbsp; &nbsp; return repo.Get(HttpContext.User.GetUserGuid());
+	<br>}</code></p>
+<p><code>[HttpPut]
+	<br>[HalRel(GetSetRels.Set)]
+	<br>[AutoValidate(&quot;Cannot update user info&quot;)]
+	<br>public Task&lt;UserInfo&gt; SetMine([FromBody]UserInfoInput value)
+	<br>{
+	<br>&nbsp; &nbsp; return repo.Update(HttpContext.User.GetUserGuid(), value);
+	<br>}</code></p>
+<p>Notice that we use the GetSetRels instead of the CrudRels. These rels are named for the get / set widget instead of the crud widget. Otherwise we just access the repository to get and update the data. With the modifications made above this will handle the data correctly.</p>
+<h2>Input Model</h2>
+<p>There are no special requirements for the input model. Define the properties and form settings as you would for anything else.</p>
+<h2>View Model</h2>
+<p>The view model is also mostly the same, however, the links that are defined will be slightly different. Instead of update and delete you will define get as the self link and set as a normal action link. This would look like the following:</p>
+<p><code>&nbsp; &nbsp; [HalModel]
+	<br>&nbsp; &nbsp; [HalSelfActionLink(typeof(UserInfoController), nameof(UserInfoController.Get))]
+	<br>&nbsp; &nbsp; [HalActionLink(typeof(UserInfoController), nameof(UserInfoController.Set))]
+	<br>&nbsp; &nbsp; public class UserInfo : IUserInfo, IUserInfoId
+	<br>&nbsp; &nbsp; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; public Guid UserId { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string First { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string Last { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string Phone { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string PhoneAlt { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string Email { get; set; }</code></p>
+<p><code>&nbsp; &nbsp; &nbsp; &nbsp; public string EmailAlt { get; set; }
+	<br>&nbsp; &nbsp; }</code></p>
+<p>This is the most important part since it defines how the rels are returned and how the client generator will make the code. The generated classes must have a self link and a set link defined for the widget to work correctly.</p>
+<h2>Ui</h2>
+<p>The ui is mostly like the crud page, but much simpler. There are 3 things that you will need to define.</p>
+<h3>Ui Html (Page.cshtml)</h3>
+<p>The ui html will define a controller called entryEditor. You then also define a loadbar, a success message, a failure message and the form itself. The form will automatically generate like it does for the crud pages, so you just have to provide the location. This is the complete cshtml you would need for our hypothetical UserInfo data.</p>
+<p><code>@{
+	<br>&nbsp; &nbsp; ViewData[&quot;Title&quot;] = &quot;User Information&quot;;
+	<br>}</code></p>
+<p><code>&lt;h1&gt;User Information&lt;/h1&gt;</code></p>
+<p><code>&lt;div data-hr-controller=&quot;entryEditor&quot;&gt;
+	<br>&nbsp; &nbsp; &lt;load class=&quot;modal-body&quot;&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;p&gt;Working...&lt;/p&gt;
+	<br>&nbsp; &nbsp; &lt;/load&gt;
+	<br>&nbsp; &nbsp; &lt;toggle hr-toggle=&quot;complete&quot; visible=&quot;false&quot; class=&quot;alert alert-success&quot; role=&quot;alert&quot;&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; Your information has been updated.
+	<br>&nbsp; &nbsp; &lt;/toggle&gt;
+	<br>&nbsp; &nbsp; &lt;toggle hr-toggle=&quot;mainError&quot; class=&quot;alert alert-danger&quot; data-hr-view=&quot;mainError&quot;&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; {{message}}
+	<br>&nbsp; &nbsp; &lt;/toggle&gt;
+	<br>&nbsp; &nbsp; &lt;main&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;form data-hr-on-submit=&quot;submit&quot; data-hr-form=&quot;input&quot;&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;span data-hr-form-end&gt;&lt;/span&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;button class=&quot;btn btn-default&quot; type=&quot;submit&quot;&gt;Save&lt;/button&gt;
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/form&gt;
+	<br>&nbsp; &nbsp; &lt;/main&gt;
+	<br>&lt;/div&gt;</code></p>
+<h3>Get Set Injector</h3>
+<p>The get set injector is similar to the crud injectors, which maps your specific data into the crud widget. It will look mostly like the following class, but you would return the data you want to inject in the getStart function</p>
+<p><code>export class UserInfoInputInjector implements getSetPage.HypermediaGetSetInjector {
+	<br>&nbsp; &nbsp; public static get InjectorArgs(): di.DiFunction&lt;any&gt;[] {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; return [client.EntryPointInjector];
+	<br>&nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; constructor(private entry: client.EntryPointInjector) {</code></p>
+<p><code>&nbsp; &nbsp; }</code></p>
+<p><code>&nbsp; &nbsp; public async getStart(): Promise&lt;getSetPage.HypermediaInputResult&gt; {
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; var entry = await this.entry.load();
+	<br>&nbsp; &nbsp; &nbsp; &nbsp; return entry.getUserInfo();
+	<br>&nbsp; &nbsp; }
+	<br>}</code></p>
+<h3>Code Behind (Page.ts)</h3>
+<p>Finally you need to write your code behind file. This will almost always look just like the following, but be sure to change your injector on the line&nbsp;<code>builder.Services.addShared(getSetPage.HypermediaGetSetInjector, injectors.UserInfoInputInjector);</code></p>
+<p><code>import * as startup from &#39;clientlibs.startup&#39;;
+	<br>import * as getSetPage from &#39;hr.widgets.GetSetPage&#39;;
+	<br>import * as controller from &#39;hr.controller&#39;;
+	<br>import * as injectors from &#39;clientlibs.ServiceClientInjectors&#39;;
+	<br>import * as uri from &#39;hr.uri&#39;;</code></p>
+<p><code>//Main page
+	<br>var builder = startup.createBuilder();
+	<br>builder.Services.addShared(getSetPage.HypermediaGetSetInjector, injectors.UserInfoInputInjector);
+	<br>getSetPage.AddServices(builder.Services);
+	<br>builder.create(&quot;entryEditor&quot;, getSetPage.GetSetController);</code></p>
+<p>After you create these classes you will have a get/set page that will get and set a single piece of data without needing a crud table.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating PHP Clients from .Net Core Apps</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Creating PHP Clients from .Net Core Apps</h1>
+<p>Please do not take this as an endorsement of PHP. The fact that this architecture can be connected to PHP apps is a strength of its flexibility, not because PHP should ever be used.</p>
+<p>This page describes how to setup .Net Core generated clients to work with composer without publishing them publicly.</p>
+<h2>Create Library Repository</h2>
+<p>First create a new repository somewhere for your php client.</p>
+<p>Next clone the repo and add a file called <code>composer.json</code> like the following:</p>
+<p><code>{
+	<br>&nbsp;&nbsp;&nbsp; &quot;name&quot;: &quot;<strong>{YourApp}</strong>/client&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;description&quot;: &quot;<strong>{Description}</strong>&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;require&quot;: {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;threax/halcyonclient&quot;: &quot;&gt;=0.0.0&quot;
+	<br>&nbsp;&nbsp;&nbsp; },
+	<br>&nbsp;&nbsp;&nbsp; &quot;autoload&quot;: {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;classmap&quot;: [<strong>&quot;</strong>ServiceClient<strong>.</strong>php&quot;]
+	<br>&nbsp;&nbsp;&nbsp; }
+	<br>}</code></p>
+<p>Replace <strong>{YourApp}</strong> with a namespace for this app and <strong>{Description}</strong> with a description. The name should match the namespace provided in the Startup.cs file in your .Net Core Project, but the slashes go the other way.</p>
+<p>This establishes the name of the library along with specifying that the classes come out of the ServiceClient.php file.</p>
+<p>Next commit this and push it to your private repository.</p>
+<h2>Add Library Repository as Submodule to .Net Core App</h2>
+<p>Add the repository you just created as a submodule in your main project. Put it in a folder in the root called <code>PhpClient</code>.</p>
+<p>Open the .Net Core Solution in Visual Studio.</p>
+<p>Go to Project-&gt;Properties-&gt;launchsettings.json.</p>
+<p>Find the UpdateClient entry and add <code>\&quot;clientgen ..\\PhpClient\\ServiceClient.php\&quot;</code> to the <strong>commandLineArgs</strong> setting.</p>
+<p>Run your app in UpdateClient mode to generate the php client.</p>
+<p>Commit the PHP client submodule. Also go ahead and tag it with <code>v0.0.0</code> to test the initial revision. Push the tags and code to your repository.</p>
+<p>From here you should be able to use it in a php app as described in Connecting PHP Apps to .Net Core Apps.</p>
+<h2>Maintaining Library</h2>
+<p>When things change the .Net Core app regenerate the client and push it to your repository.</p>
+<p>Set a tag with vX.X.X where X.X.X is the version you want the library to have.</p>
+<p>This version can be used in consuming apps to specify which version of the library you want to use. This is all controlled by git tags.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

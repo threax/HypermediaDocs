@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removing Yarn</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Removing Yarn</h1>
+<p>There is no longer a need for yarn after npm v3. To remove yarn from your projects, make the following changes:</p>
+<h2>Update Packages</h2>
+<p>First make sure you are on the latest packages. Run <code>yarn upgrade --flat</code> in your project and make sure the typescript still compiles.</p>
+<p>Commit these changes too.</p>
+<h2>Erase yarn.lock</h2>
+<p>Next erase the yarn.lock file.</p>
+<h2>Edit package.json</h2>
+<p>Open the package.json file and erase the following lines:</p>
+<p><code>&quot;yarn-install&quot;: &quot;yarn install --flat&quot;,
+	<br>&quot;yarn-upgrade&quot;: &quot;yarn upgrade --flat&quot;,</code></p>
+<p>If you have a &quot;resolutions&quot; section you can erase it. That is a yarn thing.</p>
+<p>You do not need to add anything to this file, however, if you are still using bootstrap 3 see that section at the bottom of the page before continuing to make sure you get 3.4.1 (or higher) instead of 4.x.x.</p>
+<p>Close Visual Studio and then reopen your solution.</p>
+<p>In the task runner explorer run <strong>install</strong>. If you get an error run <code>npm install</code> from the command line in your project folder. When you do this a file will be created called package-lock.json.</p>
+<p>Run your program and make sure the front end works as expected.</p>
+<h2>Update azure-pipelines.yml</h2>
+<p>Open azure-pipelines.yml in the root of your repository.</p>
+<p>Replace this entire task</p>
+<p><code>- task: geeklearningio.gl-vsts-tasks-yarn.yarn-task.Yarn@2
+	<br>&nbsp; displayName: &#39;Yarn install --flat&#39;
+	<br>&nbsp; inputs:
+	<br>&nbsp;&nbsp;&nbsp; ProjectDirectory: $(projectDir)
+	<br>&nbsp;&nbsp;&nbsp; Arguments: &#39;install --flat&#39;</code></p>
+<p>with this</p>
+<p><code>- task: Npm@1
+	<br>&nbsp; displayName: &#39;Npm install&#39;
+	<br>&nbsp; inputs:
+	<br>&nbsp;&nbsp;&nbsp; workingDir: $(projectDir)
+	<br>&nbsp;&nbsp;&nbsp; command: &#39;install&#39;</code></p>
+<p>and replace this entire task</p>
+<p><code>- task: geeklearningio.gl-vsts-tasks-yarn.yarn-task.Yarn@2
+	<br>&nbsp; displayName: &#39;Yarn run build&#39;
+	<br>&nbsp; inputs:
+	<br>&nbsp;&nbsp;&nbsp; ProjectDirectory: $(projectDir)
+	<br>&nbsp;&nbsp;&nbsp; Arguments: &#39;run build&#39;</code></p>
+<p>with this</p>
+<p><code>- task: Npm@1
+	<br>&nbsp; displayName: &#39;Npm run build&#39;
+	<br>&nbsp; inputs:
+	<br>&nbsp;&nbsp;&nbsp; workingDir: $(projectDir)
+	<br>&nbsp;&nbsp;&nbsp; command: &#39;custom&#39;
+	<br>&nbsp;&nbsp;&nbsp; customCommand: &#39;run build&#39;</code></p>
+<p>That will make the build scripts run with npm instead of yarn.</p>
+<p>No other changes should be needed. Commit your code and let it build and release to test. Verify that everything is correct in test.</p>
+<h2>Bootstrap 3</h2>
+<p>If you are still using Bootstrap 3 in your project, which is perfectly ok, you will want to add it to your dependencies. Add <code>&quot;bootstrap&quot;: &quot;^3.4.1&quot;,</code> to your dependencies section.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

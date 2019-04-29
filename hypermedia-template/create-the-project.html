@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create the Project</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Create the Project</h1>
+<h2>Important First Steps</h2>
+<p>Before starting any new project the best idea is to update your&nbsp;Threax.AspNetCore.Template project to the latest version and install it. To do this clone the&nbsp;<code>https://github.com/threax/Threax.AspNetCore.Template</code> repo or pull the latest changes into the one you already have. Next open the folder you checked this out to and run InstallTemplates.bat. This will&nbsp;update the templates on your machine.</p>
+<h2>Creating the Application from the Template</h2>
+<p>After you have the templates installed you can create a new project using them. You should always update the template before starting a new project so you have the latest libraries and template code for a new project. You can do this by running InstallTemplates.bat again, that will do a git pull before it installs the template.</p>
+<p>Unfortunately at this time Visual Studio 2019 does not work with its built in template projects. Fortunately .net core has its own one based on the command line. Since that one works we are using it in these instrucitons. If Microsoft fixes this we can update the templates to work inside the IDE correctly, but for now you must use a combination of the ide and the command line to make a project.</p>
+<p>The following steps will show you how to create a new project.</p>
+<h2>Create a Repository</h2>
+<p>First go to whatever folder on your computer you use for development. Inside it create a new folder to act as your project&#39;s repository root. You should name it the same as your project name, but if you want to follow an example call it DemoApp.</p>
+<p>Open the repository root folder (DemoApp) and create a new git repository here by right clicking and clicking <code>Git Create repository here...</code></p>
+<p>Click Ok in the dialog that pops up.</p>
+<p>Next add an appropriate .gitignore file. You can use <a href="https://github.com/github/gitignore/blob/master/VisualStudio.gitignore" target="_blank">this one from github</a> which does a good job of ignoring all the Visual Studio and c# files. Save it to the root of your repository as .gitignore.</p>
+<h2>Create the Application</h2>
+<p>Inside the root of the repository create another folder with the same name. This will be the project folder. If you are making the demo call it DemoApp.</p>
+<p>Open the project folder (DemoApp) and open a powershell window inside it.</p>
+<p>Type in <code>dotnet new threaxapp</code>. You can optionally supply a -p argument to change the port from the default 44321. This is reccomended so it is easier to run your app side by side with others in your dev environment. Use a port between 44301 and 44380. For example <code>dotnet new spcapp -p 44332</code>.</p>
+<p>Once you run this command close the powershell window. You will now see a bunch of code in the project folder. The template will use the folder name you created it in as the name of the project.</p>
+<p>Open the .csproj file that was created in Visual Studio. It will match the name of the folder. (DemoApp.csproj).</p>
+<p>When it opens click File-&gt; Save All. This will ask you to save a Solution (.sln) file. Save this to the root of your repository (where .gitignore is).</p>
+<h2>Create a Test Project</h2>
+<p>Go back to your repository root in Windows Explorer.</p>
+<p>Create a new folder called ProjectName.Tests (DemoApp.Tests).</p>
+<p>Open a powershell window in that folder.</p>
+<p>Run the command <code>dotnet new threaxapptests --appname <strong>{ProjectName}</strong></code> where <strong>{ProjectName}</strong> is the name of your project.</p>
+<p>Go back to your project in visual studio.</p>
+<p>Right click on the Solution node and click Add -&gt; Existing Project.</p>
+<p>Navigate to the test project folder you just created and add the .csproj file.</p>
+<p>That will add the tests to your project.</p>
+<p>Open the <strong>Test Explorer</strong> by searching for it in the <strong>Search Visual Studio</strong> box. Click Run All to build your project and run the tests.</p>
+<p>If you get a bunch of build errors try running install from the <strong>Task Runner Explorer</strong> to make sure you have the front end packages installed.</p>
+<p>Take this opportunity to commit your code using the Team Explorer window in vs.</p>
+<h2>Setup Database</h2>
+<ol>
+	<li>In the dropdown that says IIS Express change it to the profile SetupDb.
+	<br><img class="fitImage" src="/AutoUploads\777e4cd5-9771-4170-a995-f797eb801f8e.png"></li>
+	<li>Running that will run the tools with migrate and seed, which will setup your database.</li>
+	<li>Your service now has a database with user tables in it.</li>
+	<li>Your databases are running using localdb. You can see the connection string in appsettings.json. The name of the database will match the project name.</li>
+	<li>Change your profile back to IIS Express.</li>
+</ol>
+<h2>Add to Identity Server</h2>
+<p>The template sets itself to secure by default, so you must add it to your Identity Server before you will be able to see much.</p>
+<ol>
+	<li>If you local Identity Server is not running start it up along with the App Dashboard.</li>
+	<li>Go to <a href="https://localhost:44391" target="_blank">https://localhost:44391</a> and log in.</li>
+	<li>If it is not running start up the new project in Visual Studio.</li>
+	<li>Add the app as both a resource and client to identity server.</li>
+	<li>Also add client credentials for the app from metadata. This will allow you to connect the app to the id server with its own credentials.
+	<ol>
+		<li>By default the service runs on <a href="https://localhost:44302/">https://localhost:44321/</a></li>
+		<li>Otherwise you can look in the service project properties or in the browser that opens when you run the app under debug to get the url in Visual Studio.</li>
+	</ol></li>
+</ol>
+<h2>Add the App as a User on the Id Server</h2>
+<p>Go&nbsp;to the App Dashboard&nbsp;at <a href="https://localhost:44395/">https://localhost:44391/</a></p>
+<ol>
+	<li>Go to the User Roles&nbsp;page.</li>
+	<li>Click Add.</li>
+	<li>Search for YourProject.ClientCredentials and find your project in the search results.</li>
+	<li>Give the app permission to View Id Server Users.</li>
+</ol>
+<h2>Add Yourself as an Administrator</h2>
+<ol>
+	<li>In Visual Studio click on the tab that says Package Manager Console. This lets you use powershell commands from Visual Studio, you can also open a command window externally if you want to work that way.</li>
+	<li>cd into your application project directory. By default it starts in the base solution folder.</li>
+	<li>In this window type <code>dotnet run tools &quot;addadmin YOUR_GUID&quot;</code> replace YOUR_GUID with your guid from the <a href="/seeding-accounts">Seeding Accounts</a> page. Be sure to keep the quotes.</li>
+	<li>Your guid will now be added as a user with all of the roles defined in the system.</li>
+</ol>
+<h2>Run the Application</h2>
+<ol>
+	<li>Now run the application.</li>
+	<li>Click values when the browser loads the page.</li>
+	<li>You should see the values listed.</li>
+</ol>
+<p>The template comes with a built in concept of a Value model. This is just to have something working out of the box, we will delete this later on. The other pages in this section will describe how to do various tasks with your new application.</p>
+<p>&nbsp;</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

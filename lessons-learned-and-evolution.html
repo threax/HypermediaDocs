@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lessons Learned and Evolution</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Lessons Learned and Evolution</h1>
+<p>This page discusses some of the lessons learned while working with this framework. It also contains some of the reasoning that drove me to HATEOAS in the first place.&nbsp;It assumes you are a bit familiar with the architecture, which is why&nbsp;this page&nbsp;is last on the menu.</p>
+<h2>Background</h2>
+<p>When I created the original e-commerce website for <a href="https://www.anomalousmedical.com" target="_blank">Anomalous Medical</a> (please note that version has been retired and what is there now is based on <a href="https://github.com/threax/EdityMcEditface">Edity McEditface</a>) I wanted it to have connections between the client software and the website. These were established using the C# HttpClient classes and used Anomalous Medical&#39;s internal serializer, based on xml, to send data between the server and the client. This worked pretty well since both ends were written in C# and code could be easily shared between them. The actual website pages were almost all server side rendered, although I had great success with a back end based on the <a href="http://www.jtable.org/" target="_blank">JTable</a> library. This library was very flexible and it made it easy to create CRUD pages to manage the major parts of Anomalous Medical. This website was designed and created in 2010 and used the concepts I was familiar with at the time.</p>
+<p>When I moved on to creating Edity McEditface itself I wanted to use more standard web technologies, not the Anomalous Medical serializer. This led me to using json to communicate back and forth and an early version of <a href="https://github.com/threax/HtmlRapier">HtmlRapier</a> was born to drive the front end of Edity McEditface. The api was written with using REST concepts and swagger was used for documentation. Clients were generated from the swagger definitions and everything seemed golden, short of having to do some permission checks, but most of this logic was on the client side anyway.</p>
+<p>As I moved into building the early versions of this framework though I started to notice the problems. One of the big things people were (in 2016) and still are trying to accomplish is sharing code between the server and client side. The other big goal was to not have to keep changing client apps whenever server side changes were made, or at least make that easy. I figured the solution to this was client generation, but after some time I realized that I was going to have to duplicate almost the entire program on both the client and server side. It was right around the time I was trying to figure out how to get role management working on both ends that I discovered HATEOAS.</p>
+<h2>Using HATEOAS</h2>
+<p>When I first read about HATEOAS I just didn&#39;t get it. It sounded cool, but it really didn&#39;t make a lot of sense. It wasn&#39;t until I learned the limitations of REST + Swagger, namely this need to try to share code to avoid duplicating logic that it started to make sense. Why duplicate logic in clients, or indeed have much logic at all when the server could inform the client of what needed to be done through links. Obviously a client has its expectations about what it can do, but this doesn&#39;t need to change nearly as often as other details. This just made so much sense that I had to at least try it. I found the <a href="https://github.com/visualeyes/halcyon" target="_blank">Halcyon library</a> from the organization visualeyes on github. This proved to be an excellent starting point since he made it pretty easy to add links to responses and get the properly formatted json. I want to thank <a href="https://github.com/visualeyes">visualeyes</a> right here. This library is awesome and while it has been absorbed into the framework in a fork it provided an excellent foundation for everything that came next.</p>
+<p>Anomalous Medical taught me 2 things about dealing with lots of different kinds of data. First was that being able to generate UIs from objects is extremely powerful and productive and that the aspect oriented approaches possible using C# attributes are equally amazing. One of the holy grails in HATEOAS was to not only have links to describe actions, but machine readable documentation for consuming them. Since the Anomalous Engine, like many game engines is based on editing diverse objects this was already kind of a solved problem in my mind, since I had been doing it extensively for a while. Indeed even before Anomalous Medical I had been writing applications that would generate UIs from the code, this was not a new part of the problem for me. I learned about Json Schemas and using <a href="https://github.com/RicoSuter/NJsonSchema">NJsonSchema</a> and a few customizations I was generating json schemas from my C# models. HtmlRapier was updated to consume these and generate forms and now I could create and maintain decent UIs without a bunch of code. Of course HTML is very flexible, so HtmlRapier has a few tricks if the programmer needs to remove this automation, but you can still easily bind forms to data without needing a bunch of custom code.</p>
+<p>The other major issue was actually setting up all the links for any given result. This is another place where C#&#39;s attributes were extremely useful. Instead of writing out the links in each object, like the Halcyon library encourages by default, I created attributes that could be put onto the view models and linked them directly to the controllers using typeof and nameof. This way the compiler is actually checking to see if the links work correctly. You can still just define links and actually add them with custom logic in the result class, to support links that might not always be present. Finally all links that are being returned are checked to see if the user can actually visit them and any restricted links are removed. This gives a fairly easy to use interface for dealing with all the possible link combinations. Some base classes were created to handle common scenerios like paging and creating and managing those links, but&nbsp;view models can be created from&nbsp;POCOs (Plain Old Clr Objects).</p>
+<p>With these 2 parts the <a href="https://github.com/threax/HtmlRapier.Widgets">HtmlRapier.Widgets</a> CRUD table became feasible. I was able to whittle the code that needed to be copied down to just a few lines of definitions in the view typescript and a fairly short CRUD Injector class that calls the specific endpoints in the api and deals with other data specific needs. These classes are really small and are generated by the model generator. The CRUD table through its use of links and json schemas can adapt itself to almost any need or combination of permissions (or indeed the existance of certain operators at all). Its possible to use the same view for both admins and non-admins and the controls that any particular user can see are set right at the last second as the data is loaded. This prevents the client side from ever needing to have lots of permission checks or anything else. This also shows how the problem of how to share code between the client and the server is not really a problem at all. It is possible to communicate and consume this information without being too worried about the exact reasons on the other side. This system has been used to create hundreds of pages with the same basic code, that are easy to maintain and upgrade. With the flexibility provided by HtmlRapier these pages don&#39;t have to look like tables and they can have search provided in a huge number of visual layouts.</p>
+<p>This is the basis for the hypermedia foundations in this architecture. I know there are some criticisms of HATEOAS that its just a repeat of RPC or its hard to version or other claims. These certainly have merit and no architecture is perfect. For example this architecture would need further evolution to work well&nbsp;offline and it can be a bit chatty. However, I have found that the basic promise of using links to controls what the user (or downstream application) can do or see to work really well in practice. The primary benefit is not needing to go upgrade every other system every time you make a change to another one. Indeed we have made some pretty dramatic changes, such as changing urls without even needing to change 1 thing in client applications. As long as the entry point exists, or can be found with a redirect the app or ui can do what it needs to do.</p>
+<h2>Using Identity Server</h2>
+<p>The environment all of this went into originally had pretty complex user management. It had 2 types of users in Active Directory and the possibility for external login accounts as well. The legacy versions of the apps we were updating all had custom user management where some delt with one or another type of user. This was really hard to maintain and understand for new developers.</p>
+<p>At someone&#39;s suggestion I tried <a href="https://identityserver4.readthedocs.io/en/latest/" target="_blank">IdentityServer4</a> using Open Id Connect. This library proved to be incredibly valuable along with the Open Id Connect concept itself. As described in these docs it can unify all of these different types of logins. In addition storing all the user logins in the Identity Server adds a layer of security if an individual app gets hacked. There is no password hash in the database to try to crack, although this does make the Id Server itself a high value target.</p>
+<p>At first I thought it would be cool to centralize the permissions for each app in the Id Server itself, but this proved to be extremely complicated. Eventually it was flipped around so the id server could control scope, i.e. which app to connect to, but the individual permissions for an app are still controlled by the app itself. This makes&nbsp;a bit more work, since you have to go through each app to manage permissions, but since everything is an api in this framework anyway a unified permission handling ui could still be built, but it hasn&#39;t been at this time.</p>
+<h2>HATEOAS Enhancements</h2>
+<p>In HATEOAS typically you send the rel, or name of the link and the link itself, either ready to go or as a template. This worked well for&nbsp;a long time until&nbsp;I started needing to make api calls that might include a large amount of data in the request. If you are using GET this all comes through the url, which can run out of size pretty fast when you are serializing data into it.&nbsp;I started changing some of these to post, which worked great, but the downstream apps all had to be updated with this change, which wasn&#39;t so great. After a while I decided to include the http verbs and the data request strategy (from url, from body or from form) along with the rest of the link data. Now if an app needs to change any of these details it can do so without downstream apps needing to change at all.</p>
+<h2>Things I Regret</h2>
+<p>There are a couple of decisions I made early on that if I&nbsp;were doing this all over I would not do.</p>
+<p>The first was changing the case from pascal case to camel case when serializing the json objects from C#. This was done strictly for appearances sake back when I actually had to interact with the data more on the client side. This created a few headaches and requires the developer to have to think about which casing they need to use in a particular situation. This is mostly not too bad, since intellisense will assist anyway, but it creates some awkwardness. There are also a few hacks on top of things like NJsonSchema that make sure the case is changed correctly. This is unfortunatly one of the hardest things to fix because it is so engrained at this point.</p>
+<p>In addition the Halcyon clients as&nbsp;they exists now kind of flip the data around in an awkward way. The HATEOAS json will have the normal data inside it and then a _links and _embeds property. That is fine, but when you load it with the halcyon client you get the links in the root object and the data in a Data property of the root object. This is really weird to use in practice and causes you to have to go through result classes and then select out the Data property to actually look at what you want. A better implementation of this would preserve the original object structure. This was just not obvious at the time this was written. This would be easier to change, and supporting both modes would be 0 effort, but as things stand this isn&#39;t a big enough issue to change right now.</p>
+<h2>Conclusion</h2>
+<p>Overall I would say this architecture and the implementation in C# are very effective. As of this writing there are 2 environments running code based on this framework that don&#39;t have any relationship to one another. The first is public facing and runs on a combination of Azure and on premisis servers. The way that this lets you build lots of microservices instead of one huge app was instrumental to getting things running in Azure, since not every external connection could be established from the cloud.</p>
+<p>The other environment is in my own home where I run my private apps for home automation with voice recognition, file management and other things. These apps were all developed in this framework and are deployed on Ubuntu in Docker containers and on Windows/IIS for some parts of the home automation to control the TVs the Windows boxes are connected to.</p>
+<p>If you are looking for a flexible way to create large numbers of applications or simple one off apps to track a particular piece of data, this system works really well. You can easily create powerful UIs that allow for full manipulation of your data. Adjusting permission is easy and if you need to get the data into another system all the major operations in one of these apps takes place through an api. Generate a client in your language of choice and start loading the info.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

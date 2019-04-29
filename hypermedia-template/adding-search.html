@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adding Search</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Adding Search</h1>
+<p>You can add search to a crud page by using the ModelQuery input models. By default all of your models should have a query that can take an id, which is used to create deep links, but you can add additional properties to the query to add search fields.</p>
+<p>For this example we will add a search field for the name of our Values model. The process to add search to other models should be the same.</p>
+<h2>Modify the Schema Model</h2>
+<ol>
+	<li>Open up ModelSchemas/Value.cs</li>
+	<li>Above the Name property add a&nbsp;<code>[Queryable]</code> attribute.</li>
+	<li>Run the model generator for the values class.
+	<br><code>dotnet threax-modelgen YourAppNamespace.ModelSchemas.Value</code>
+	<br>This will update your ValueQuery classes to include Name as a search item.</li>
+</ol>
+<h1>Adding Search to the Ui</h1>
+<p>At this point your api can now query data based on the query you have created. However, you probably want your users to be able to query the data as well, so you will need to add some controls to your ui so they can add query data when viewing the crud table.</p>
+<ol>
+	<li>Open your Views/Home/Values.cshtml file.</li>
+	<li>On the div that says&nbsp;<code>&lt;div data-hr-controller=&quot;mainTable&quot;&gt;</code> add the css class col-sm-8. The div will become&nbsp;<code>&lt;div data-hr-controller=&quot;mainTable&quot; class=&quot;col-sm-8&quot;&gt;</code></li>
+	<li>This will make the values table slightly smaller using the bootstrap column system.</li>
+	<li>After the div you just modified add the following code to define a search control.
+	<p><code>&lt;div class=&quot;col-sm-4&quot;&gt;
+		<br>&nbsp; &nbsp; &lt;h3&gt;Search&lt;/h3&gt;
+		<br>&nbsp; &nbsp; &lt;div data-hr-controller=&quot;search&quot;&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;load visible=&quot;true&quot;&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;p&gt;Loading Search...&lt;/p&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/load&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;main&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;form data-hr-on-submit=&quot;submit&quot; data-hr-form=&quot;input&quot;&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;p class=&quot;bg-danger hiddenToggler&quot; data-hr-toggle=&quot;mainError&quot; data-hr-view=&quot;mainError&quot; data-hr-style-on=&quot;display:block;&quot;&gt;{{message}}&lt;/p&gt;</code></p>
+	<p><code>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary&quot; data-hr-form-end&gt;Search&lt;/button&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;/form&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/main&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;error&gt;
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; An error occured loading the search form. Please try again later.
+		<br>&nbsp; &nbsp; &nbsp; &nbsp; &lt;/error&gt;
+		<br>&nbsp; &nbsp; &lt;/div&gt;
+		<br>&lt;/div&gt;</code></p></li>
+	<li>
+	<p>Now wrap both of those divs in another div with the class row. <code>&lt;div class=&quot;row&quot;&gt; .... &lt;/div&gt;</code></p></li>
+	<li>
+	<p>This is everything you need to do to add search to the Ui. The code behind page is already configured to find the search controller named &quot;search&quot; and will create the htmlrapier controller when it finds it.</p></li>
+</ol>
+<h2>Testing the Search</h2>
+<p>Running the program now and going to the Values page will now show a 2 column ui. On the left will be the table and on the right will be a search box with a name field in it. Typing a value into the Name box and pressing search will find all the values who&#39;s names match excatly what you entered. Enter something like&nbsp;&quot;Value 10&quot;&nbsp;and press search. You should see&nbsp;1 result with 1 page. In addition the page&#39;s url should modify itself to be&nbsp;<a href="https://localhost:44321/Values?name=Value%2010&amp;offset=0&amp;limit=10&amp;total=1">https://localhost:44321/Values?name=Value%2010&amp;offset=0&amp;limit=10&amp;total=1</a>&nbsp;notice the name=Value%2010 in the query string. You can press back and the page will go back to the full results. Pressing forward should go back to the search results. This shows how your search results are part of the deep linking for the page with no work on your part.</p>
+<p><img class="fitImage" src="/AutoUploads\b6625791-37fb-4457-b55f-6dde9a7c3bfc.png"></p>
+<p>As you can see you get a pretty rich search control experience with a small amount of code. The structure of the search ui changes automatically as you modify the SearchQuery class. It will show any properties you mark with the [UiSearch] attribute. Since we didn&#39;t mark the id field with this attribute it does not show up on the ui, but its still part of the api if someone wants to query for an exact value. In fact this is what happens if click the edit button and then reload the page with the edit ui showing. You can add search properties for whatever is appropriate for your model and this page will automatically update the ui and handle deep linking for you.</p>
+<p>This example only shows an exact match because that is what the model generator will make by default. If you wanted to have a more useful search you could go into InputModels/ValueQuery.cs. Look for the Create function and find the line
+	<br><code>query = query.Where(i =&gt; i.Name == Name);</code>
+	<br>Change it to read
+	<br><code>query = query.Where(i =&gt; i.Name.Contains(Name));</code></p>
+<p>Ef will translate the contains into a database like call. Now you can search for partial names and the search will return all the matching results.</p>
+<p><img class="fitImage" src="/AutoUploads\5f72ef11-86a5-4d73-8099-f5b44d62b117.png"></p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>

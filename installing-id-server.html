@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Page Title</title>
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/simple-sidebar.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/sidebar/css/sidemenu.css?linkver=20190429051208" type="text/css">
+<link rel="stylesheet" href="/lib/edity/css/layout.css?linkver=20190429051208" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow"></div>
+
+    <div class="navbar-spacer"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/" data-hr-config-menu="/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Installing Id Server</h1>
+<p>This page will describe how to install the Threax.IdServer Identity Server into your environment. With this you will be able to create user accounts and log into your apps. The reference identity server supports local users and application users, but you can customize it for your needs. This could include adding users authenticated through ADFS or external providers like Google or Microsoft. Any of the user login systems supported by .Net Core should be usable and you can build custom authentication if needed. The Identity Server will nicely unify all these logins and pass on the basic user information along with a guid. The guid is how each app will identify a user and discover their roles.</p>
+<p>To setup the Id Server in your dev environment clone the Threax.IdServer repository from <code>https://github.com/threax/Threax.IdServer.git</code>.</p>
+<p>Once it is cloned open the Threax.IdServer solution.</p>
+<p>In Visual Studio run the install task in Task Runner Explorer for both the AppDashboard and the IdServer projects.</p>
+<p>Run the build task in Task Runner Explorer&nbsp;for both of these projects as well.</p>
+<p>Build the solution.</p>
+<p>Change the run mode from IIS Express to SetupDb and run it.</p>
+<p>Run the id server and create an account. After logging in click on your user name in the navbar and click Manage.</p>
+<p>From here make a note of the guid for your account.</p>
+<p>Stop the program.</p>
+<p>In the Package Manager Console in Visual Studio or on the command line run the following command from the Threax.IdServer folder:</p>
+<p><code>dotnet run tools &quot;addadmin <strong>{YourGuid}</strong>&quot;</code></p>
+<p>Replace <strong>{YourGuid}</strong> with the guid for your account, do not include the brackets.</p>
+<p>This will setup the account you just created as an admin on the id server.</p>
+<p>Next set the solution to run multiple projects and run both the IdServer and the AppDashboard. Log into the AppDashboard at <a href="https://localhost:44391" target="_blank">https://localhost:44391</a>.</p>
+<p>If everything is working then your Identity Server and App Dashboard are setup correctly.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/lib/polyfill.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tslib.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/tsbin.prod.js?linkver=20190429051208"></script>
+<script type="text/javascript" src="/lib/hr-run.js?linkver=20190429051208"></script>
+
+</body>
+
+</html>
