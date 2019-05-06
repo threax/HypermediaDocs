@@ -1,5 +1,6 @@
 <h1>Adding an App to Id Server</h1>
 <p>First though we need to add&nbsp;our&nbsp;client project&nbsp;to the Identity Server as a client and the Api to the Identity Server as a scope. We can take advantage of our metadata to do this for us.</p>
+<p>Please note that in a development environment you can leave the secrets set to the default of &quot;notyetdefined&quot;. However, if you are deploying to a public facing environment you should set the secrets otherwise you are leaving the door wide open for anything to log into the id server.</p>
 <h2>Adding Client</h2>
 <p>First open your local App Dashboard. If IIS Express is running you can use the tray icon to open the website.</p>
 <p>Once you log in you will see the following screen.</p>
@@ -17,7 +18,7 @@
 <p>Click Ok and the Client Credentials metadata will load.</p>
 <p><img class="fitImage" src="/AutoUploads\db74898d-566f-4328-bf22-62da3b4f856f.png" /></p>
 <p>Click Save Changes at the bottom of the screen to save the client credentials. This also creates this app as an application&nbsp;user in&nbsp;the identity server.</p>
-<h2>Adding Scope</h2>
+<h2>Adding Resource Scope</h2>
 <p>Now click the Resources link. This will list all the resource scopes currently defined.</p>
 <p><img class="fitImage" src="/AutoUploads\d8ffd7df-8d59-4b41-9702-826ec8a9e26e.png" /></p>
 <p>Click Add from Metadata and put in the base url of your api.</p>

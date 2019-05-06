@@ -6,5 +6,5 @@
   "buildVars":{
     "pathBase": "HypermediaDocs"
   },
-  "additionalContent": [  ]
+  "additionalContent": [ "AutoUploads" ]
 }

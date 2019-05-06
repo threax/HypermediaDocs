@@ -153,16 +153,16 @@
       "name": "Identity Server",
       "children": [
         {
-          "name": "Adding a Client Credentials Client to Id Server",
-          "link": "/adding-a-client-credentials-client-to-id-server"
+          "name": "Adding an App to Id Server",
+          "link": "/adding-an-app-to-id-server"
+        },
+        {
+          "name": "Adding an App to Another App",
+          "link": "/identity-server/adding-an-app-to-another-app"
         },
         {
           "name": "Client Types",
           "link": "/id-server-client-types"
-        },
-        {
-          "name": "Adding an App to Id Server",
-          "link": "/adding-an-app-to-id-server"
         }
       ]
     },
