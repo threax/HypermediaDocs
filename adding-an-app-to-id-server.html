@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adding an App to Id Server</title>
-    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429064539" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190506044312" type="text/css">
 
 </head>
 
@@ -29,7 +29,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar-short">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="5C7D811DF6A6DDE3AC48E698279CD1A59C4C4106AB6F9735DC81E254D6039FF0">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -60,6 +60,7 @@
                     <div class="col-md-12 pageContent">
                         <h1>Adding an App to Id Server</h1>
 <p>First though we need to add&nbsp;our&nbsp;client project&nbsp;to the Identity Server as a client and the Api to the Identity Server as a scope. We can take advantage of our metadata to do this for us.</p>
+<p>Please note that in a development environment you can leave the secrets set to the default of &quot;notyetdefined&quot;. However, if you are deploying to a public facing environment you should set the secrets otherwise you are leaving the door wide open for anything to log into the id server.</p>
 <h2>Adding Client</h2>
 <p>First open your local App Dashboard. If IIS Express is running you can use the tray icon to open the website.</p>
 <p>Once you log in you will see the following screen.</p>
@@ -77,7 +78,7 @@
 <p>Click Ok and the Client Credentials metadata will load.</p>
 <p><img class="fitImage" src="/HypermediaDocs/AutoUploads\db74898d-566f-4328-bf22-62da3b4f856f.png"></p>
 <p>Click Save Changes at the bottom of the screen to save the client credentials. This also creates this app as an application&nbsp;user in&nbsp;the identity server.</p>
-<h2>Adding Scope</h2>
+<h2>Adding Resource Scope</h2>
 <p>Now click the Resources link. This will list all the resource scopes currently defined.</p>
 <p><img class="fitImage" src="/HypermediaDocs/AutoUploads\d8ffd7df-8d59-4b41-9702-826ec8a9e26e.png"></p>
 <p>Click Add from Metadata and put in the base url of your api.</p>
@@ -93,12 +94,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429064539"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190506044312"></script>
 
 </body>
 

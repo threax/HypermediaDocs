@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adding Client Credentials to Id Server</title>
-    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190429064539" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190429064539" type="text/css">
+    <title>Adding an App to Another App</title>
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190506044312" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20190506044312" type="text/css">
 
 </head>
 
@@ -29,7 +29,7 @@
     <div id="wrapper">
         <!-- Sidebar -->
         <div id="sidebar-wrapper" class="sidebar-with-navbar-short">
-            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="1F33ED1E0C33D3213C20672BB418D3CDC8EDEDDF980FB4D127ECEA29CB4A84F8">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="5C7D811DF6A6DDE3AC48E698279CD1A59C4C4106AB6F9735DC81E254D6039FF0">
                 <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
                     <template data-hr-component="sidebarMenuComponent">
                         <li class="folder">
@@ -58,21 +58,14 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Adding a Client Credentials Client</h1>
-<p>Adding a client to Id Server as Client Credentails allows an applicaiton/service to login to id server and any services as an Application user type. This allows direct communication between applicaitons without needing to give actual spc users access.</p>
-<p>To setup one of these clients go to the clients page in the app dashboard. You can then click Enter Client Credentials Metadata and put in the url for the site you wish to create credentials for. We are using an approach where each application that wishes to communicate with another application directly must create its own unique client credentials and include all the scopes for the applications it wishes to connect to. This way each app has its own set of credentials and secrets can be updated and changed for one app at a time. There is some discussion about this <a href="/HypermediaDocs/id-server-client-types">here</a>.</p>
-<p>The applicaitons should be setup to give accurate data just by querying them. However, you can also modify anything you need to in the form.</p>
-<p>Once you add the client find it in the list and click the Create Secret button. You should go immediately to your app&#39;s configuration file and paste in the value, you cannot recover it after this step (although you can generate a new one). Grab everything in the grey box including the = sign, the secret is base64 encoded.</p>
-<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\2931004f-3fa1-4069-9b8e-3c340364d2b9.png"></p>
-<p>Now you can login to the id server using the Client Id and the secret. Be careful pressing this button again after you create the secret or you will override it and have to update your apps configuration.</p>
+                        <h1>Adding an App to Another App</h1>
+<p>Once Client Credentials are setup you can add those clients as users to other applications. This allows apps to connect to each other.</p>
 <p>Go to your app&#39;s Edit Users page and click add. Search for your app&#39;s client id using the User Name field.</p>
 <p><img class="fitImage" src="/HypermediaDocs/AutoUploads\006cb034-f202-401b-8d0a-e9af6eb038fa.png"></p>
 <p>Find the application you were looking for and click Edit Roles.</p>
 <p>Finally set the permissions you want the applicaiton to be able to perform. Using this you can limit what different clients are able to do. In the screenshot we have limited the application users coming in to only be able to edit values.</p>
 <p><img class="fitImage" src="/HypermediaDocs/AutoUploads\0267d120-8f83-4f41-a4b8-63b40120578c.png"></p>
 <p>Click Save Changes to save your new user. When you connect the hypermedia api will give you an entry point that allows the operations you are able to perform.</p>
-<h2>Updating Existing Credentials</h2>
-<p>If the client credentials were already added for your app (you should get an error when trying to save), just go to the existing entry, click edit and then add the scopes manually that you need to add.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
@@ -80,12 +73,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190429064539"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190429064539"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20190506044312"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20190506044312"></script>
 
 </body>
 
