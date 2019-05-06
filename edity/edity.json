@@ -21,6 +21,14 @@
       }
     }
   ],
+  "postBuildTasks": [
+    {
+      "name": "PublishMenu",
+      "settings": {
+        "menuFile": "menus/mainMenu.json"
+      }
+    }
+  ],
   "postPublishTasks": [
     {
       "name" : "PublishToGitRepo"
