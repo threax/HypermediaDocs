@@ -1,10 +1,29 @@
 {
-  "$schema": "https://raw.githubusercontent.com/threax/EdityMcEditface/master/SchemaGenerator/Schema/EdityProject.json",
+  "$schema": "https://www.threax.com/EdityMcEditface/edityschema.json",
   "vars": {
     "siteTitle": "Threax Hypermedia Framework and Architecture"
   },
   "buildVars":{
     "pathBase": "HypermediaDocs"
   },
-  "additionalContent": [ "AutoUploads" ]
+  "additionalContent": [ "AutoUploads" ],
+  "compilers": [
+    {
+      "type": "Html",
+      "extension": ".html"
+    }
+  ],
+  "preBuildTasks": [
+    {
+      "name": "GetPublishRepo",
+      "settings": {
+        "url": "https://github.com/threax/HypermediaDocs.git"
+      }
+    }
+  ],
+  "postPublishTasks": [
+    {
+      "name" : "PublishToGitRepo"
+    }
+  ]
 }
