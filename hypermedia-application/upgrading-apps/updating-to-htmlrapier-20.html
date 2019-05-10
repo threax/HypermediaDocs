@@ -1,0 +1,11 @@
+<h1>Updating to HtmlRapier 20</h1>
+<p>HtmlRapier 20 removes the dependency on @types/es6-promise. This will cleanup the code and dependencies since that package has long been deprecated. The major version number changed because a few configuration changes need to be made to apps.</p>
+<p>First open package.json and update your htmlrapier reference to 20.0.2.</p>
+<p>Also in that file remove the following package if you have it under devDependencies: <code>@types/node</code>. Run npm install to install these changes.</p>
+<p>Next add the following to your tsconfig.json under compilerOptions:</p>
+<p><code>&nbsp;&nbsp;&nbsp; &quot;lib&quot;: [
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;dom&quot;,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;es5&quot;,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;es2015.promise&quot;
+	<br />&nbsp;&nbsp;&nbsp; ],</code></p>
+<p>That will instruct typescript to use the built in promise definitions from the es2015 library.</p>

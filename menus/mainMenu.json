@@ -144,6 +144,10 @@
             {
               "name": "Adding CSP",
               "link": "/hypermedia-application/upgrading-apps/adding-csp"
+            },
+            {
+              "name": "Updating to HtmlRapier 20",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-20"
             }
           ]
         }
