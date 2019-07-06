@@ -148,6 +148,10 @@
             {
               "name": "Updating to HtmlRapier 20",
               "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-20"
+            },
+            {
+              "name": "Compiling With Typescript 3.5.0",
+              "link": "/hypermedia-application/upgrading-apps/compiling-with-typescript-350"
             }
           ]
         }

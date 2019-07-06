@@ -1,0 +1,10 @@
+<h1>Compiling With Typescript 3.5.0</h1>
+<p>Apps may have problems compiling with Typescript 3.5.0 and above. You will get an error similar to error TS2304: Cannot find name &#39;Iterable&#39;. This is because Typescript is no longer able to find the iterable library by default.</p>
+<p>To fix this add <code>&quot;es2015.iterable&quot;</code> to the <strong>&quot;lib&quot;</strong> array in your tsconfig.json file. When you are done it should look something like the following:</p>
+<p><code>&quot;lib&quot;: [
+	<br />&nbsp; &quot;dom&quot;,
+	<br />&nbsp; &quot;es5&quot;,
+	<br />&nbsp; &quot;es2015.promise&quot;,
+	<br />&nbsp; &quot;es2015.iterable&quot;
+	<br />],</code></p>
+<p>The Typescript build should now work correctly.</p>
