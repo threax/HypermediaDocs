@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Generation</title>
+    <title>Updating to Automapper 9.0.0</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20190817015040" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20190817015040" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20190817015040" type="text/css">
@@ -58,14 +58,23 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Code Generation</h1>
-<p>This diagram shows how each step in the code generation process works as you are working on your app. The arrows show what is generated from what when the labeled command is run.</p>
-<p><img class="fitImage" src="/HypermediaDocs/AutoUploads\3cbd9368-e23c-4fdb-8064-b541d753343c.png"></p>
-<p>This shows that you need to change your schema, then run the threax-modelgen tool, which will generate your application classes.</p>
-<p>From these classes additional code generation is run by the ef tools, which generate migrations, which are applied to the database when you run setupdb.</p>
-<p>Running Update Client generates the language specific clients for the hypermedia api formed by your application classes.</p>
-<p>The application classes are used at runtime to generate custom endpoint documentation that is unique to each user and describes what they can do on a particular endpoint.</p>
-<p>The endpoint docs are used to create the forms and crud tables using Html Rapier on the client side at runtime.</p>
+                        <h1>Updating to Automapper 9.0.0</h1>
+<p>Automapper 9.0.0 has some breaking changes for the way apps are built.</p>
+<h2>Change How Profiles are Added</h2>
+<p>The code to find all the profiles in a project has changed. In your Database/AppDatabaseServiceExceptions.cs file find the line that adds the profiles</p>
+<p><code>cfg.AddProfiles(typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly);</code></p>
+<p>and replace it with</p>
+<p><code>var profiles = typeof(AppDatabaseServiceExtensions).GetTypeInfo().Assembly.GetTypes()
+	<br>&nbsp;&nbsp;&nbsp; .Where(t =&gt; t.IsSubclassOf(typeof(Profile)))
+	<br>&nbsp;&nbsp;&nbsp; .Select(i =&gt; Activator.CreateInstance(i) as Profile)
+	<br>&nbsp;&nbsp;&nbsp; .ToList();</code></p>
+<p><code>cfg.AddProfiles(profiles);</code></p>
+<p>This will do the same thing by scanning the assembly that contains the AppDatabaseServiceExtensions and creating an instance of anything that is a subclass of Automapper&#39;s Profile class. This was removed from the library in version 9.0.0.</p>
+<p>Please note that if you are using any libraries that add their own automapper bindings, you will need to do this update to those libraries as well. In the reference framework&#39;s case the Threax.AspNetCore.UserLookup.Mvc library needed this change as well. If you need to do this to one of your libraries it will manifest itself as a MissingMethodException in AutoMapper when your program starts up. Find the library where the old AddProfiles is being called and update it to something like the above code. You will probably need to change the typeof() to the class containing this call.</p>
+<h2>Update Threax.AspNetCore.UserLookup.Mvc</h2>
+<p>If you are using the Threax.AspNetCore.UserLookup.Mvc library in your project you should update it to version 2.0.0 or above. This version references Automapper 9.0.0 and has the code shown above to change how the profiles are added. Your projects may not be using this library, but if you get an error on startup that a method cannot be found in the automapper library with the AddThreaxUserLookup function in the stack trace, this is likely your problem.</p>
+<h2>Test Carefully for Automapper Changes</h2>
+<p>A major change with Automapper 9.0.0 is that it no longer does automatic mappings. This framework tries to be explicit in what mappings it creates, but it would be easy to fall into the mappings being created automatically. When you do this upgrade test all of your mappings to make sure that they were not being automatically created. Anything that was being auto created should have an explicit binding created for it.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
