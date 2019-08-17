@@ -152,6 +152,10 @@
             {
               "name": "Compiling With Typescript 3.5.0",
               "link": "/hypermedia-application/upgrading-apps/compiling-with-typescript-350"
+            },
+            {
+              "name": "Updating to Automapper 9.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-automapper-900"
             }
           ]
         }
