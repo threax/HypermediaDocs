@@ -1,0 +1,8 @@
+<h1>Fix Flash of Unstyled Content</h1>
+<p>To fix this on these apps first add the following nested inside the &lt;head&gt; element at the top. Be sure to change the background-color to your theme&#39;s background color.</p>
+<p><code>&lt;style&gt;html{visibility: hidden;opacity:0;background-color:#222;}&lt;/style&gt;</code></p>
+<p>Then above the line where you first load the javascript add the following</p>
+<p><code>&lt;style&gt;html{visibility: visible;opacity: 1;}&lt;/style&gt;</code></p>
+<p>It should be right above</p>
+<p><code>&lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;</code></p>
+<p>The page will now load to your background color, then switch over to a nicer view once everything is loaded.</p>
