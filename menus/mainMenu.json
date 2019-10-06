@@ -160,6 +160,10 @@
             {
               "name": "Fix Flash of Unstyled Content",
               "link": "/hypermedia-application/upgrading-apps/fix-flash-of-unstyled-content"
+            },
+            {
+              "name": "Update to .Net Core 3.0",
+              "link": "/hypermedia-application/upgrading-apps/update-to-net-core-30"
             }
           ]
         }
