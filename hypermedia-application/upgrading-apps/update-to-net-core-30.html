@@ -76,5 +76,8 @@
 <p>Add the following to your migrate tool after the call to <code>await a.Migrate();</code></p>
 <p><code>a.Scope.ServiceProvider.GetRequiredService&lt;AppDbContext&gt;().ConvertToEfCore3();</code></p>
 <p>This will change the format of any GUIDs in your database. This is only needed for SQLite.</p>
+<h2>Fixing Tests</h2>
+<p>If you have a test project you will probably also need to update it to netcoreapp3.0. Also remove the Microsoft.AspNetCore.App library. Finally add the following package for the in memory database:</p>
+<p><code>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.InMemory&quot; Version=&quot;3.0.0&quot; /&gt;</code></p>
 <h2>Wrap Up</h2>
 <p>This should get your app up and running on .Net Core 3.0. Note that there are a large number of ef core breaking changes and other changes you might need to account for. Please see <a href="https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&amp;tabs=visual-studio" target="_blank">this page</a> for more info.</p>
