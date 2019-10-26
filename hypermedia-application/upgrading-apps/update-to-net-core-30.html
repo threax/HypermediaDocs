@@ -2,10 +2,13 @@
 <p>This page will show you how to update your apps to .Net Core 3.0. The changes are not major and all the libraries were actually updated to support both 2.2 and 3.0. Mostly you need to update some nuget packages, change some csproj settings and make a couple of code changes.</p>
 <h2>Update Nuget Packages</h2>
 <p>You can update all the Threax nuget packages while still on 2.2 to test to make sure your app still works as expected. After you do this you can proceed updating to .Net Core 3.0.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>**** Add Package Versions Here ****</p>
-<h2>&nbsp;</h2>
+<p>Threax.AspNetCore.IdServerAuth - 2.11.0
+	<br />Threax.AspNetCore.UserBuilder.Entities - 4.1.0
+	<br />Threax.AspNetCore.UserBuilder.Entities.Mvc - 5.3.0
+	<br />Threax.AspNetCore.Halcyon.Client - 7.1.1
+	<br />Threax.AspNetCore.Halcyon.Ext - 12.8.0
+	<br />Threax.AspNetCore.UserLookup.Mvc - 2.1.0</p>
+<p>Threax.Sqlite.Ext - 2.0.0 - If Using SQLite</p>
 <h2>Update Csproj</h2>
 <p>Change the <strong>TargetFramework </strong>from <code>netcoreapp2.2</code> to <code>netcoreapp3.0</code>.</p>
 <p><code>&lt;TargetFramework&gt;netcoreapp2.2&lt;/TargetFramework&gt;</code></p>
