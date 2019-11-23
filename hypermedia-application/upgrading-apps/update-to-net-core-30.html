@@ -82,5 +82,17 @@
 <h2>Fixing Tests</h2>
 <p>If you have a test project you will probably also need to update it to netcoreapp3.0. Also remove the Microsoft.AspNetCore.App library. Finally add the following package for the in memory database:</p>
 <p><code>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.InMemory&quot; Version=&quot;3.0.0&quot; /&gt;</code></p>
+<h2>Updating Model Generator</h2>
+<p>The model generator will probably not work well with your project the way it is currently installed. You should update to version 12. Please note that this model generator might not be appropriate for your project since it generates the newest code style.</p>
+<p>To update do the following:</p>
+<ol>
+	<li>Open your csproj and remove the following line:
+	<br /><code>&lt;DotNetCliToolReference Include=&quot;Threax.ModelGen&quot; Version=&quot;11.1.0&quot; /&gt;</code></li>
+	<li>Open a command line inside the folder with your csproj and run:
+	<br /><code>dotnet new tool-manifest
+	<br />dotnet tool install Threax.ModelGen</code></li>
+	<li>You can now run the model generator like before by running
+	<br /><code>dotnet threax-modelgen ModelName</code></li>
+</ol>
 <h2>Wrap Up</h2>
 <p>This should get your app up and running on .Net Core 3.0. Note that there are a large number of ef core breaking changes and other changes you might need to account for. Please see <a href="https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&amp;tabs=visual-studio" target="_blank">this page</a> for more info.</p>
