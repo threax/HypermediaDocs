@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update to .Net Core 3.0</title>
-    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20191123063428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20191123063428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20191123063428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20191123063428" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20191125052222" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20191125052222" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20191125052222" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20191125052222" type="text/css">
 
 </head>
 
@@ -80,6 +80,7 @@
 	<br>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Sqlite&quot; Version=&quot;2.2.0&quot; /&gt;</code></p>
 <p>Then add these references back in:</p>
 <p><code>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc.NewtonsoftJson&quot; Version=&quot;3.0.0&quot; /&gt;
+	<br>&lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation&quot; Version=&quot;3.0.0&quot; /&gt;
 	<br>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore&quot; Version=&quot;3.0.0&quot; /&gt;
 	<br>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Sqlite&quot; Version=&quot;3.0.0&quot; /&gt;
 	<br>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Tools&quot; Version=&quot;3.0.0&quot; /&gt;
@@ -98,6 +99,8 @@
 <p><code>.AddJsonOptions(o =&gt;</code></p>
 <p>and change it to</p>
 <p><code>.AddNewtonsoftJson(o =&gt;</code></p>
+<p>After this also add</p>
+<p><code>.AddRazorRuntimeCompilation()</code></p>
 <h3>Remove Compatibility Version</h3>
 <p>Remove the line</p>
 <p><code>.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);</code></p>
@@ -142,6 +145,18 @@
 <h2>Fixing Tests</h2>
 <p>If you have a test project you will probably also need to update it to netcoreapp3.0. Also remove the Microsoft.AspNetCore.App library. Finally add the following package for the in memory database:</p>
 <p><code>&lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.InMemory&quot; Version=&quot;3.0.0&quot; /&gt;</code></p>
+<h2>Updating Model Generator</h2>
+<p>The model generator will probably not work well with your project the way it is currently installed. You should update to version 12. Please note that this model generator might not be appropriate for your project since it generates the newest code style.</p>
+<p>To update do the following:</p>
+<ol>
+	<li>Open your csproj and remove the following line:
+	<br><code>&lt;DotNetCliToolReference Include=&quot;Threax.ModelGen&quot; Version=&quot;11.1.0&quot; /&gt;</code></li>
+	<li>Open a command line inside the folder with your csproj and run:
+	<br><code>dotnet new tool-manifest
+	<br>dotnet tool install Threax.ModelGen</code></li>
+	<li>You can now run the model generator like before by running
+	<br><code>dotnet threax-modelgen ModelName</code></li>
+</ol>
 <h2>Wrap Up</h2>
 <p>This should get your app up and running on .Net Core 3.0. Note that there are a large number of ef core breaking changes and other changes you might need to account for. Please see <a href="https://docs.microsoft.com/en-us/aspnet/core/migration/22-to-30?view=aspnetcore-3.0&amp;tabs=visual-studio" target="_blank">this page</a> for more info.</p>
                         <div class="footer"></div>
@@ -151,12 +166,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20191123063428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20191123063428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20191123063428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20191123063428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20191123063428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20191123063428"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20191125052222"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20191125052222"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20191125052222"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20191125052222"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20191125052222"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20191125052222"></script>
 
 </body>
 
