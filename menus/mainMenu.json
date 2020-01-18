@@ -164,6 +164,10 @@
             {
               "name": "Update to .Net Core 3.0",
               "link": "/hypermedia-application/upgrading-apps/update-to-net-core-30"
+            },
+            {
+              "name": "Update to .Net Core 3.1",
+              "link": "/hypermedia-application/upgrading-apps/update-to-net-core-31"
             }
           ]
         }
