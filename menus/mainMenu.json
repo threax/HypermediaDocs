@@ -168,6 +168,10 @@
             {
               "name": "Update to .Net Core 3.1",
               "link": "/hypermedia-application/upgrading-apps/update-to-net-core-31"
+            },
+            {
+              "name": "Updating to Identity Model 4",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-identity-model-4"
             }
           ]
         }

@@ -1,0 +1,69 @@
+<h1>Updating to Identity Model 4 and New Halcyon Client</h1>
+<p>The IdentityModel4 library needs quite a few updates to work. Its mostly nuget packages, but clients need to be updated also. This update splits the auth from the core Threax.AspNetCore.Halcyon.Client, which should allow these pieces to update more independently.</p>
+<h2>Updating Apps</h2>
+<h3>Nuget Packages</h3>
+<p>First update or add the following packages:</p>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client.OpenIdConnect&quot; Version=&quot;1.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.Extensions.Configuration.SchemaBinder&quot; Version=&quot;1.5.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.IdServer.Client&quot; Version=&quot;3.0.1&quot; /&gt;</code></p>
+<h3>Startup.cs</h3>
+<p>Add the following to ConfigureServices somewhere.</p>
+<p><code>services.AddHalcyonClient();</code></p>
+<p>Update your call to AddThreaxIdServerClient from:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddThreaxIdServerClient(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>to:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddThreaxIdServerClient(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .SetupHttpClientFactoryWithClientCredentials(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>This completes the app updates.</p>
+<h2>Updating Client Libraries</h2>
+<h3>Nuget Packages</h3>
+<p>Update the following package:</p>
+<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;</p>
+<p>You can remove references to:</p>
+<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityModel&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.AuthCore&quot; Version=&quot;2.0.3&quot; /&gt;</p>
+<p>The versions don&#39;t matter, erase any reference.</p>
+<h3>ClientOptions.cs</h3>
+<p>This is whatever your options class is. Now you don&#39;t use your library with credentials, so you need to remove the ClientCredentials property.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// The options when using ClientCredentials, otherwise ignored.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ClientCredentailsAccessTokenFactoryOptions ClientCredentials { get; set; } = new ClientCredentailsAccessTokenFactoryOptions();</p>
+<h3>DiExtensions.cs</h3>
+<p>This can likely be simplified quite a bit to just setup your entry point using the injected factory for it. The following is the new template dependency injection extension:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IHalcyonClientSetup&lt;EntryPointInjector&gt; AddAppTemplateClient(this IServiceCollection services, Action&lt;AppTemplateOptions&gt; configure)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var options = new AppTemplateOptions();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; configure?.Invoke(options);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddSingleton&lt;IHttpClientFactory&lt;EntryPointInjector&gt;, DefaultHttpClientFactory&lt;EntryPointInjector&gt;&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddScoped&lt;EntryPointInjector&gt;(s =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new EntryPointInjector(options.ServiceUrl, s.GetRequiredService&lt;IHttpClientFactory&lt;EntryPointInjector&gt;&gt;());
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new HalcyonClientSetup&lt;EntryPointInjector&gt;(services);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<h3>Client Applications</h3>
+<p>Client applications must be modified like we did above for the apps. When setting up your client call&nbsp;<code>SetupHttpClientFactoryWithClientCredentials</code> after you add your client&#39;s services to the dependency injector. If you use the same name for your config section the schema will combine the input objects.</p>
+<p>The following is an example of this.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddYourClient(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;YourClientSection&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .SetupHttpClientFactoryWithClientCredentials(o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;YourClientSection&quot;, o);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>With this the update the Identity Model 4 and the new Halcyon client is complete.</p>
