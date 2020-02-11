@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updating to Identity Model 4 and New Halcyon Client</title>
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200211064205" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200211064205" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200211064205" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20200211064205" type="text/css">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top navbar-nomargin" data-hr-run="edity.theme.layouts.default">
+        <a class="navbar-brand" href="#ToggleMenu" data-target="#wrapper" data-toggle="sidebar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <div class="navbar-header navbar-nowrap">
+            <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
+        </div>
+    </nav>
+
+    <div class="navbar-shadow-short"></div>
+    <div class="navbar-spacer-short"></div>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" class="sidebar-with-navbar-short">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="9E65631614F6C3D8CB2EE9055E5E46C5BF894820C0FEC1544CE51F5550B4D8FC">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Updating to Identity Model 4 and New Halcyon Client</h1>
+<p>The IdentityModel4 library needs quite a few updates to work. Its mostly nuget packages, but clients need to be updated also. This update splits the auth from the core Threax.AspNetCore.Halcyon.Client, which should allow these pieces to update more independently.</p>
+<h2>Updating Apps</h2>
+<h3>Nuget Packages</h3>
+<p>First update or add the following packages:</p>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client.OpenIdConnect&quot; Version=&quot;1.0.0&quot; /&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.Extensions.Configuration.SchemaBinder&quot; Version=&quot;1.5.1&quot; /&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.IdServer.Client&quot; Version=&quot;3.0.1&quot; /&gt;</code></p>
+<h3>Startup.cs</h3>
+<p>Add the following to ConfigureServices somewhere.</p>
+<p><code>services.AddHalcyonClient();</code></p>
+<p>Update your call to AddThreaxIdServerClient from:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddThreaxIdServerClient(o =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>to:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddThreaxIdServerClient(o =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .SetupHttpClientFactoryWithClientCredentials(o =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;IdServerClient&quot;, o);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>This completes the app updates.</p>
+<h2>Updating Client Libraries</h2>
+<h3>Nuget Packages</h3>
+<p>Update the following package:</p>
+<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;</p>
+<p>You can remove references to:</p>
+<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityModel&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.AuthCore&quot; Version=&quot;2.0.3&quot; /&gt;</p>
+<p>The versions don&#39;t matter, erase any reference.</p>
+<h3>ClientOptions.cs</h3>
+<p>This is whatever your options class is. Now you don&#39;t use your library with credentials, so you need to remove the ClientCredentials property.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// The options when using ClientCredentials, otherwise ignored.
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ClientCredentailsAccessTokenFactoryOptions ClientCredentials { get; set; } = new ClientCredentailsAccessTokenFactoryOptions();</p>
+<h3>DiExtensions.cs</h3>
+<p>This can likely be simplified quite a bit to just setup your entry point using the injected factory for it. The following is the new template dependency injection extension:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IHalcyonClientSetup&lt;EntryPointInjector&gt; AddAppTemplateClient(this IServiceCollection services, Action&lt;AppTemplateOptions&gt; configure)
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var options = new AppTemplateOptions();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; configure?.Invoke(options);</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddSingleton&lt;IHttpClientFactory&lt;EntryPointInjector&gt;, DefaultHttpClientFactory&lt;EntryPointInjector&gt;&gt;();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddScoped&lt;EntryPointInjector&gt;(s =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new EntryPointInjector(options.ServiceUrl, s.GetRequiredService&lt;IHttpClientFactory&lt;EntryPointInjector&gt;&gt;());
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new HalcyonClientSetup&lt;EntryPointInjector&gt;(services);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<h3>Client Applications</h3>
+<p>Client applications must be modified like we did above for the apps. When setting up your client call&nbsp;<code>SetupHttpClientFactoryWithClientCredentials</code> after you add your client&#39;s services to the dependency injector. If you use the same name for your config section the schema will combine the input objects.</p>
+<p>The following is an example of this.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddYourClient(o =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;YourClientSection&quot;, o);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .SetupHttpClientFactoryWithClientCredentials(o =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Configuration.Bind(&quot;YourClientSection&quot;, o);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.GetSharedClientCredentials = s =&gt; Configuration.Bind(&quot;SharedClientCredentials&quot;, s);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>With this the update the Identity Model 4 and the new Halcyon client is complete.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20200211064205"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20200211064205"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20200211064205"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20200211064205"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20200211064205"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20200211064205"></script>
+
+</body>
+
+</html>
