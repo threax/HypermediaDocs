@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Updating to Identity Model 4 and New Halcyon Client</title>
-    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200216071428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200216071428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200216071428" type="text/css">
-<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20200216071428" type="text/css">
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200216073111" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200216073111" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200216073111" type="text/css">
+<link rel="stylesheet" href="/HypermediaDocs/lib/edity/css/layout.css?linkver=20200216073111" type="text/css">
 
 </head>
 
@@ -91,30 +91,30 @@
 <h2>Updating Client Libraries</h2>
 <h3>Nuget Packages</h3>
 <p>Update the following package:</p>
-<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;</p>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;9.0.0&quot; /&gt;</code></p>
 <p>You can remove references to:</p>
-<p>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityModel&quot; Version=&quot;4.0.0&quot; /&gt;
-	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.AuthCore&quot; Version=&quot;2.0.3&quot; /&gt;</p>
+<p><code>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityModel&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.AuthCore&quot; Version=&quot;2.0.3&quot; /&gt;</code></p>
 <p>The versions don&#39;t matter, erase any reference.</p>
 <h3>ClientOptions.cs</h3>
 <p>This is whatever your options class is. Now you don&#39;t use your library with credentials, so you need to remove the ClientCredentials property.</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// The options when using ClientCredentials, otherwise ignored.
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ClientCredentailsAccessTokenFactoryOptions ClientCredentials { get; set; } = new ClientCredentailsAccessTokenFactoryOptions();</p>
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public ClientCredentailsAccessTokenFactoryOptions ClientCredentials { get; set; } = new ClientCredentailsAccessTokenFactoryOptions();</code></p>
 <h3>DiExtensions.cs</h3>
 <p>This can likely be simplified quite a bit to just setup your entry point using the injected factory for it. The following is the new template dependency injection extension:</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IHalcyonClientSetup&lt;EntryPointInjector&gt; AddAppTemplateClient(this IServiceCollection services, Action&lt;AppTemplateOptions&gt; configure)
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public static IHalcyonClientSetup&lt;EntryPointInjector&gt; AddAppTemplateClient(this IServiceCollection services, Action&lt;AppTemplateOptions&gt; configure)
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var options = new AppTemplateOptions();
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; configure?.Invoke(options);</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddSingleton&lt;IHttpClientFactory&lt;EntryPointInjector&gt;, DefaultHttpClientFactory&lt;EntryPointInjector&gt;&gt;();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; configure?.Invoke(options);</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddSingleton&lt;IHttpClientFactory&lt;EntryPointInjector&gt;, DefaultHttpClientFactory&lt;EntryPointInjector&gt;&gt;();
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.TryAddScoped&lt;EntryPointInjector&gt;(s =&gt;
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
 	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new EntryPointInjector(options.ServiceUrl, s.GetRequiredService&lt;IHttpClientFactory&lt;EntryPointInjector&gt;&gt;());
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new HalcyonClientSetup&lt;EntryPointInjector&gt;(services);
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new HalcyonClientSetup&lt;EntryPointInjector&gt;(services);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
 <h3>Client Applications</h3>
 <p>Client applications must be modified like we did above for the apps. When setting up your client call&nbsp;<code>SetupHttpClientFactoryWithClientCredentials</code> after you add your client&#39;s services to the dependency injector. If you use the same name for your config section the schema will combine the input objects.</p>
 <p>The following is an example of this.</p>
@@ -135,12 +135,12 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20200216071428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20200216071428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20200216071428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20200216071428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20200216071428"></script>
-<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20200216071428"></script>
+    <script type="text/javascript" src="/HypermediaDocs/lib/polyfill.js?linkver=20200216073111"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20200216073111"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20200216073111"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20200216073111"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20200216073111"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20200216073111"></script>
 
 </body>
 
