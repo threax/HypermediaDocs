@@ -172,6 +172,10 @@
             {
               "name": "Updating to Identity Model 4",
               "link": "/hypermedia-application/upgrading-apps/updating-to-identity-model-4"
+            },
+            {
+              "name": "Updating to Threax.ModelGen 15.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-threaxmodelgen-1500"
             }
           ]
         }

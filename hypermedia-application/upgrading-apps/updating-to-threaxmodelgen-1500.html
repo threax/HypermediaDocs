@@ -1,0 +1,37 @@
+<h1>Updating to Threax.ModelGen 15.0.0</h1>
+<p>Threax.ModelGen 15.0.0 moves from being a .Net tool to a library. This makes loading external types easier, since it doesn&#39;t do a great job of finding everything.</p>
+<h2>Add Reference</h2>
+<p>First add the reference to the csproj. Add the following line:</p>
+<p><code>&lt;PackageReference Include=&quot;Threax.ModelGen&quot; Version=&quot;15.0.0&quot; /&gt;</code></p>
+<h2>Update Startup</h2>
+<p>Next update Startup.cs to the new format. Some of the tools will only be turned on in debug mode. Replace your tools setup with the one below, but bring back any custom tools you might need. If you only want them during development put them in the <code>#if debug</code> section.</p>
+<p><code>services.AddScoped&lt;IToolRunner&gt;(s =&gt;
+	<br />{
+	<br />&nbsp;&nbsp;&nbsp; var runner = new ToolRunner()
+	<br />&nbsp;&nbsp;&nbsp; .AddTool(&quot;migrate&quot;, new ToolCommand(&quot;Migrate database to newest version. Run anytime new migrations have been added.&quot;, async a =&gt;
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.Migrate();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a.Scope.ServiceProvider.GetRequiredService&lt;AppDbContext&gt;().ConvertToEfCore3();
+	<br />&nbsp;&nbsp;&nbsp; }))
+	<br />&nbsp;&nbsp;&nbsp; .AddTool(&quot;seed&quot;, new ToolCommand(&quot;Seed database data. Only needed for an empty database.&quot;, async a =&gt;
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.Seed();
+	<br />&nbsp;&nbsp;&nbsp; }))
+	<br />&nbsp;&nbsp;&nbsp; .AddTool(&quot;addadmin&quot;, new ToolCommand(&quot;Add given guids as a user with permissions to all roles in the database.&quot;, async a =&gt;
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.AddAdmin();
+	<br />&nbsp;&nbsp;&nbsp; }));
+	<br />#if DEBUG
+	<br />&nbsp;&nbsp;&nbsp; runner.AddTool(&quot;updateConfigSchema&quot;, new ToolCommand(&quot;Update the schema file for this application&#39;s configuration.&quot;, async a =&gt;
+	<br />&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var json = await Configuration.CreateSchema();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await File.WriteAllTextAsync(&quot;appsettings.schema.json&quot;, json);
+	<br />&nbsp;&nbsp;&nbsp; }))
+	<br />&nbsp;&nbsp;&nbsp; .AddTool(&quot;createModel&quot;, new ToolCommand(&quot;Create a model from a model schema using Threax.ModelGen.&quot;, a =&gt; Threax.ModelGen.ModelGenerator.RunGenerate(a.Args[0])))
+	<br />&nbsp;&nbsp;&nbsp; .AddTool(&quot;deleteModel&quot;, new ToolCommand(&quot;Delete a model from a model schema using Threax.ModelGen.&quot;, a =&gt; Threax.ModelGen.ModelGenerator.RunDelete(a.Args[0])))
+	<br />&nbsp;&nbsp;&nbsp; .UseClientGenTools();
+	<br />#endif
+	<br />&nbsp;&nbsp;&nbsp; return runner;
+	<br />});</code></p>
+<h2>Run Tools the New Way</h2>
+<p>Running the model generator is now a tool in your app. You must also be on a debug build for it to work. To run it run <code>dotnet run tools &quot;createModel YourApp.ModelSchemas.Model&quot;</code>. This will generate your model like before. To erase a model run <code>dotnet run tools &quot;deleteModel YourApp.ModelSchemas.Model&quot;</code>.</p>
