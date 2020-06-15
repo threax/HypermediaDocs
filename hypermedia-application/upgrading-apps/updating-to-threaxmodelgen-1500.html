@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creating PHP Clients from .Net Core Apps</title>
+    <title>Updating to Threax.ModelGen 15.0.0</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200615121042" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200615121042" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200615121042" type="text/css">
@@ -58,37 +58,45 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Creating PHP Clients from .Net Core Apps</h1>
-<p>Please do not take this as an endorsement of PHP. The fact that this architecture can be connected to PHP apps is a strength of its flexibility, not because PHP should ever be used.</p>
-<p>This page describes how to setup .Net Core generated clients to work with composer without publishing them publicly.</p>
-<h2>Create Library Repository</h2>
-<p>First create a new repository somewhere for your php client.</p>
-<p>Next clone the repo and add a file called <code>composer.json</code> like the following:</p>
-<p><code>{
-	<br>&nbsp;&nbsp;&nbsp; &quot;name&quot;: &quot;<strong>{YourApp}</strong>/client&quot;,
-	<br>&nbsp;&nbsp;&nbsp; &quot;description&quot;: &quot;<strong>{Description}</strong>&quot;,
-	<br>&nbsp;&nbsp;&nbsp; &quot;require&quot;: {
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;threax/halcyonclient&quot;: &quot;&gt;=0.0.0&quot;
-	<br>&nbsp;&nbsp;&nbsp; },
-	<br>&nbsp;&nbsp;&nbsp; &quot;autoload&quot;: {
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;classmap&quot;: [<strong>&quot;</strong>ServiceClient<strong>.</strong>php&quot;]
-	<br>&nbsp;&nbsp;&nbsp; }
-	<br>}</code></p>
-<p>Replace <strong>{YourApp}</strong> with a namespace for this app and <strong>{Description}</strong> with a description. The name should match the namespace provided in the Startup.cs file in your .Net Core Project, but the slashes go the other way.</p>
-<p>This establishes the name of the library along with specifying that the classes come out of the ServiceClient.php file.</p>
-<p>Next commit this and push it to your private repository.</p>
-<h2>Add Library Repository as Submodule to .Net Core App</h2>
-<p>Add the repository you just created as a submodule in your main project. Put it in a folder in the root called <code>PhpClient</code>.</p>
-<p>Open the .Net Core Solution in Visual Studio.</p>
-<p>Go to Project-&gt;Properties-&gt;launchsettings.json.</p>
-<p>Find the UpdateClient entry and add <code>\&quot;clientgen ..\\PhpClient\\ServiceClient.php\&quot;</code> to the <strong>commandLineArgs</strong> setting.</p>
-<p>Run your app in UpdateClient mode to generate the php client.</p>
-<p>Commit the PHP client submodule. Also go ahead and tag it with <code>v0.0.0</code> to test the initial revision. Push the tags and code to your repository.</p>
-<p>From here you should be able to use it in a php app as described in Connecting PHP Apps to .Net Core Apps.</p>
-<h2>Maintaining Library</h2>
-<p>When things change the .Net Core app regenerate the client and push it to your repository.</p>
-<p>Set a tag with vX.X.X where X.X.X is the version you want the library to have.</p>
-<p>This version can be used in consuming apps to specify which version of the library you want to use. This is all controlled by git tags.</p>
+                        <h1>Updating to Threax.ModelGen 15.0.0</h1>
+<p>Threax.ModelGen 15.0.0 moves from being a .Net tool to a library. This makes loading external types easier, since it doesn&#39;t do a great job of finding everything.</p>
+<h2>Add Reference</h2>
+<p>First add the reference to the csproj. Add the following line:</p>
+<p><code>&lt;PackageReference Include=&quot;Threax.ModelGen&quot; Version=&quot;15.0.0&quot; /&gt;</code></p>
+<h2>Update Startup</h2>
+<p>Next update Startup.cs to the new format. Some of the tools will only be turned on in debug mode. Replace your tools setup with the one below, but bring back any custom tools you might need. If you only want them during development put them in the <code>#if debug</code> section.</p>
+<p><code>services.AddScoped&lt;IToolRunner&gt;(s =&gt;
+	<br>{
+	<br>&nbsp;&nbsp;&nbsp; var runner = new ToolRunner()
+	<br>&nbsp;&nbsp;&nbsp; .AddTool(&quot;migrate&quot;, new ToolCommand(&quot;Migrate database to newest version. Run anytime new migrations have been added.&quot;, async a =&gt;
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.Migrate();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a.Scope.ServiceProvider.GetRequiredService&lt;AppDbContext&gt;().ConvertToEfCore3();
+	<br>&nbsp;&nbsp;&nbsp; }))
+	<br>&nbsp;&nbsp;&nbsp; .AddTool(&quot;seed&quot;, new ToolCommand(&quot;Seed database data. Only needed for an empty database.&quot;, async a =&gt;
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.Seed();
+	<br>&nbsp;&nbsp;&nbsp; }))
+	<br>&nbsp;&nbsp;&nbsp; .AddTool(&quot;addadmin&quot;, new ToolCommand(&quot;Add given guids as a user with permissions to all roles in the database.&quot;, async a =&gt;
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await a.AddAdmin();
+	<br>&nbsp;&nbsp;&nbsp; }));
+	<br>#if DEBUG
+	<br>&nbsp;&nbsp;&nbsp; runner.AddTool(&quot;updateConfigSchema&quot;, new ToolCommand(&quot;Update the schema file for this application&#39;s configuration.&quot;, async a =&gt;
+	<br>&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var json = await Configuration.CreateSchema();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; await File.WriteAllTextAsync(&quot;appsettings.schema.json&quot;, json);
+	<br>&nbsp;&nbsp;&nbsp; }))
+	<br>&nbsp;&nbsp;&nbsp; .AddTool(&quot;createModel&quot;, new ToolCommand(&quot;Create a model from a model schema using Threax.ModelGen.&quot;, a =&gt; Threax.ModelGen.ModelGenerator.RunGenerate(a.Args[0])))
+	<br>&nbsp;&nbsp;&nbsp; .AddTool(&quot;deleteModel&quot;, new ToolCommand(&quot;Delete a model from a model schema using Threax.ModelGen.&quot;, a =&gt; Threax.ModelGen.ModelGenerator.RunDelete(a.Args[0])))
+	<br>&nbsp;&nbsp;&nbsp; .UseClientGenTools();
+	<br>#endif
+	<br>&nbsp;&nbsp;&nbsp; return runner;
+	<br>});</code></p>
+<h2>Remove Old Config</h2>
+<p>If you are not using any other .net tools you can remove the config <code>.config/dotnet-tools.json</code> from your project.</p>
+<h2>Run Tools the New Way</h2>
+<p>Running the model generator is now a tool in your app. You must also be on a debug build for it to work. To run it run <code>dotnet run tools &quot;createModel YourApp.ModelSchemas.Model&quot;</code>. This will generate your model like before. To erase a model run <code>dotnet run tools &quot;deleteModel YourApp.ModelSchemas.Model&quot;</code>.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
