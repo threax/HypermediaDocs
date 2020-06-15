@@ -47,7 +47,7 @@
 	<li>To generate the classes for this model click on the Package Manager Console in Visual Studio.
 	<br /><img class="fitImage" src="/AutoUploads\354e2d3f-b648-4c6e-93c7-46973669aa0b.png" /></li>
 	<li>cd into your application&#39;s directory. By default the console in this window starts in the folder with the Solution.</li>
-	<li>Next type in <code>dotnet threax-modelgen YourAppNamespace.ModelSchemas.Person</code> and the model generator will run and generate all of the Person classes for us. Be sure to replace YourAppNamespace with the namespace of your application. This should match the project name.</li>
+	<li>Next type in <code>dotnet run tools &quot;createModel YourAppNamespace.ModelSchemas.Person&quot;</code> and the model generator will run and generate all of the Person classes for us. Be sure to replace YourAppNamespace with the namespace of your application. This should match the project name.</li>
 	<li>After you do this the model classes described above have been created for the Person model. If you expand the InputModels, Controllers/Api, Repository or ViewModels folders you should see all of the new classes.</li>
 </ol>
 <h3>Create Migration</h3>
