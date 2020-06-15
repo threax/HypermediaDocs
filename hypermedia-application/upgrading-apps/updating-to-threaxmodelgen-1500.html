@@ -33,5 +33,7 @@
 	<br />#endif
 	<br />&nbsp;&nbsp;&nbsp; return runner;
 	<br />});</code></p>
+<h2>Remove Old Config</h2>
+<p>If you are not using any other .net tools you can remove the config <code>.config/dotnet-tools.json</code> from your project.</p>
 <h2>Run Tools the New Way</h2>
 <p>Running the model generator is now a tool in your app. You must also be on a debug build for it to work. To run it run <code>dotnet run tools &quot;createModel YourApp.ModelSchemas.Model&quot;</code>. This will generate your model like before. To erase a model run <code>dotnet run tools &quot;deleteModel YourApp.ModelSchemas.Model&quot;</code>.</p>
