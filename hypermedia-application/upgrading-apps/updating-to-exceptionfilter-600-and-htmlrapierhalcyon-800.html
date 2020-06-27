@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tools and Components</title>
+    <title>Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200627051048" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200627051048" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200627051048" type="text/css">
@@ -58,33 +58,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h2>Tools and Components</h2>
-<p>These are the primay tools and components we use to build apps.</p>
-<ul>
-	<li>Asp.net Core - Primary framework</li>
-	<li>Visual Studio 2019 - IDE</li>
-	<li>Nuget - This is the package manager for .net.</li>
-	<li>Identity Server 4 - Open ID Connect Middleware, will build an Identity Server using this.</li>
-	<li>Node.js - Javascript runtime, used to process and compile the front end code for our applications.</li>
-	<li>Npm - The Node Package Mangager. This program will retrieve the front end packages.</li>
-	<li>Typescript - Really nice javascript syntax sugar, integrates well with Visual Studio including code analysis and refactoring, also allows you to use modern javascript techniques and compile them down to ECMAScript 5 (or other targets).</li>
-	<li><a href="https://threax.github.io/HtmlRapierDocs/">HtmlRapier</a> - Lightweight javascript front end library.</li>
-	<li>jsns - Javascript module manager that allows for async loading (out of order) and provides wrappers for wrapping up node modules inside files. Also enables you to compile modules to one or many files instead of having to bundle it all up.</li>
-	<li>Boostrap - Css and UI framework.</li>
-	<li>Threax Hypermedia Framework - Extensions to .net core to enable HATEOAS (Hypermedia as the Engine of Application State) apis and identity management for microservices/microapps using identity server.</li>
-	<li>SqLite is the default database provider, but any database back end for Entity Framework Core should work. All database access in the templates and core services is done through the ef abstractions.</li>
-</ul>
-<h2>Apps</h2>
-<p>In addition to the above tools each environment will have a few apps that are needed to make everything work.&nbsp;This is&nbsp;a microservice framework, so the following microservices will be available in any environment.</p>
-<p>Identity Server - This service provides identity management for apps. The reference implementation in Threax.IdServer handles human user accounts and the applications defined in it as users. This allows you to give permissions to individual applications to access other applications.</p>
-<ul>
-	<li>Local Dev Environment - <a href="https://localhost:44390">https://localhost:44390</a></li>
-</ul>
-<p>App Dashboard - This app allows you to edit the apps and properties of the Identity Server.</p>
-<ul>
-	<li>Local Dev Environment - <a href="https://localhost:44391">https://localhost:44391</a></li>
-</ul>
-<ol></ol>
+                        <h1>Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0</h1>
+<p>These two packages should be updated at the same time. The way the model state case is handled for errors was moved to the server side instead of the client side. No other action besides updating and rebuilding should be needed.</p>
+<p>To do this add the following to your csproj:</p>
+<p>&lt;PackageReference Include=&quot;Threax.AspNetCore.ExceptionFilter&quot; Version=&quot;6.0.0&quot; /&gt;</p>
+<p>And update package.json</p>
+<p>&quot;htmlrapier.halcyon&quot;: &quot;^8.0.0&quot;,</p>
+<p>This will ensure the libraries do the correct thing on both sides. Install packages and rebuild and all your errors should keep working, but the error state will be completly camel case instead of partially.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
