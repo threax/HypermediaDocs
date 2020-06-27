@@ -176,6 +176,10 @@
             {
               "name": "Updating to Threax.ModelGen 15.0.0",
               "link": "/hypermedia-application/upgrading-apps/updating-to-threaxmodelgen-1500"
+            },
+            {
+              "name": "Update User Builder Entities 5 Mvc 6",
+              "link": "/hypermedia-application/upgrading-apps/update-user-builder-entities-5-mvc-6"
             }
           ]
         }
