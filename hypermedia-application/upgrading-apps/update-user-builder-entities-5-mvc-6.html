@@ -1,3 +1,3 @@
-<h1>Update to UserBuilder.Entities 5.0.0 and UserBuilder.Entities.Mvc 6.0.0.</h1>
+<h1>Update to UserBuilder.Entities 5.0.0 and UserBuilder.Entities.Mvc 6.0.0</h1>
 <p>This update should mostly be seamless. If you had special search criteria the query class has been refactored to pass the database instead of an IQueryable into the build function. Modify this to the new signature then call base.build first to get the query. Then modify it further as needed in your subclass.</p>
 <p>There should be no other changes. Not all projects will need to do anything, some can upgrade directly. This version also fixes searching for users by role with EF Core 3.1.</p>
