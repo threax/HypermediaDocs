@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Default Page Title</title>
+    <title>Updating to HtmlRapier 21.0.1</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200627072702" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200627072702" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200627072702" type="text/css">
@@ -58,24 +58,16 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Installing Id Server</h1>
-<p>This page will describe how to install the Threax.IdServer Identity Server into your environment. With this you will be able to create user accounts and log into your apps. The reference identity server supports local users and application users, but you can customize it for your needs. This could include adding users authenticated through ADFS or external providers like Google or Microsoft. Any of the user login systems supported by .Net Core should be usable and you can build custom authentication if needed. The Identity Server will nicely unify all these logins and pass on the basic user information along with a guid. The guid is how each app will identify a user and discover their roles.</p>
-<p>To setup the Id Server in your dev environment clone the Threax.IdServer repository from <code>https://github.com/threax/Threax.IdServer.git</code>.</p>
-<p>Once it is cloned open the Threax.IdServer solution.</p>
-<p>In Visual Studio run the install task in Task Runner Explorer for both the AppDashboard and the IdServer projects.</p>
-<p>Run the build task in Task Runner Explorer&nbsp;for both of these projects as well.</p>
-<p>Build the solution.</p>
-<p>Change the run mode from IIS Express to SetupDb and run it.</p>
-<p>Next change the run mode to Setup App Dashboard and run it.</p>
-<p>Change back to IIS Express and run the id server and create an account. After logging in click on your user name in the navbar and click Manage.</p>
-<p>From here make a note of the guid for your account.</p>
-<p>Stop the program.</p>
-<p>In the Package Manager Console in Visual Studio or on the command line run the following command from the Threax.IdServer folder:</p>
-<p><code>dotnet run tools &quot;addadmin <strong>{YourGuid}</strong>&quot;</code></p>
-<p>Replace <strong>{YourGuid}</strong> with the guid for your account, do not include the brackets.</p>
-<p>This will setup the account you just created as an admin on the id server.</p>
-<p>Next set the solution to run multiple projects and run both the IdServer and the AppDashboard. Log into the AppDashboard at <a href="https://localhost:44391" target="_blank">https://localhost:44391</a>.</p>
-<p>If everything is working then your Identity Server and App Dashboard are setup correctly.</p>
+                        <h1>Updating to HtmlRapier 21.0.1</h1>
+<p>This will describe how to update to HtmlRapier 21.0.1. This version does not make major changes, but it gets rid of the polyfill.js file and this needs to be adapted.</p>
+<h2>Update package.json</h2>
+<p>First update package.json to the latest HtmlRapier 21 version. At this time this is 21.0.1.</p>
+<p>&quot;htmlrapier&quot;: &quot;^21.0.1&quot;,</p>
+<p>Next run the install npm task to update the installed library.</p>
+<h2>Update bundleconfig.json</h2>
+<p>Next you need to update bundleconfig.json. Here remove the following line:</p>
+<p>&quot;wwwroot/lib/polyfill.js&quot;,</p>
+<p>This should complete the upgrade. HtmlRapier will now build and work with ES2015, but you won&#39;t be able to minify it unless you use a minifier compatible with ES2015. As a result just leave it on ES5 for now and keep using BundlerMinifierCore. Looking into alternatives like terser or just using the browser module capabilities.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
