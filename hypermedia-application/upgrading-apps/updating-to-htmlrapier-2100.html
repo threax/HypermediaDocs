@@ -1,0 +1,10 @@
+<h1>Updating to HtmlRapier 21.0.1</h1>
+<p>This will describe how to update to HtmlRapier 21.0.1. This version does not make major changes, but it gets rid of the polyfill.js file and this needs to be adapted.</p>
+<h2>Update package.json</h2>
+<p>First update package.json to the latest HtmlRapier 21 version. At this time this is 21.0.1.</p>
+<p>&quot;htmlrapier&quot;: &quot;^21.0.1&quot;,</p>
+<p>Next run the install npm task to update the installed library.</p>
+<h2>Update bundleconfig.json</h2>
+<p>Next you need to update bundleconfig.json. Here remove the following line:</p>
+<p>&quot;wwwroot/lib/polyfill.js&quot;,</p>
+<p>This should complete the upgrade. HtmlRapier will now build and work with ES2015, but you won&#39;t be able to minify it unless you use a minifier compatible with ES2015. As a result just leave it on ES5 for now and keep using BundlerMinifierCore. Looking into alternatives like terser or just using the browser module capabilities.</p>

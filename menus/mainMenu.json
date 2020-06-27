@@ -180,6 +180,10 @@
             {
               "name": "Update User Builder Entities 5 Mvc 6",
               "link": "/hypermedia-application/upgrading-apps/update-user-builder-entities-5-mvc-6"
+            },
+            {
+              "name": "Updating to HtmlRapier 21.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-2100"
             }
           ]
         }
