@@ -1,0 +1,7 @@
+<h1>Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0</h1>
+<p>These two packages should be updated at the same time. The way the model state case is handled for errors was moved to the server side instead of the client side. No other action besides updating and rebuilding should be needed.</p>
+<p>To do this add the following to your csproj:</p>
+<p>&lt;PackageReference Include=&quot;Threax.AspNetCore.ExceptionFilter&quot; Version=&quot;6.0.0&quot; /&gt;</p>
+<p>And update package.json</p>
+<p>&quot;htmlrapier.halcyon&quot;: &quot;^8.0.0&quot;,</p>
+<p>This will ensure the libraries do the correct thing on both sides. Install packages and rebuild and all your errors should keep working, but the error state will be completly camel case instead of partially.</p>

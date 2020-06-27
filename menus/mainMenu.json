@@ -184,6 +184,10 @@
             {
               "name": "Updating to HtmlRapier 21.0.0",
               "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-2100"
+            },
+            {
+              "name": "Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-exceptionfilter-600-and-htmlrapierhalcyon-800"
             }
           ]
         }
