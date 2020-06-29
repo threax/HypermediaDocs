@@ -188,6 +188,10 @@
             {
               "name": "Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0",
               "link": "/hypermedia-application/upgrading-apps/updating-to-exceptionfilter-600-and-htmlrapierhalcyon-800"
+            },
+            {
+              "name": "Removing Bundler Minifier Core",
+              "link": "/hypermedia-application/upgrading-apps/removing-bundler-minifier-core"
             }
           ]
         }
