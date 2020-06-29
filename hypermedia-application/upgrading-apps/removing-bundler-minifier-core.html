@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0</title>
+    <title>Removing Bundler Minifier Core</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200629032407" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200629032407" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200629032407" type="text/css">
@@ -58,13 +58,64 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Updating to ExceptionFilter 6.0.0 and htmlrapier.halcyon 8.0.0</h1>
-<p>These two packages should be updated at the same time. The way the model state case is handled for errors was moved to the server side instead of the client side. No other action besides updating and rebuilding should be needed.</p>
-<p>To do this add the following to your csproj:</p>
-<p>&lt;PackageReference Include=&quot;Threax.AspNetCore.ExceptionFilter&quot; Version=&quot;6.0.0&quot; /&gt;</p>
-<p>And update package.json</p>
-<p>&quot;htmlrapier.halcyon&quot;: &quot;^8.0.0&quot;,</p>
-<p>This will ensure the libraries do the correct thing on both sides. Install packages and rebuild and all your errors should keep working, but the error state will be completly camel case instead of partially.</p>
+                        <h1>Removing Bundler Minifier Core</h1>
+<p>This page will describe how to remove bundler minifier core. This was a good package for a long time, but it does not support es6+ and maintaining this package is cumbersome. The .net core 3.1 support was very slow to get added as well resulting in both 2.2 and 3.1 needing to be installed in build images. A javascript and css bundling capability has been added to threax-npm-tk using the node versions of these tools, which work quite a bit better. This page will describe how to use it.</p>
+<h2>Update threax-npm-tk</h2>
+<p>Make sure threax-npm-tk is on version 5.7.0 or higher. You can update it by running <code>npm install -g threax-npm-tk</code> or updating your project references if you include it locally. This will enable the bundle command.</p>
+<h2>Update Csproj</h2>
+<p>Update HtmlRapier.TagHelpers to at least 8.1.0 to add support for artifacts.json bundles.</p>
+<p>Also remove the BundlerMinifier.Core reference. Its probabaly a DotNetCliToolReference. You can remove the entire ItemGroup if this is the only entry.</p>
+<h2>Update Artifacts.json</h2>
+<p>Update the artifacts.json file. You will need to add sections for the css and javascript. It will look similar to bundleconfig.json. It will look something like the following:</p>
+<p><code>[
+	<br>&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp; &quot;typescript&quot;: {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;compile&quot;: true
+	<br>&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp; },
+	<br>&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp; &quot;pathBase&quot;: &quot;Client&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;outDir&quot;: &quot;.&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;copy&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;Client/Images/*&quot;
+	<br>&nbsp;&nbsp;&nbsp; ]
+	<br>&nbsp; },
+	<br>&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp; &quot;outDir&quot;: &quot;.&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;bundle&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;input&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/bootstrap/dist/css/threax.bootstrap.css&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/htmlrapier.bootstrap.datetime/css/bootstrap-datetimepicker.css&quot;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ],
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;out&quot;: &quot;bundle.min.css&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;minify&quot;: true
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp; ]
+	<br>&nbsp; },
+	<br>&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp; &quot;outDir&quot;: &quot;.&quot;,
+	<br>&nbsp;&nbsp;&nbsp; &quot;bundle&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;input&quot;: [
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/jquery/dist/jquery.min.js&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/bootstrap/dist/js/bootstrap.min.js&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/moment/min/moment.min.js&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/tslib.js&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;wwwroot/lib/tsbin.js&quot;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ],
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;out&quot;: &quot;bundle.min.js&quot;,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;minify&quot;: true
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp; ]
+	<br>&nbsp; }
+	<br>]</code></p>
+<p>Notice how the bundle sections were added with similar paths to what was in bundleconfig.json.</p>
+<h2>Update package.json</h2>
+<p>We no longer need to call bundler minifier core here. Update the build command to the following:</p>
+<p><code>&quot;build&quot;: &quot;threax-npm-tk build&quot;,</code></p>
+<h2>Remove bundleconfig.json</h2>
+<p>Erase this file. It is not needed anymore.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
