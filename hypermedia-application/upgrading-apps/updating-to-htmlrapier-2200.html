@@ -1,0 +1,58 @@
+<h1>Updating to HtmlRapier 22.0.0</h1>
+<p>HtmlRapier 22.0.0 gets rid of the extra runners that were running in the background. Apps must now explicitly call the htmlrapier modules to get them setup. This impacts the primary htmlrapier library, the date time integration, the bootstrap integration and the relogin library.</p>
+<p>With this version compling to ES2015 and ES5 is supported. There was an attempt to get ES2015 modules working, but typescript is missing some features there and the output js would have to be modified, so for now we will continue to use jsns, however, with these changes we are not reliant on jsns&#39;s runner feature except for the page runners themselves.</p>
+<h2>Update npm Packages</h2>
+<p>First update your npm packages. You will want to update the following to the given versions or higher.</p>
+<p><code>&nbsp;&nbsp;&nbsp; &quot;htmlrapier&quot;: &quot;^22.0.0&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;htmlrapier.bootstrap&quot;: &quot;^8.0.0&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;htmlrapier.bootstrap.datetime&quot;: &quot;^4.0.0&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;htmlrapier.form.bootstrap4&quot;: &quot;^3.0.1&quot;,
+	<br />&nbsp;&nbsp;&nbsp; &quot;htmlrapier.relogin&quot;: &quot;^2.0.0&quot;,</code></p>
+<p>Next run the <strong>install</strong> task.</p>
+<p>Now run the <strong>tsimport</strong> task.</p>
+<h2>Update startup.ts</h2>
+<p>Next we need to update startup.ts to have it do the work the old runners were doing. First add the following imports to the top of the script.</p>
+<p><code>import * as hr from &#39;hr.main&#39;;
+	<br />import * as datetime from &#39;hr.bootstrap.datetime.main&#39;;
+	<br />import * as bootstrap from &#39;hr.bootstrap.main&#39;;
+	<br />import * as bootstrap4form from &#39;hr.form.bootstrap4.main&#39;;</code></p>
+<p>Right below all the imports add the following:</p>
+<p><code>//Activate htmlrapier
+	<br />hr.setup();
+	<br />datetime.setup();
+	<br />bootstrap.setup();
+	<br />bootstrap4form.setup();</code></p>
+<p>This will call the code the runners were calling. This wiil work better with ES2015 modules.</p>
+<h2>Update Relogin.cshtml</h2>
+<p>First add a file Relogin.ts to the Views/Account/Relogin folder. Paste in the following contents:</p>
+<p><code>import * as loggedInPage from &#39;htmlrapier.relogin/src/LoggedInPage&#39;;</code></p>
+<p><code>loggedInPage.alertLoggedIn();</code></p>
+<p>Next modify Relogin.cshtml by copying in the following:</p>
+<p><code>@{
+	<br />&nbsp;&nbsp;&nbsp; Layout = null;
+	<br />}</code></p>
+<p><code>&lt;html lang=&quot;en-us&quot;&gt;
+	<br />&lt;head&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;meta charset=&quot;utf-8&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;Logged in&lt;/title&gt;
+	<br />&lt;/head&gt;
+	<br />&lt;body&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;p&gt;Logged in, you can now close this window if it does not close automatically.&lt;/p&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;client-config csp-nonce&gt;&lt;/client-config&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;token-config csp-nonce&gt;&lt;/token-config&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;script type=&quot;text/javascript&quot; src=&quot;~/lib/hr-run.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;threax-csp&gt;&lt;/threax-csp&gt;
+	<br />&lt;/body&gt;
+	<br />&lt;/html&gt;</code></p>
+<p>This makes the relogin page use runners like the rest of the framework&#39;s pages. This enables us to have more flexiblity with the logic and not rely on an external runner.</p>
+<h2>Updating to ES2015 (Optional)</h2>
+<p>Now that ES2015 support is widely available its a good idea to compile your typescript for it instead of ES5. At the very least the compiled javascript is smaller by ~200kb depending on how much code you have. To do this make the following changes to tsconfig.json.</p>
+<p>Under target change it from ES5 to ES2015.</p>
+<p><code>&quot;target&quot;: &quot;ES2015&quot;,</code></p>
+<p>Change lib to the following:</p>
+<p><code>&nbsp;&nbsp;&nbsp; &quot;lib&quot;: [
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;DOM&quot;,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;ES2015&quot;
+	<br />&nbsp;&nbsp;&nbsp; ],</code></p>
+<p>You will now be compiling for ES2015. If you can&#39;t support this yet don&#39;t do this part. The code will work in both modes.</p>

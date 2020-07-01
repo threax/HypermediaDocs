@@ -192,6 +192,10 @@
             {
               "name": "Removing Bundler Minifier Core",
               "link": "/hypermedia-application/upgrading-apps/removing-bundler-minifier-core"
+            },
+            {
+              "name": "Updating to HtmlRapier 22.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-2200"
             }
           ]
         }
