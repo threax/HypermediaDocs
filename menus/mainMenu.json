@@ -196,6 +196,10 @@
             {
               "name": "Updating to HtmlRapier 22.0.0",
               "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-2200"
+            },
+            {
+              "name": "Updating to Halcyon.Ext 14.1.0 for Client Side Caching",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-halcyonext-1410-for-client-side-caching"
             }
           ]
         }
