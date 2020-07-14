@@ -1,0 +1,78 @@
+<h1>Updating to Id Server Auth 4 HtmlRapier 23 and HtmlRapier.Relogin 3</h1>
+<p>These updates do some housecleaning, but some breaking changes are involved. This removes the xsrf token stuff. It really wasn&#39;t doing much. It also adds some security around postmessage as used by HtmlRapier.Relogin. These updates are pretty important and should not take too much time.</p>
+<h2>Update Nuget Packages</h2>
+<p>Update <strong>Threax.AspNetCore.IdServerAuth</strong> to <strong>4.0.1</strong> or above.
+	<br />Do a rebuild to pull packages.</p>
+<h2>Update ClientConfig.cs</h2>
+<p>Add the following properties to ClientConfig.cs:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ExpandHostPath]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string AccessTokenPath { get; set; } = &quot;~/Account/AccessToken&quot;;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// The path to the bearer cookie. Move this somewhere else
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String BearerCookieName { get; set; }</code></p>
+<h2>Update Startup.cs</h2>
+<p>In the constructor add the following to the last line:</p>
+<p><code>clientConfig.BearerCookieName = $&quot;{authConfig.ClientId}.BearerToken&quot;;</code></p>
+<p>In the call to AddConventionalIdServerAuthentication add the following:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.CustomizeCookies = cookOpt =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookOpt.BearerHttpOnly = false;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</code></p>
+<p>This will make sure the jwt bearer cookie can be read by htmlrapier.</p>
+<h2>Update AccountController.cs</h2>
+<p>Add the following action method to your AccountController.cs file:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [HttpPost]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public async Task&lt;IActionResult&gt; AccessToken()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new EmptyResult();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<h2>Update npm Packages</h2>
+<p>Update the following packages in packages.json:</p>
+<p><code>&quot;htmlrapier&quot;: &quot;^23.1.0&quot;,
+	<br />&quot;htmlrapier.relogin&quot;: &quot;^3.0.0&quot;,</code></p>
+<p>Run install / build.</p>
+<h2>Update startup.ts</h2>
+<p>In startup.ts remove the <strong>xsrf</strong> import.</p>
+<p>Add the safepostmessage import:</p>
+<p><code>import * as safepost from &#39;hr.safepostmessage&#39;;</code></p>
+<p>Remove the tokens section from the config. If you haven&#39;t modified your client side config you can use the following:</p>
+<p><code>export interface Config {
+	<br />&nbsp;&nbsp;&nbsp; client: {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ServiceUrl: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PageBasePath: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BearerCookieName?: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AccessTokenPath?: string;
+	<br />&nbsp;&nbsp;&nbsp; };
+	<br />}</code></p>
+<p>Setup the safe message poster. Do this after the EntryPointInjector line.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.MessagePoster, s =&gt; new safepost.MessagePoster(window.location.href));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.PostMessageValidator, s =&gt; new safepost.PostMessageValidator(window.location.href));</code></p>
+<p>Update your fetcher to look like the following. Remove the xsrf stuff.</p>
+<p><code>function createFetcher(config: Config): fetcher.Fetcher {
+	<br />&nbsp;&nbsp;&nbsp; let fetcher = new WindowFetch.WindowFetch();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; if (config.client.AccessTokenPath) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const accessFetcher = new AccessTokens.AccessTokenFetcher(
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; config.client.AccessTokenPath,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new whitelist.Whitelist([config.client.ServiceUrl]),
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetcher);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; accessFetcher.disableOnNoToken = false;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; accessFetcher.bearerCookieName = config.client.BearerCookieName;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetcher = accessFetcher;
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; return fetcher;
+	<br />}</code></p>
+<h2>Update Relogin</h2>
+<p>Change relogin.cshtml to the following:</p>
+<p><code>&lt;p&gt;Logged in, you can now close this window if it does not close automatically.&lt;/p&gt;</code></p>
+<p>and change Relogin.ts to:</p>
+<p><code>import * as startup from &#39;clientlibs.startup&#39;;
+	<br />import * as loggedInPage from &#39;hr.relogin.LoggedInPage&#39;;</code></p>
+<p><code>const builder = startup.createBuilder();
+	<br />loggedInPage.addServices(builder.Services);
+	<br />const loggedIn = builder.createUnbound(loggedInPage.LoggedInPage);
+	<br />loggedIn.alertLoggedIn();</code></p>
+<h2>Modify _Layout.cshtml</h2>
+<p>Remove the line:</p>
+<p><code>&lt;token-config csp-nonce&gt;&lt;/token-config&gt;</code></p>
+<p>This will stop trying to include the now worthless token config. The access token refresh url comes from the client config now.</p>

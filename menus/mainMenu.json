@@ -200,6 +200,10 @@
             {
               "name": "Updating to Halcyon.Ext 14.1.0 for Client Side Caching",
               "link": "/hypermedia-application/upgrading-apps/updating-to-halcyonext-1410-for-client-side-caching"
+            },
+            {
+              "name": "Updating to Id Server Auth 4 HtmlRapier 23 and HtmlRapier.Relogin 3",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-id-server-auth-4-htmlrapier-23-and-htmlrapierrelogin-3"
             }
           ]
         }
