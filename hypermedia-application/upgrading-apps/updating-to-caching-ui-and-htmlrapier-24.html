@@ -46,7 +46,7 @@
 <p><code>httpContextAccessor.HttpContext.Response.Headers[&quot;Cache-Control&quot;] = appConfig.CacheControlHeaderString;</code></p>
 <p>This will make the cache-control header configured by the main configuration.</p>
 <h2>Update HomeController.cs</h2>
-<p>This applies to the HomeController and any other uis that you want to use caching on. Its possible to keep the ui working the old way as well and switching between caching and non-caching is mostly seamless from the cshtml perspective, but there are some updates to how titles and other data is tracked. The ViewData is no longer used.</p>
+<p>This applies to the HomeController and any other uis that you want to use caching on. Its possible to keep the ui working the old way as well and switching between caching and non-caching is seamless from the cshtml perspective.</p>
 <p>Add the following namespace:</p>
 <p><code>using Threax.AspNetCore.Mvc.CacheUi;</code></p>
 <p>Change the base class to CacheUiController</p>
@@ -269,3 +269,117 @@
 	<br />builder.Services.addTransient(AppStart, AppStart);
 	<br />builder.createUnbound(AppStart);</code></p>
 <p>Be sure to fix the function that is used to check the login back to the one you actually need to use. It should get highlighted for you.</p>
+<h2>Add Footer.cshtml</h2>
+<p>Add Views/Shared/Footer.cshtml with the following:</p>
+<p><code>&lt;div class=&quot;container&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;hr /&gt;
+	<br />&lt;/div&gt;
+	<br />&lt;relogin&gt;&lt;/relogin&gt;</code></p>
+<h2>Add Header.cshtml</h2>
+<p>Add Views/Shared/Header.cshtml</p>
+<p><code>@inject Threax.ProgressiveWebApp.DisplayConfig config;
+	<br />&lt;nav class=&quot;navbar navbar-expand-lg navbar-dark bg-brand-app&quot; data-hr-controller=&quot;appMenu&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;div class=&quot;container&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a class=&quot;navbar-brand&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Index&quot;&gt;@config.SiteName&lt;/a&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;button class=&quot;navbar-toggler&quot; type=&quot;button&quot; data-toggle=&quot;collapse&quot; data-target=&quot;#navbarSupportedContent&quot; aria-controls=&quot;navbarSupportedContent&quot; aria-expanded=&quot;false&quot; aria-label=&quot;Toggle navigation&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;span class=&quot;navbar-toggler-icon&quot;&gt;&lt;/span&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/button&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div class=&quot;navbar-collapse collapse&quot; id=&quot;navbarSupportedContent&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ul class=&quot;navbar-nav mr-auto&quot; data-hr-view=&quot;menuItems&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;template&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; href=&quot;@Url.Content(&quot;~/&quot;){{href}}&quot;&gt;{{text}}&lt;/a&gt;&lt;/li&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/template&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/ul&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ul class=&quot;navbar-nav startHidden&quot; data-hr-toggle=&quot;loggedInArea&quot; data-hr-class-on=&quot;d-block&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item dropdown&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a href=&quot;#&quot; class=&quot;nav-link dropdown-toggle&quot; data-toggle=&quot;dropdown&quot; role=&quot;button&quot; aria-haspopup=&quot;true&quot; aria-expanded=&quot;false&quot; id=&quot;userMenu&quot; data-hr-view=&quot;userInfo&quot;&gt;{{userName}} &lt;span class=&quot;caret&quot;&gt;&lt;/span&gt;&lt;/a&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div class=&quot;dropdown-menu&quot; aria-labelledby=&quot;userMenu&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a class=&quot;dropdown-item&quot; asp-area=&quot;&quot; asp-controller=&quot;Account&quot; asp-action=&quot;Logout&quot;&gt;Logout&lt;/a&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/li&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/ul&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br />&lt;/nav&gt;</code></p>
+<p>This creates a generic navbar that is defined in Header.ts.</p>
+<h2>Add Header.ts</h2>
+<p>Add Views/Shared/Header.ts</p>
+<p><code>import * as controller from &#39;hr.controller&#39;;
+	<br />import * as startup from &#39;clientlibs.startup&#39;;
+	<br />import * as menu from &#39;hr.appmenu.AppMenu&#39;;
+	<br />import * as client from &#39;clientlibs.ServiceClient&#39;;</code></p>
+<p><code>class AppMenuInjector extends menu.AppMenuInjector&lt;client.EntryPointResult&gt; {
+	<br />&nbsp;&nbsp;&nbsp; public static get InjectorArgs(): controller.DiFunction&lt;any&gt;[] {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [client.EntryPointInjector];
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; constructor(private entryPointInjector: client.EntryPointInjector) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super();
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public * createMenu(entry: client.EntryPointResult): Generator&lt;menu.AppMenuItem&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yield { text: &quot;Home&quot;, href: &quot;&quot; };
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yield { text: &quot;Values&quot;, href: &quot;Values&quot; };</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (entry.canListUsers()) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yield { text: &quot;Users&quot;, href: &quot;Admin/Users&quot; };
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public getEntryPoint(): Promise&lt;client.EntryPointResult&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.entryPointInjector.load();
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p><code>const builder = startup.createBuilder();
+	<br />menu.addServices(builder.Services, AppMenuInjector);
+	<br />builder.create(&quot;appMenu&quot;, menu.AppMenu);</code></p>
+<p>Modify the createMenu function to return a menu appropriate for your app. You can look at the entry point to determine a user&#39;s permissions.</p>
+<h2>Add _CachePage.cshtml</h2>
+<p>Add Views/Shared/_CachePage.cshtml. This becomes the root page when a page is being returned as a cached partial.</p>
+<p><code>@inject Threax.AspNetCore.Mvc.CacheUi.ICacheUiRenderData renderData;
+	<br />@{
+	<br />&nbsp;&nbsp;&nbsp; renderData.Title = ViewData[&quot;Title&quot;]?.ToString();
+	<br />}
+	<br />@RenderBody()
+	<br />&lt;page-runner&gt;&lt;/page-runner&gt;</code></p>
+<p>This also sets the renderData.Title to the ViewData[&quot;Title&quot;], which is what makes switching the pages seamless.</p>
+<h2>Add _CacheRoot.cshtml</h2>
+<p>Add Views/Shared/_CacheRoot.cshtml. This page acts as the placeholder on the loader page to put cached content fetched later. This is put into the main layout where a page would normally be rendered.</p>
+<p>Give it the following content:</p>
+<p><code>@inject Threax.AspNetCore.Mvc.CacheUi.ICacheUiRenderData renderData;
+	<br />@{
+	<br />&nbsp;&nbsp;&nbsp; Layout = &quot;_Layout&quot;;
+	<br />}
+	<br />&lt;script type=&quot;text/javascript&quot; src=&quot;@renderData.ContentLink&quot;&gt;&lt;/script&gt;</code></p>
+<h2>Update _Layout.cshtml</h2>
+<p>Change Views/Shared/Layout.cshtml to the following:</p>
+<p><code>@using Threax.AspNetCore.AuthCore;
+	<br />@inject Threax.ProgressiveWebApp.DisplayConfig config;
+	<br />@{
+	<br />&nbsp;&nbsp;&nbsp; Layout = &quot;_LayoutTop&quot;;
+	<br />}
+	<br />&lt;script type=&quot;text/javascript&quot; src=&quot;@Url.CacheUiActionLink(nameof(HomeController.Header), typeof(HomeController))&quot;&gt;&lt;/script&gt;
+	<br />&lt;div class=&quot;container body-content mt-3&quot;&gt;@RenderBody()&lt;/div&gt;
+	<br />&lt;script type=&quot;text/javascript&quot; src=&quot;@Url.CacheUiActionLink(nameof(HomeController.Footer), typeof(HomeController))&quot;&gt;&lt;/script&gt;</code></p>
+<h2>Add _LayoutTop.cshtml</h2>
+<p>Add Views/Shared/_LayoutTop.cshtml. This acts as the topmost layout used by everything else.</p>
+<p><code>@using Threax.AspNetCore.AuthCore;
+	<br />@inject Threax.ProgressiveWebApp.DisplayConfig config;
+	<br />@inject Threax.AspNetCore.Halcyon.Ext.IEntryPointRenderer entryPointRenderer;
+	<br />&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;style csp-nonce&gt;html{visibility:hidden;opacity:0;background-color: #222;}&lt;/style&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+	<br />&lt;link rel=&quot;shortcut icon&quot; type=&quot;image/x-icon&quot; href=&quot;@Url.Content(config.Favicon)&quot; /&gt;&lt;title&gt;@ViewData[&quot;Title&quot;] - @config.SiteName&lt;/title&gt;
+	<br />&lt;asset-bundle src=&quot;~/bundle.min.css&quot;&gt;&lt;/asset-bundle&gt;@RenderSection(&quot;css&quot;, required: false)&lt;link rel=&quot;manifest&quot; href=&quot;@Url.Content(&quot;~/webmanifest.json&quot;)&quot;&gt;&lt;/head&gt;&lt;body&gt;
+	<br />@RenderBody()
+	<br />&lt;client-config csp-nonce&gt;&lt;/client-config&gt;
+	<br />&lt;script type=&quot;text/javascript&quot; csp-nonce&gt;window.hr_config=(function(next){return function(config){config.entry = @Html.Raw(entryPointRenderer.Render().ToString(Newtonsoft.Json.Formatting.None));return next?next(config):config;}})(window.hr_config);&lt;/script&gt;
+	<br />&lt;style csp-nonce&gt;html{visibility:visible;opacity:1;}&lt;/style&gt;
+	<br />&lt;asset-bundle src=&quot;~/bundle.min.js&quot;&gt;&lt;/asset-bundle&gt;@RenderSection(&quot;scripts&quot;, required: false)&lt;script type=&quot;text/javascript&quot; src=&quot;~/lib/hr-run.js&quot; asp-append-version=&quot;true&quot;&gt;&lt;/script&gt;
+	<br />&lt;threax-csp&gt;&lt;/threax-csp&gt;
+	<br />&lt;/body&gt;&lt;/html&gt;</code></p>
+<p>This is the page that contains the content that will always refresh. As soon as it hits one of the cached paged &lt;script&gt; links that is where the content will be cached between requests. This top level will always have the api entry point and enough information to bust any caches for any data or uis that have been stored. Note that its not just what you see here that won&#39;t be cached. Its anything until those script links, so if they do not appear on a rendered page, nothing html-wise for that request is cached.</p>
+<h2>Update _ViewImports.cshtml</h2>
+<p>Update Views/Shared/_ViewImports.cshtml to include your controller namespace. The code below won&#39;t work, but should serve as an example:</p>
+<p><code>@using AppTemplate.Controllers;</code></p>
+<h2>Update _ViewStart.cshtml</h2>
+<p>Update Views/Shared/_ViewStart.cshtml to the following:</p>
+<p><code>@inject Threax.AspNetCore.Mvc.CacheUi.ICacheUiRenderData renderData;
+	<br />@{
+	<br />&nbsp;&nbsp;&nbsp; Layout = renderData.Layout?.ToString() ?? &quot;_Layout&quot;;
+	<br />}</code></p>
+<p>fkjsd</p>
