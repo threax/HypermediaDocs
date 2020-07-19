@@ -1,2 +1,200 @@
 <h1>Updating to Caching UI and HtmlRapier 24</h1>
 <p>The Caching Ui will attempt to cache as much ui as possible on the client side. This allows pages to load much faster since they only load a small loader page with the links to the scripts to embed the rest of the ui, which should be cached on the client side already. If any changes are made the loader page will send new links busting the cache of the old ui. In addition this upgrade will embed the user&#39;s entry point in the loader page as well saving a request to the server.</p>
+<h2>Update Csproj</h2>
+<p>Add the <strong>Threax.AspNetCore.Mvc.CacheUi</strong> package at version <strong>3.0.1</strong>.</p>
+<p>Update <strong>Threax.AspNetCore.Halcyon.Ext</strong> to <strong>14.3.0</strong>
+	<br />Update <strong>Threax.AspNetCore.Halcyon.ClientGen</strong> to <strong>12.3.1</strong>
+	<br />Update <strong>HtmlRapier.TagHelpers</strong> to <strong>8.2.0</strong></p>
+<p><code>&lt;PackageReference Include=&quot;Threax.AspNetCore.Mvc.CacheUi&quot; Version=&quot;3.0.1&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Ext&quot; Version=&quot;14.3.0&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.ClientGen&quot; Version=&quot;12.3.0&quot; /&gt;
+	<br />&lt;PackageReference Include=&quot;HtmlRapier.TagHelpers&quot; Version=&quot;8.2.0&quot; /&gt;</code></p>
+<p>Run a restore to update the packages.</p>
+<h2>Update AppConfig.cs</h2>
+<p>Add the following properties to AppConfig.cs</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// The token to use as a cache token. This is a unique id for a particular website build. If this is null a hash
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// of the main library that contains Startup.cs will be used. You can set this to something unique like your
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// build number and that will ensure the cache always invalidates with each new release. Do not use the same
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// value for multiple releases, or clients will never update their caches. You can set this to &#39;nocache&#39; to totally
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// disable the cache. Default: null (use assembly hash)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string CacheToken { get; set; } = null; //(use assembly hash)</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Set this to the string to use for the cache-control header on anything that is cached.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Default: &#39;private, max-age=2592000, stale-while-revalidate=86400, immutable&#39;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string CacheControlHeaderString { get; set; } = &quot;private, max-age=2592000, stale-while-revalidate=86400, immutable&quot;;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Set this to true to cache static assets like javascript and css files.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool CacheStaticAssets { get; set; } = true;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Set this to true to enable response compression from inside this application directly.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// If this is enabled it really only applies to static assets. The razor views are not
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// compressed and neither are the api results due to issues with https and compression.
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Default: false (no compression)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool EnableResponseCompression { get; set; } = false;</code></p>
+<h2>Update EndpointDocController.cs</h2>
+<p>Inject the AppConfig into the constructor and add a property.</p>
+<p><code>private readonly AppConfig appConfig;
+	<br />public EndpointDocController(IEndpointDocBuilder descriptionProvider, IHttpContextAccessor httpContextAccessor, AppConfig appConfig)
+	<br />//...
+	<br />this.appConfig = appConfig;</code></p>
+<p>Then use this to set the CacheControlHeaderString.</p>
+<p><code>httpContextAccessor.HttpContext.Response.Headers[&quot;Cache-Control&quot;] = appConfig.CacheControlHeaderString;</code></p>
+<p>This will make the cache-control header configured by the main configuration.</p>
+<h2>Update HomeController.cs</h2>
+<p>This applies to the HomeController and any other uis that you want to use caching on. Its possible to keep the ui working the old way as well and switching between caching and non-caching is mostly seamless from the cshtml perspective, but there are some updates to how titles and other data is tracked. The ViewData is no longer used.</p>
+<p>Add the following namespace:</p>
+<p><code>using Threax.AspNetCore.Mvc.CacheUi;</code></p>
+<p>Change the base class to CacheUiController</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public partial class HomeController : CacheUiController</code></p>
+<p>Add a constructor that takes an ICacheUiBuilder and passes it to the base class.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public HomeController(ICacheUiBuilder builder)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :base(builder)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>Add Header and Footer methods. If your site is totally secure you can remove the [AllowAnonymous], which will then require authentication to even get the cached version. This prevents most Internet users from accessing it, so if its not public its a good idea to secure these like you did for Index.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [AllowAnonymous]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Task&lt;IActionResult&gt; Header()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return CacheUiView();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [AllowAnonymous]
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Task&lt;IActionResult&gt; Footer()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return CacheUiView();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>Change Index and any other views where you want to cache the rendered razor on the client side. Please note that these pages must be cacheable forever with no changes. Most of the uis in these applications will work fine with this setup, but if you were doing any server side rendering on a page you need to make sure it is data that would never actually change. For example loading the app name from the config is probably ok since it won&#39;t change, but rendering the user&#39;s name onto the page will, so you can&#39;t cache that or every page will be served from the cached version on the server side of the first user and same thing on the client side. Load that type of data from the database or continue to return View, which will render all the content into the loader page which is never cached.</p>
+<p>To use the cache ui change the action method to look like the following:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public Task&lt;IActionResult&gt; Index()
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return CacheUiView();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>Update any other controllers where you want to cache the ui the same way. You don&#39;t have to use this everywhere. If you wanted to keep admin pages out of the cache for example just keep returning View and the page will keep working. However, no permissions are enforced through the ui itself. it shouldn&#39;t really be a problem to cache these pages as well. It wouldn&#39;t be any different than a mobile app that included the same admin screens. You still can&#39;t access them unless the api gives you permission. The decision is up to the needs of your application and the individual page in that application.</p>
+<h2>Update Startup.cs</h2>
+<p>Add the following to the end of the constructor.</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (string.IsNullOrWhiteSpace(appConfig.CacheToken))
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; appConfig.CacheToken = this.GetType().Assembly.ComputeMd5();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>Change the line</p>
+<p><code>HalDocEndpointInfo = new HalDocEndpointInfo(typeof(EndpointDocController), this.GetType().Assembly.ComputeMd5()),</code></p>
+<p>to</p>
+<p><code>HalDocEndpointInfo = new HalDocEndpointInfo(typeof(EndpointDocController), appConfig.CacheToken),</code></p>
+<p>Somewhere on the AddMvc chain add</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddThreaxCacheUi(appConfig.CacheToken, o =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.CacheControlHeader = appConfig.CacheControlHeaderString;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+<p>Near the end of AddServices add</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddEntryPointRenderer&lt;EntryPointController&gt;(e =&gt; e.Get());
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddSingleton&lt;AppConfig&gt;(appConfig);</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (appConfig.EnableResponseCompression)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddResponseCompression();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p>In Configure replace</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; app.UseStaticFiles();</code></p>
+<p>with</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (appConfig.EnableResponseCompression)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; app.UseResponseCompression();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Setup static files
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; var staticFileOptions = new StaticFileOptions();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (appConfig.CacheStaticAssets) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticFileOptions.OnPrepareResponse = ctx =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //If the request is coming in with a v query it can be cached
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!String.IsNullOrWhiteSpace(ctx.Context.Request.Query[&quot;v&quot;]))
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ctx.Context.Response.Headers[&quot;Cache-Control&quot;] = appConfig.CacheControlHeaderString;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; app.UseStaticFiles(staticFileOptions);</code></p>
+<p>Finally add the following as the first route:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endpoints.MapControllerRoute(
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: &quot;cacheUi&quot;,
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pattern: &quot;{controller=Home}/{cacheToken}/{action=Index}/{*inPagePath}&quot;);</code></p>
+<p>This route enables the alternative path to each action method where the cached version is rendered vs the loader page.</p>
+<h2>Update ServiceClient.ts</h2>
+<p>Your app should be able to run in <strong>Update Client</strong> mode. Do this to update the ServiceClient.ts file to the latest code.</p>
+<h2>Update package.json</h2>
+<p>Update to at least the following versions.</p>
+<p><code>&quot;htmlrapier&quot;: &quot;^24.0.1&quot;,
+	<br />&quot;htmlrapier.accesstoken&quot;: &quot;^1.0.0&quot;,
+	<br />&quot;htmlrapier.appmenu&quot;: &quot;^2.0.1&quot;,
+	<br />&quot;htmlrapier.halcyon&quot;: &quot;^9.0.0&quot;,
+	<br />&quot;htmlrapier.relogin&quot;: &quot;^4.0.0&quot;,</code></p>
+<p>htmlrapier.accesstoken and htmlrapier.appmenu are new packages.</p>
+<p>Run <strong>install</strong> and <strong>import-tsconfig</strong> to update.</p>
+<h2>Update startup.ts</h2>
+<p>Change the line</p>
+<p><code>import * as AccessTokens from &#39;hr.accesstokens&#39;;</code></p>
+<p>to</p>
+<p><code>import * as tokenmanager from &#39;hr.accesstoken.manager&#39;;
+	<br />import * as tokenfetcher from &#39;hr.accesstoken.fetcher&#39;;</code></p>
+<p>Also, if it is not there add the hr.di package:</p>
+<p><code>import * as di from &#39;hr.di&#39;;</code></p>
+<p>Add the entry definition to the config interface. Just define it as <code>entry: any;</code> like the following:</p>
+<p><code>export interface Config {
+	<br />&nbsp;&nbsp;&nbsp; client: {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ServiceUrl: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PageBasePath: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BearerCookieName?: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AccessTokenPath?: string;
+	<br />&nbsp;&nbsp;&nbsp; };
+	<br />&nbsp;&nbsp;&nbsp; entry: any;
+	<br />}</code></p>
+<p>If the htmlrapier activation code is in the outer code, move the it into the if(builder === null) if statement in createBuilder().</p>
+<p>Move this code:</p>
+<p><code>//Activate htmlrapier
+	<br />hr.setup();
+	<br />datetime.setup();
+	<br />bootstrap.setup();
+	<br />bootstrap4form.setup();</code></p>
+<p>to above where you create the builder in the if statement.</p>
+<p><code>export function createBuilder() {
+	<br />&nbsp;&nbsp;&nbsp; if (builder === null) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Activate htmlrapier
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hr.setup();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; datetime.setup();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bootstrap.setup();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bootstrap4form.setup();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Create builder
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder = new controller.InjectedControllerBuilder();</code></p>
+<p>If you do not have this code, add it in the specified place, but this was part of the HtmlRapier 23 update, so it should be there.</p>
+<p>Change the access token fetcher, entry point setup section from:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Set up the access token fetcher
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const config = pageConfig.read&lt;Config&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(fetcher.Fetcher, s =&gt; createFetcher(config));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(client.EntryPointInjector, s =&gt; new client.EntryPointInjector(config.client.ServiceUrl, s.getRequiredService(fetcher.Fetcher)));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.MessagePoster, s =&gt; new safepost.MessagePoster(window.location.href));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.PostMessageValidator, s =&gt; new safepost.PostMessageValidator(window.location.href));</code></p>
+<p>to:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Set up the fetcher and entry point
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const config = pageConfig.read&lt;Config&gt;();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const entryPointData = config.entry || null;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(fetcher.Fetcher, s =&gt; createFetcher(s, config));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(client.EntryPointInjector, s =&gt; new client.EntryPointInjector(config.client.ServiceUrl, s.getRequiredService(fetcher.Fetcher), entryPointData));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.MessagePoster, s =&gt; new safepost.MessagePoster(window.location.href));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; builder.Services.tryAddShared(safepost.PostMessageValidator, s =&gt; new safepost.PostMessageValidator(window.location.href));
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tokenmanager.addServices(builder.Services, config.client.AccessTokenPath, config.client.BearerCookieName);</code></p>
+<p>Finally update createFetcher to look like the following:</p>
+<p><code>function createFetcher(scope: di.Scope, config: Config): fetcher.Fetcher {
+	<br />&nbsp;&nbsp;&nbsp; let fetcher = new WindowFetch.WindowFetch();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; if (config.client.AccessTokenPath) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const accessFetcher = new tokenfetcher.AccessTokenFetcher(
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; scope.getRequiredService(tokenmanager.TokenManager),
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new whitelist.Whitelist([config.client.ServiceUrl]),
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetcher);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fetcher = accessFetcher;
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; return fetcher;
+	<br />}</code></p>
+<p>dsfadsfasd</p>
