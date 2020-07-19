@@ -197,4 +197,75 @@
 	<br />&nbsp;&nbsp;&nbsp; }</code></p>
 <p><code>&nbsp;&nbsp;&nbsp; return fetcher;
 	<br />}</code></p>
-<p>dsfadsfasd</p>
+<h2>Update Relogin.cshtml</h2>
+<p>Update Views.Account/Relogin.cshtml to the following:</p>
+<p><code>@{
+	<br />&nbsp;&nbsp;&nbsp; ViewData[&quot;Title&quot;] = &quot;Logged In&quot;;
+	<br />&nbsp;&nbsp;&nbsp; Layout = &quot;_LayoutTop&quot;;
+	<br />}</code></p>
+<p><code>&lt;p&gt;Logged in, you can now close this window if it does not close automatically.&lt;/p&gt;</code></p>
+<h2>Update Relogin.ts</h2>
+<p>Update Views.Account/Relogin.ts to the following:</p>
+<p><code>import * as startup from &#39;clientlibs.startup&#39;;
+	<br />import * as loggedInPage from &#39;hr.relogin.LoggedInPage&#39;;</code></p>
+<p><code>const builder = startup.createBuilder();
+	<br />loggedInPage.addServices(builder.Services);
+	<br />const loggedIn = builder.createUnbound(loggedInPage.LoggedInPage);</code></p>
+<p><code>setTimeout(() =&gt; loggedIn.alertLoggedIn(), 250);</code></p>
+<p>This delay seems to fix the login page not always closing. Adjust it if needed, but 250 seems be a good compromise between speed and correctness.</p>
+<h2>Update AppStart.cshtml</h2>
+<p>Change Views/Home/AppStart.cshtml to the following:</p>
+<p><code>@{
+	<br />&nbsp;&nbsp;&nbsp; ViewData[&quot;Title&quot;] = &quot;Welcome&quot;;
+	<br />&nbsp;&nbsp;&nbsp; Layout = &quot;_LayoutTop&quot;;
+	<br />}
+	<br />@inject Threax.ProgressiveWebApp.DisplayConfig config;</code></p>
+<p><code>&lt;h1 class=&quot;text-center&quot;&gt;Welcome to @config.SiteName&lt;/h1&gt;
+	<br />&lt;relogin&gt;&lt;/relogin&gt;</code></p>
+<h2>Update AppStart.ts</h2>
+<p>Update Views/Home/AppStart.ts to the following:</p>
+<p><code>import * as client from &#39;clientlibs.ServiceClient&#39;;
+	<br />import * as controller from &#39;hr.controller&#39;;
+	<br />import * as startup from &#39;clientlibs.startup&#39;;
+	<br />import { Uri } from &#39;hr.uri&#39;;
+	<br />import * as loginPopup from &#39;hr.relogin.LoginPopup&#39;;</code></p>
+<p><code>//Written this way for injection, but not really used.
+	<br />class AppStart {
+	<br />&nbsp;&nbsp;&nbsp; public static get InjectorArgs(): controller.DiFunction&lt;any&gt;[] {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [client.EntryPointInjector, loginPopup.LoginPopup];
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; constructor(private entry: client.EntryPointInjector, private login: loginPopup.LoginPopup) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setup();
+	<br />&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; private async setup(): Promise&lt;void&gt; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Check for login
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const entry = await this.entry.load();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let loginResult: boolean = false;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!entry.canListValues()) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; loginResult = await this.login.showLogin();
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Redirect to main page, remove AppStart from url
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (loginResult) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const uri = new Uri(window.location.href);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let path = &quot;&quot;;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let i = 0;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let part: string;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const pathEnd = uri.getPathPart(--i) || uri.getPathPart(--i);
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (pathEnd !== null) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (pathEnd.toUpperCase() === &quot;APPSTART&quot;) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while ((part = uri.getPathPart(--i)) !== null) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path = &#39;/&#39; + part + path;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!path) {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path = &#39;/&#39;;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window.location.href = path;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br />&nbsp;&nbsp;&nbsp; }
+	<br />}</code></p>
+<p><code>const builder = startup.createBuilder();
+	<br />builder.Services.addTransient(AppStart, AppStart);
+	<br />builder.createUnbound(AppStart);</code></p>
+<p>Be sure to fix the function that is used to check the login back to the one you actually need to use. It should get highlighted for you.</p>
