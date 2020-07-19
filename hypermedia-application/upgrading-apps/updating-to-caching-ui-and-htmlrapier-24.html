@@ -36,6 +36,7 @@
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Default: false (no compression)
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool EnableResponseCompression { get; set; } = false;</code></p>
+<p>Run the program in <strong>Update Config Schema</strong> mode.</p>
 <h2>Update EndpointDocController.cs</h2>
 <p>Inject the AppConfig into the constructor and add a property.</p>
 <p><code>private readonly AppConfig appConfig;
@@ -53,7 +54,7 @@
 <p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public partial class HomeController : CacheUiController</code></p>
 <p>Add a constructor that takes an ICacheUiBuilder and passes it to the base class.</p>
 <p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public HomeController(ICacheUiBuilder builder)
-	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :base(builder)
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :base(builder)
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</code></p>
@@ -89,7 +90,7 @@
 <p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .AddThreaxCacheUi(appConfig.CacheToken, o =&gt;
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.CacheControlHeader = appConfig.CacheControlHeaderString;
-	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</code></p>
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; })</code></p>
 <p>Near the end of AddServices add</p>
 <p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddEntryPointRenderer&lt;EntryPointController&gt;(e =&gt; e.Get());
 	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; services.AddSingleton&lt;AppConfig&gt;(appConfig);</code></p>
@@ -349,9 +350,7 @@
 	<br />&lt;script type=&quot;text/javascript&quot; src=&quot;@renderData.ContentLink&quot;&gt;&lt;/script&gt;</code></p>
 <h2>Update _Layout.cshtml</h2>
 <p>Change Views/Shared/Layout.cshtml to the following:</p>
-<p><code>@using Threax.AspNetCore.AuthCore;
-	<br />@inject Threax.ProgressiveWebApp.DisplayConfig config;
-	<br />@{
+<p><code>@{
 	<br />&nbsp;&nbsp;&nbsp; Layout = &quot;_LayoutTop&quot;;
 	<br />}
 	<br />&lt;script type=&quot;text/javascript&quot; src=&quot;@Url.CacheUiActionLink(nameof(HomeController.Header), typeof(HomeController))&quot;&gt;&lt;/script&gt;
