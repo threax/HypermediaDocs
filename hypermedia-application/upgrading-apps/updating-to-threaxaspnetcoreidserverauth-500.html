@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creating PHP Clients from .Net Core Apps</title>
+    <title>Updating to Threax.AspNetCore.IdServerAuth 5.0.0</title>
     <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-custom.css?linkver=20200803040731" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/simple-sidebar.css?linkver=20200803040731" type="text/css">
 <link rel="stylesheet" href="/HypermediaDocs/lib/sidebar/css/sidemenu.css?linkver=20200803040731" type="text/css">
@@ -58,37 +58,27 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 pageContent">
-                        <h1>Creating PHP Clients from .Net Core Apps</h1>
-<p>Please do not take this as an endorsement of PHP. The fact that this architecture can be connected to PHP apps is a strength of its flexibility, not because PHP should ever be used.</p>
-<p>This page describes how to setup .Net Core generated clients to work with composer without publishing them publicly.</p>
-<h2>Create Library Repository</h2>
-<p>First create a new repository somewhere for your php client.</p>
-<p>Next clone the repo and add a file called <code>composer.json</code> like the following:</p>
-<p><code>{
-	<br>&nbsp;&nbsp;&nbsp; &quot;name&quot;: &quot;<strong>{YourApp}</strong>/client&quot;,
-	<br>&nbsp;&nbsp;&nbsp; &quot;description&quot;: &quot;<strong>{Description}</strong>&quot;,
-	<br>&nbsp;&nbsp;&nbsp; &quot;require&quot;: {
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;threax/halcyonclient&quot;: &quot;&gt;=0.0.0&quot;
-	<br>&nbsp;&nbsp;&nbsp; },
-	<br>&nbsp;&nbsp;&nbsp; &quot;autoload&quot;: {
-	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;classmap&quot;: [<strong>&quot;</strong>ServiceClient<strong>.</strong>php&quot;]
-	<br>&nbsp;&nbsp;&nbsp; }
-	<br>}</code></p>
-<p>Replace <strong>{YourApp}</strong> with a namespace for this app and <strong>{Description}</strong> with a description. The name should match the namespace provided in the Startup.cs file in your .Net Core Project, but the slashes go the other way.</p>
-<p>This establishes the name of the library along with specifying that the classes come out of the ServiceClient.php file.</p>
-<p>Next commit this and push it to your private repository.</p>
-<h2>Add Library Repository as Submodule to .Net Core App</h2>
-<p>Add the repository you just created as a submodule in your main project. Put it in a folder in the root called <code>PhpClient</code>.</p>
-<p>Open the .Net Core Solution in Visual Studio.</p>
-<p>Go to Project-&gt;Properties-&gt;launchsettings.json.</p>
-<p>Find the UpdateClient entry and add <code>\&quot;clientgen ..\\PhpClient\\ServiceClient.php\&quot;</code> to the <strong>commandLineArgs</strong> setting.</p>
-<p>Run your app in UpdateClient mode to generate the php client.</p>
-<p>Commit the PHP client submodule. Also go ahead and tag it with <code>v0.0.0</code> to test the initial revision. Push the tags and code to your repository.</p>
-<p>From here you should be able to use it in a php app as described in Connecting PHP Apps to .Net Core Apps.</p>
-<h2>Maintaining Library</h2>
-<p>When things change the .Net Core app regenerate the client and push it to your repository.</p>
-<p>Set a tag with vX.X.X where X.X.X is the version you want the library to have.</p>
-<p>This version can be used in consuming apps to specify which version of the library you want to use. This is all controlled by git tags.</p>
+                        <h1>Updating to Threax.AspNetCore.IdServerAuth 5.0.0</h1>
+<p>This update will remove the security from the Id Server Metadata. The security that was on there didn&#39;t really do anything. To hide this info disable the metadata after setting up the app. None of it is really all that secret anyway except maybe the client credentials client id and that has its secret to secure it anyway.</p>
+<p>How secure this info is really depends on your application. However, the security that was on here would still allow any logged in user to view the information. It was just hidden behind a series of steps. The new approach is better for understanding what this data really is.</p>
+<h2>Update Threax.AspNetCore.IdServerAuth</h2>
+<p>Update your id server auth to version 5.0.0</p>
+<p>&lt;PackageReference Include=&quot;Threax.AspNetCore.IdServerAuth&quot; Version=&quot;5.0.0&quot; GeneratePathProperty=&quot;true&quot; /&gt;</p>
+<h2>Fix Startup.cs</h2>
+<p>In Startup.cs erase the following lines from AddConventionalIdServerAuthentication. They will have compiler errors:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.ConfigureIdServerMetadataJwtOptions = jwtOpt =&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jwtOpt.Audience = &quot;Threax.IdServer&quot;;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</code></p>
+<h2>Update AppConfig.cs</h2>
+<p>Add the following property to AppConfig.cs</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Set this to true to enable the metadata for the id server. This can be disabled after
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// initial setup. Default: true
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool EnableIdServerMetadata { get; set; } = true;</code></p>
+<p>Run Update Config Schema to update the config schema.</p>
+<p>Once you do this the metadata endpoints will always show a value. You can disable this by setting <strong>EnableIdServerMetadata</strong> to false in your AppConfig section.</p>
                         <div class="footer"></div>
                     </div>
                 </div>
