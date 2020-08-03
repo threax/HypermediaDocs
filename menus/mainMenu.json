@@ -208,6 +208,10 @@
             {
               "name": "Updating to Caching UI and HtmlRapier 24",
               "link": "/hypermedia-application/upgrading-apps/updating-to-caching-ui-and-htmlrapier-24"
+            },
+            {
+              "name": "Updating to Threax.AspNetCore.IdServerAuth 5.0.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-threaxaspnetcoreidserverauth-500"
             }
           ]
         }

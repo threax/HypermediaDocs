@@ -1,0 +1,21 @@
+<h1>Updating to Threax.AspNetCore.IdServerAuth 5.0.0</h1>
+<p>This update will remove the security from the Id Server Metadata. The security that was on there didn&#39;t really do anything. To hide this info disable the metadata after setting up the app. None of it is really all that secret anyway except maybe the client credentials client id and that has its secret to secure it anyway.</p>
+<p>How secure this info is really depends on your application. However, the security that was on here would still allow any logged in user to view the information. It was just hidden behind a series of steps. The new approach is better for understanding what this data really is.</p>
+<h2>Update Threax.AspNetCore.IdServerAuth</h2>
+<p>Update your id server auth to version 5.0.0</p>
+<p>&lt;PackageReference Include=&quot;Threax.AspNetCore.IdServerAuth&quot; Version=&quot;5.0.0&quot; GeneratePathProperty=&quot;true&quot; /&gt;</p>
+<h2>Fix Startup.cs</h2>
+<p>In Startup.cs erase the following lines from AddConventionalIdServerAuthentication. They will have compiler errors:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o.ConfigureIdServerMetadataJwtOptions = jwtOpt =&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; jwtOpt.Audience = &quot;Threax.IdServer&quot;;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };</code></p>
+<h2>Update AppConfig.cs</h2>
+<p>Add the following property to AppConfig.cs</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// Set this to true to enable the metadata for the id server. This can be disabled after
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// initial setup. Default: true
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /// &lt;/summary&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public bool EnableIdServerMetadata { get; set; } = true;</code></p>
+<p>Run Update Config Schema to update the config schema.</p>
+<p>Once you do this the metadata endpoints will always show a value. You can disable this by setting <strong>EnableIdServerMetadata</strong> to false in your AppConfig section.</p>
