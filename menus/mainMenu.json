@@ -212,6 +212,10 @@
             {
               "name": "Updating to Threax.AspNetCore.IdServerAuth 5.0.0",
               "link": "/hypermedia-application/upgrading-apps/updating-to-threaxaspnetcoreidserverauth-500"
+            },
+            {
+              "name": "Updating for New Container Layout",
+              "link": "/hypermedia-application/upgrading-apps/updating-for-new-container-layout"
             }
           ]
         }
