@@ -1,0 +1,6 @@
+<h1>Mass Library Update for NetCoreApp3.1</h1>
+<p>This update will remove all the netstandard2.0 versions of the Asp.Net Core libraries. This will remove the annoying warning when building about things being loaded more than once. For the most part just update all the Threax libraries. They should go up one version. They are all updated, so I&#39;m not going to list them out.</p>
+<p>In addition to this also add a direct reference to your csproj for the following library:</p>
+<p><code>&lt;PackageReference Include=&quot;IdentityServer4.AccessTokenValidation&quot; Version=&quot;3.0.1&quot; /&gt;</code></p>
+<p>This will make sure the IdentityServer4.AccessTokenValidation package is kept up to date with the rest of the top level packages.</p>
+<p>There should be not breaking changes in the apps. But a huge number of older libraries should be uninstalled when you update.</p>

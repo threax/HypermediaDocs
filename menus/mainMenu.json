@@ -216,6 +216,10 @@
             {
               "name": "Updating for New Container Layout",
               "link": "/hypermedia-application/upgrading-apps/updating-for-new-container-layout"
+            },
+            {
+              "name": "Mass Library Update for NetCoreApp3.1",
+              "link": "/hypermedia-application/upgrading-apps/mass-library-update-for-netcoreapp31"
             }
           ]
         }
