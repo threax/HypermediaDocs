@@ -220,6 +220,10 @@
             {
               "name": "Mass Library Update for NetCoreApp3.1",
               "link": "/hypermedia-application/upgrading-apps/mass-library-update-for-netcoreapp31"
+            },
+            {
+              "name": "Updating to .Net 5.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-net-50"
             }
           ]
         }

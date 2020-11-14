@@ -1,0 +1,19 @@
+<h1>Updating to .Net 5.0</h1>
+<p>Updating to .Net 5.0 is the easiest so far since .Net Core came out.</p>
+<h3>Update CSProj</h3>
+<p>Change target framework to net5.0</p>
+<p><code>&lt;TargetFramework&gt;net5.0&lt;/TargetFramework&gt;</code></p>
+<h3>Update Nuget Packages</h3>
+<p>Update all Microsoft Nuget packages to 5.0 or higher.</p>
+<h3>Update Dockerfile</h3>
+<p>Update the runtime image</p>
+<p><code>FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base</code></p>
+<p>Update the build image</p>
+<p><code>FROM threax/build-dotnet:5.0 AS build</code></p>
+<p>Finally change the local packages cache. Find all the .net cache mount points and remove the 310. There is no real reason to specify a version number here. Look for lines with the following:</p>
+<p><code>mount=type=cache,target=/root/.nuget/packages,id=threax-build-dotnet-<strong>310-</strong>nuget dotnet</code></p>
+<p>and drop the bolded <strong>310-</strong></p>
+<p><code>mount=type=cache,target=/root/.nuget/packages,id=threax-build-dotnet-nuget dotnet</code></p>
+<p>make sure to leave the rest of the line alone.</p>
+<h3>Finished</h3>
+<p>This should complete the upgrade to .Net 5.0. This was by far the easiest .Net Core series update that has come out and was way more like older .Net Framework updates vs having to go rewrite a bunch of code. Here we didn&#39;t even have to touch Startup.cs. Hopefully this is the new normal.</p>
