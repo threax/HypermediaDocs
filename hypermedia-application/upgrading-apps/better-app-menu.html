@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Page Title</title>
+    <link rel="stylesheet" href="/HypermediaDocs/lib/bootstrap/dist/css/bootstrap-darkly.css?linkver=20210119023630" type="text/css">
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-dark" data-hr-run="edity.theme.layouts.default">
+        <button class="navbar-toggler" type="button" data-target="#sidebar" data-toggle="sidebar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand" href="/HypermediaDocs/">Threax Hypermedia Framework and Architecture</a>
+    </nav>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <div class="mainTreeMenu" data-hr-controller="treeMenu" data-hr-config-urlroot="/HypermediaDocs/" data-hr-config-menu="/HypermediaDocs/menus/mainMenu.json" data-hr-config-scrollelement="#sidebar-wrapper" data-hr-model-component="sidebarMenuComponent" data-hr-config-treemenu-version="4FA66F9D126AFC07B702ED478BF9E1CF73F7A245F99AFFE918467C157FEB3905">
+                <ul class="sidebarMenu" data-hr-model="childItems" data-hr-model-component="sidebarMenuComponent">
+                    <template data-hr-component="sidebarMenuComponent">
+                        <li class="folder">
+                            <div class="item" data-hr-on-click="toggleMenuItem" data-hr-toggle="current" data-hr-class-on="currentFolder"><span data-hr-toggle="children" class="glyphicon" data-hr-class-on="glyphicon-folder-open" data-hr-class-off="glyphicon-folder-close"></span> {{name}}</div>
+                            <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                        </li>
+                    </template>
+                    <template data-hr-variant="link">
+                        <li class="link">
+                            <a href="{{urlRoot}}{{link}}" target="{{target}}">
+                                <div class="mainBlock" data-hr-toggle="current" data-hr-class-on="currentLink">
+                                    {{name}}
+                                </div>
+                            </a>
+                        </li>
+                    </template>
+                    <template data-hr-variant="root">
+                        <div class="children" data-hr-model="children" data-hr-model-component="sidebarMenuComponent" data-hr-toggle="children" data-hr-class-on="expanded" data-hr-style-off="display:none;"></div>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12 pageContent">
+                        <h1>Better App Menu</h1>
+<p>This page describes an optional update to a more flexible version of the app menu.</p>
+<h2>Remove <span class="blob-code-inner blob-code-marker" data-code-marker="-"><span class="pl-s">htmlrapier.appmenu</span></span></h2>
+<p>Remove <span class="blob-code-inner blob-code-marker" data-code-marker="-"><span class="pl-s">htmlrapier.appmenu</span></span>&nbsp; from package.json.</p>
+<h2>Update Header.cshtml</h2>
+<p>Update this page to define all the links you need for the menu manually. If a link is optional add a toggle for it. The following example is from the template. Notice how the main menu items that are always available normal bootstrap menu links. There is also an admin menu that is a toggle along with the Users page, which is also a toggle.</p>
+<p><code>@inject Threax.ProgressiveWebApp.DisplayConfig config;
+	<br>&lt;nav class=&quot;navbar navbar-expand-lg navbar-dark bg-brand-app&quot; data-hr-controller=&quot;appMenu&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;div class=&quot;container&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a class=&quot;navbar-brand&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Index&quot;&gt;@config.SiteName&lt;/a&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;button class=&quot;navbar-toggler&quot; type=&quot;button&quot; data-toggle=&quot;collapse&quot; data-target=&quot;#navbarSupportedContent&quot; aria-controls=&quot;navbarSupportedContent&quot; aria-expanded=&quot;false&quot; aria-label=&quot;Toggle navigation&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;span class=&quot;navbar-toggler-icon&quot;&gt;&lt;/span&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/button&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div class=&quot;navbar-collapse collapse&quot; id=&quot;navbarSupportedContent&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ul class=&quot;navbar-nav mr-auto&quot; data-hr-view=&quot;menuItems&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Index&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item&quot;&gt;&lt;a class=&quot;nav-link&quot; asp-area=&quot;&quot; asp-controller=&quot;Home&quot; asp-action=&quot;Values&quot;&gt;Values&lt;/a&gt;&lt;/li&gt;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item dropdown startHidden&quot; data-hr-toggle=&quot;admin&quot; data-hr-class-on=&quot;d-block&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a href=&quot;#&quot; class=&quot;nav-link dropdown-toggle&quot; data-toggle=&quot;dropdown&quot; role=&quot;button&quot; aria-haspopup=&quot;true&quot; aria-expanded=&quot;false&quot; id=&quot;adminMenu&quot;&gt;Admin &lt;span class=&quot;caret&quot;&gt;&lt;/span&gt;&lt;/a&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div class=&quot;dropdown-menu&quot; aria-labelledby=&quot;adminMenu&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a class=&quot;dropdown-item startHidden&quot; data-hr-class-on=&quot;d-block&quot; data-hr-toggle=&quot;users&quot; asp-area=&quot;&quot; asp-controller=&quot;Admin&quot; asp-action=&quot;Users&quot;&gt;Users&lt;/a&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/li&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/ul&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ul class=&quot;navbar-nav startHidden&quot; data-hr-toggle=&quot;loggedInArea&quot; data-hr-class-on=&quot;d-block&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;li class=&quot;nav-item dropdown&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a href=&quot;#&quot; class=&quot;nav-link dropdown-toggle&quot; data-toggle=&quot;dropdown&quot; role=&quot;button&quot; aria-haspopup=&quot;true&quot; aria-expanded=&quot;false&quot; id=&quot;userMenu&quot; data-hr-view=&quot;userInfo&quot;&gt;{{userName}} &lt;span class=&quot;caret&quot;&gt;&lt;/span&gt;&lt;/a&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div class=&quot;dropdown-menu&quot; aria-labelledby=&quot;userMenu&quot;&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;a class=&quot;dropdown-item&quot; asp-area=&quot;&quot; asp-controller=&quot;Account&quot; asp-action=&quot;Logout&quot;&gt;Logout&lt;/a&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/li&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/ul&gt;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br>&nbsp;&nbsp;&nbsp; &lt;/div&gt;
+	<br>&lt;/nav&gt;</code></p>
+<h2>Update Header.ts</h2>
+<p>Update header.ts with the following code. Add any toggles needed for your menu and modify the setup function as needed to toggle them on and off depending on the user&#39;s permissions.</p>
+<p><code>import * as controller from &#39;hr.controller&#39;;
+	<br>import * as startup from &#39;clientlibs.startup&#39;;
+	<br>import * as client from &#39;clientlibs.ServiceClient&#39;;
+	<br>import * as tm from &#39;hr.accesstoken.manager&#39;;
+	<br>import * as loginPopup from &#39;hr.relogin.LoginPopup&#39;;
+	<br>import * as safepost from &#39;hr.safepostmessage&#39;;</code></p>
+<p><code>const AccessTokenClaim = &quot;http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name&quot;;</code></p>
+<p><code>class AppMenuController {
+	<br>&nbsp;&nbsp;&nbsp; public static get InjectorArgs(): controller.DiFunction&lt;any&gt;[] {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [controller.BindingCollection, client.EntryPointInjector, tm.TokenManager];
+	<br>&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; private userInfoView: controller.IView&lt;any&gt;;
+	<br>&nbsp;&nbsp;&nbsp; private loggedInAreaToggle: controller.OnOffToggle;
+	<br>&nbsp;&nbsp;&nbsp; private adminToggle: controller.OnOffToggle;
+	<br>&nbsp;&nbsp;&nbsp; private users: controller.OnOffToggle;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; constructor(bindings: controller.BindingCollection,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private entryPointInjector: client.EntryPointInjector,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private tokenManger: tm.TokenManager,
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private messageValidator: safepost.PostMessageValidator) {</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.userInfoView = bindings.getView(&quot;userInfo&quot;);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.loggedInAreaToggle = bindings.getToggle(&quot;loggedInArea&quot;);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.adminToggle = bindings.getToggle(&quot;admin&quot;);
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.users = bindings.getToggle(&quot;users&quot;);</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Listen for relogin events
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; window.addEventListener(&quot;message&quot;, e =&gt; { this.handleMessage(e); });</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setup();
+	<br>&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; public async setup(): Promise&lt;void&gt; {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const entry = await this.entryPointInjector.load();</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let accessToken = await this.tokenManger.getAccessToken();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (accessToken) {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.userInfoView.setData({
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; userName: accessToken[AccessTokenClaim]
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.loggedInAreaToggle.mode = accessToken !== null;</code></p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; let showAdmin = false;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; showAdmin = this.users.mode = entry.canListUsers() || showAdmin;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.adminToggle.mode = showAdmin;
+	<br>&nbsp;&nbsp;&nbsp; }</code></p>
+<p><code>&nbsp;&nbsp;&nbsp; private handleMessage(e: MessageEvent): void {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.messageValidator.isValid(e)) {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; const message: loginPopup.ILoginMessage = e.data;
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (message.type === loginPopup.MessageType &amp;&amp; message.success) {
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setup();
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+	<br>&nbsp;&nbsp;&nbsp; }
+	<br>}</code></p>
+<p><code>const builder = startup.createBuilder();
+	<br>builder.Services.addShared(AppMenuController, AppMenuController);
+	<br>builder.create(&quot;appMenu&quot;, AppMenuController);</code></p>
+<p>Thats everything. This allows much more flexibility over the menu than htmlrapier.appmenu did. If you need anything else custom for your menu add it to this controller.</p>
+                        <div class="footer"></div>
+                    </div>
+                </div>
+                <div class="footer-padding"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/HypermediaDocs/lib/tslib.js?linkver=20210119023630"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/jquery/dist/jquery.min.js?linkver=20210119023630"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/popper.js/dist/popper.min.js?linkver=20210119023630"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/bootstrap/dist/js/bootstrap.min.js?linkver=20210119023630"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/tsbin.prod.js?linkver=20210119023630"></script>
+<script type="text/javascript" src="/HypermediaDocs/lib/hr-run.js?linkver=20210119023630"></script>
+
+</body>
+
+</html>
