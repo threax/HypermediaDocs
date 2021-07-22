@@ -1,6 +1,6 @@
 <h1>Updating to HtmlRapier 25</h1>
 <p>The latest HtmlRapier version drops the custom namespaces like <code>hr.controller</code> in favor of using the paths <code>htmlrapier/src/controller</code>. This works better with intellisense and will help prepare for using es6 modules in the future.</p>
-<p>The update is breaking, but the fix is mostly changing paths around. Usually just replace hr with htmlrapier and add /src/ before whatever was imported. This should update the path. There are a couple more changes.</p>
+<p>The update is breaking, but the fix is mostly changing paths around. To update do the following steps.</p>
 <h2>Nuget Packages</h2>
 <p>Update the following packages to at least the given versions:</p>
 <p><span class="padding-right-8 repos-line-content removed" role="cell"><span>Threax.AspNetCore.Halcyon.ClientGen.Tools</span></span>&nbsp; - 7.0.0
@@ -26,9 +26,17 @@
 <p>to</p>
 <p><code><span class="padding-right-8 repos-line-content added" role="cell"><span>src=&quot;~/lib/</span><span class="added-content" data-offset="135">jsns/runattributes</span><span>.js&quot;</span></span></code></p>
 <p>The runner will still use the data-hr-run attributes, so no changes are needed.</p>
+<h2>Update tsimport.json</h2>
+<p>Remove the paths section from the tsimport.json file in the project that defines the <code>clientlibs.</code> namespace.</p>
+<p>Remove the following code:</p>
+<p><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;clientlibs.*&quot;: [
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;Client/Libs/*&quot;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</code></p>
 <h2>Update tsconfig.json</h2>
 <p>Until you update the tsconfig your app should keep building since it will have all the old config still. Once this step is done you will have to fix your compilation.</p>
 <p>In the AppTemplate folder run the following commands:</p>
 <p><code>npm install
 	<br />npm run import-tsconfig</code></p>
 <p>Or use the Task Runner Explorer in Visual Studio.</p>
+<h2>Fix Compiler Errors</h2>
+<p>You will now have tons of compiler errors in your project. These can mostly be fixed by replacing <code>hr</code> with <code>htmlrapier</code> and adding <code>/src/</code> before whatever was imported. For <code>clientlibs.</code> change it to <code>Client/Libs</code>. This should update the paths.</p>
