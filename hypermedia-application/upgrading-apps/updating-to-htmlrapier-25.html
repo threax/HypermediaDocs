@@ -1,0 +1,33 @@
+<h1>Updating to HtmlRapier 25</h1>
+<p>The latest HtmlRapier version drops the custom namespaces like <code>hr.controller</code> in favor of using the paths <code>htmlrapier/src/controller</code>. This works better with intellisense and will help prepare for using es6 modules in the future.</p>
+<p>The update is breaking, but the fix is mostly changing paths around. Usually just replace hr with htmlrapier and add /src/ before whatever was imported. This should update the path. There are a couple more changes.</p>
+<h2>Nuget Packages</h2>
+<p>Update the following packages to at least the given versions:</p>
+<p><span class="padding-right-8 repos-line-content removed" role="cell"><span>Threax.AspNetCore.Halcyon.ClientGen.Tools</span></span>&nbsp; - 7.0.0
+	<br /><span class="padding-right-8 repos-line-content removed" role="cell"><span>Threax.AspNetCore.Halcyon.ClientGen -&nbsp;</span></span> <span class="padding-right-8 repos-line-content added" role="cell"><span class="added-content" data-offset="77">14</span><span>.</span><span class="added-content" data-offset="80">0</span><span>.</span><span class="added-content" data-offset="82">0</span></span>
+	<br /><span class="padding-right-8 repos-line-content added" role="cell"><span>Threax.ModelGen -&nbsp;</span></span> <span class="padding-right-8 repos-line-content added" role="cell"><span class="added-content" data-offset="57">16</span><span>.0.</span><span class="added-content" data-offset="62">0</span></span></p>
+<p><span class="padding-right-8 repos-line-content added" role="cell"><span class="added-content" data-offset="62">Npm Packages</span></span></p>
+<p><span class="padding-right-8 repos-line-content added" role="cell"><span class="added-content" data-offset="62">Update to at least the following versions:</span></span></p>
+<p>
+	<br />htmlrapier - 25.0.0
+	<br />htmlrapier.accesstoken - 2.0.0
+	<br />htmlrapier.bootstrap - 9.0.0
+	<br />htmlrapier.bootstrap.datetime - 5.0.0
+	<br />htmlrapier.form.bootstrap4 - 4.0.0
+	<br />htmlrapier.halcyon - 10.0.0
+	<br />htmlrapier.halcyon-explorer - 9.0.0
+	<br />htmlrapier.relogin - 5.0.0
+	<br />htmlrapier.roleclient - 5.0.0
+	<br />htmlrapier.widgets - 16.0.0
+	<br />jsns - 5.1.0</p>
+<h2>Runner Updates</h2>
+<p>The attribute runner was moved out of HtmlRapier into jsns, since the concept won&#39;t be needed in es6. This separates jsns from HtmlRapier completely. The runner will be copied into wwwroot, but you will need to update the path in _LayoutTop.cshtml from</p>
+<p><code><span class="padding-right-8 repos-line-content removed" role="cell"><span>src=&quot;~/lib/</span><span class="removed-content" data-offset="135">hr-run</span><span>.js&quot;</span></span></code></p>
+<p>to</p>
+<p><code><span class="padding-right-8 repos-line-content added" role="cell"><span>src=&quot;~/lib/</span><span class="added-content" data-offset="135">jsns/runattributes</span><span>.js&quot;</span></span></code></p>
+<p>The runner will still use the data-hr-run attributes, so no changes are needed.</p>
+<h2>Update tsconfig.json</h2>
+<p>In the AppTemplate folder run the following commands:</p>
+<p><code>npm install
+	<br />npm run import-tsconfig</code></p>
+<p>Or use the Task Runner Explorer in Visual Studio.</p>

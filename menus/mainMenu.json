@@ -228,6 +228,10 @@
             {
               "name": "Better App Menu",
               "link": "/hypermedia-application/upgrading-apps/better-app-menu"
+            },
+            {
+              "name": "Updating to HtmlRapier 25",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-25"
             }
           ]
         }
