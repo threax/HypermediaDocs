@@ -232,6 +232,10 @@
             {
               "name": "Updating to HtmlRapier 25",
               "link": "/hypermedia-application/upgrading-apps/updating-to-htmlrapier-25"
+            },
+            {
+              "name": "Updating to Net 6.0",
+              "link": "/hypermedia-application/upgrading-apps/updating-to-net-60"
             }
           ]
         }

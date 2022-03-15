@@ -1,0 +1,65 @@
+<h1>Updating to Net 6.0</h1>
+<p>Updating to Net 6.0 is mostly just updating nuget packages, but a couple of things have been removed.</p>
+<h2>Threax.SqLite</h2>
+<p>The upgrade function to update databases to the netcore3.1 guids has been removed.</p>
+<h2>Update .net version</h2>
+<p>Update all</p>
+<p>&nbsp; <code>&lt;TargetFramework&gt;net5.0&lt;/TargetFramework&gt;</code></p>
+<p>to</p>
+<p>&nbsp; <code>&lt;TargetFramework&gt;net6.0&lt;/TargetFramework&gt;</code></p>
+<h2>Typescript Compilation</h2>
+<p>Visual Studio 2022 has a new typescript compilation method. Allow it to be enabled when prompted then add.</p>
+<p>&nbsp;&nbsp;&nbsp; <code>&lt;TypeScriptCompileBlocked&gt;true&lt;/TypeScriptCompileBlocked&gt;</code></p>
+<p>to the csproj. For now there seems to be an issue with how this compiles vs how htmlrapier is setup.</p>
+<h2>Version Updates</h2>
+<p>This is the app template&#39;s versions of everything. Just go to this or higher.</p>
+<p><code>&lt;ItemGroup&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc.NewtonsoftJson&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Sqlite&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.EntityFrameworkCore.Tools&quot; Version=&quot;6.0.3&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PrivateAssets&gt;all&lt;/PrivateAssets&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IncludeAssets&gt;runtime; build; native; contentfiles; analyzers; buildtransitive&lt;/IncludeAssets&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/PackageReference&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Identity.EntityFrameworkCore&quot; Version=&quot;6.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;AutoMapper&quot; Version=&quot;11.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Microsoft.TypeScript.MSBuild&quot; Version=&quot;4.6.2&quot;&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PrivateAssets&gt;all&lt;/PrivateAssets&gt;
+	<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IncludeAssets&gt;runtime; build; native; contentfiles; analyzers; buildtransitive&lt;/IncludeAssets&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;/PackageReference&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.CSP&quot; Version=&quot;1.4.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Models&quot; Version=&quot;8.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Mvc.CacheUi&quot; Version=&quot;3.0.2&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Tracking&quot; Version=&quot;2.0.4&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Validators&quot; Version=&quot;2.0.2&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.IdServerAuth&quot; Version=&quot;10.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UrlFix&quot; Version=&quot;1.1.5&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserBuilder&quot; Version=&quot;6.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserBuilder.Entities&quot; Version=&quot;7.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserBuilder.Entities.Mvc&quot; Version=&quot;8.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.BuiltInTools&quot; Version=&quot;6.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.CorsManager&quot; Version=&quot;3.1.2&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.ExceptionFilter&quot; Version=&quot;6.0.2&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client&quot; Version=&quot;11.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Client.OpenIdConnect&quot; Version=&quot;3.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.ClientGen.Tools&quot; Version=&quot;8.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.Ext&quot; Version=&quot;15.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.Halcyon.ClientGen&quot; Version=&quot;15.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.Extensions.Configuration.SchemaBinder&quot; Version=&quot;2.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;HtmlRapier.TagHelpers&quot; Version=&quot;8.2.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.ReflectedServices&quot; Version=&quot;1.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.Sqlite.Ext&quot; Version=&quot;3.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.JwtCookieAuth&quot; Version=&quot;8.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserLookup&quot; Version=&quot;3.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserLookup.Mvc&quot; Version=&quot;5.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.AspNetCore.UserLookup.IdServer&quot; Version=&quot;4.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.IdServer.Client&quot; Version=&quot;3.0.3&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.ProgressiveWebApp&quot; Version=&quot;1.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityModel&quot; Version=&quot;6.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;IdentityServer4.AccessTokenValidation&quot; Version=&quot;3.0.1&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.ModelGen&quot; Version=&quot;17.0.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.DeployConfig&quot; Version=&quot;1.1.0&quot; /&gt;
+	<br />&nbsp;&nbsp;&nbsp; &lt;PackageReference Include=&quot;Threax.DockerBuildConfig&quot; Version=&quot;1.1.0&quot; /&gt;
+	<br />&nbsp; &lt;/ItemGroup&gt;</code></p>
